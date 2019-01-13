@@ -358,6 +358,9 @@ exec --no-startup-id ~/.fehbg --restore
 # start fcitx
 exec --no-startup-id fcitx -d -r
 
+# disable focus followint mouse
+focus_follows_mouse off
+
 # custom execs
 bindsym $mod+F1 exec firefox
 bindsym $mod+F2 exec telegram-desktop
@@ -378,10 +381,9 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute s
 bindsym XF86MonBrightnessDown exec xrandr --output eDP-1 --brightness 0.5
 bindsym XF86MonBrightnessUp exec xrandr --output eDP-1 --brightness 1
 
-# scrot binds
-bindsym --release $mod+Print exec scrot '~/screenshots/screen-%Y-%m-%d-%T.png'
-bindsym --release $mod+Shift+Print exec scrot -s '~/screenshots/screen-%Y-%m-%d-%T.png'
-bindsym --release $mod+Control_L+Print exec scrot -u '~/screenshots/screen-%Y-%m-%d-%T.png'
+# escrotum binds
+bindsym --release Print exec --no-startup-id escrotum "~/screenshots/screen-%Y-%m-%d-%T.png"
+bindsym --release Shift+Print exec --no-startup-id escrotum -s "~/screenshots/screen-%Y-%m-%d-%T.png"
 
 # i3lock bind
 #bindsym $mod+Escape exec i3lock --color "$bar-color"
