@@ -1,6 +1,6 @@
 set nocompatible
 
-filetype off
+filetype on
 
 syntax on
 
@@ -16,6 +16,8 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set showcmd
+
+autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
 
 " pathogen
 execute pathogen#infect()

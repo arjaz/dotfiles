@@ -352,11 +352,16 @@ for_window [class="^.*"] border pixel 2
 # set smart borders on
 smart_borders no_gaps
 
+# start nm-applet
+exec --no-startup-id nm-applet --no-agent
+
 # set background
 exec --no-startup-id ~/.fehbg --restore
 
 # start fcitx
 exec --no-startup-id fcitx -d -r
+
+exec --no-startup-id blueman-applet
 
 # disable focus followint mouse
 focus_follows_mouse off

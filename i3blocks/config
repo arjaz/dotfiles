@@ -28,6 +28,11 @@ command=/usr/lib/i3blocks/$BLOCK_NAME
 separator_block_width=15
 markup=none
 
+# Self-written ASM
+[hello]
+interval=once
+command=~/programming/assembler/test/test
+
 # Volume indicator
 #
 # The first parameter sets the step (and units to display)
