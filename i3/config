@@ -96,6 +96,7 @@ bindsym $mod+a focus parent
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
+# https://fontawesome.com/icons?d=gallery
 set $ws1 "1: Browser "
 set $ws2 "2: Terminals "
 set $ws3 "3: Work "
@@ -103,7 +104,7 @@ set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
-set $ws8 "8"
+set $ws8 "8: Games "
 set $ws9 "9: Messenger "
 set $ws10 "10: Player "
 
@@ -133,7 +134,7 @@ bindsym $mod+Shift+0 move container to workspace $ws10
 
 # layout
 assign [class="Rhythmbox"] $ws10
-assign [class="Firefox"] $ws1
+# assign [class="Firefox"] $ws1
 assign [class="TelegramDesktop"] $ws9
 
 # reload the configuration file
@@ -210,7 +211,7 @@ bar {
 }
 
 # start rofi (a program launcher)
-bindsym $mod+d exec ~/.rofi.sh 
+bindsym $mod+d exec ~/.rofi.sh
 # recommended gaps setting
 
 set $mode_gaps Gaps: (o)uter, (i)nner, (h)orizontal, (v)ertical, (t)op, (r)ight, (b)ottom, (l)eft

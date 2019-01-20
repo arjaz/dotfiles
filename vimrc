@@ -11,6 +11,10 @@ Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
 Plug 'scrooloose/nerdtree'
 Plug 'joshdick/onedark.vim'
+Plug 'Raimondi/delimitMate'
+Plug 'sirver/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --ts-completer' }
 
 call plug#end()
 
@@ -51,16 +55,35 @@ call plug#end()
     set colorcolumn=110
     highlight ColorColumn ctermbg=darkgray
 
+" Autoclose brackets
+" ctrl + v to insert one bracket
+" don't really like it
+"    inoremap " ""<left>
+"    inoremap ' ''<left>
+"    inoremap ( ()<left>
+"    inoremap [ []<left>
+"    inoremap { {}<left>
+"    inoremap {<CR> {<CR>}<ESC>O
+"    inoremap {;<CR> {<CR>};<ESC>O
+"    inoremap < <><left>
+
 " Spit navigation
     map <C-h> <C-w>h
     map <C-j> <C-w>j
     map <C-k> <C-w>k
     map <C-l> <C-w>l
 
+" Tabs mapping
+    map <Tab> :tabnext<CR>
+    map <S-Tab> :tabnew<CR>;
+
+" Close tab mapping
+    map q :q<CR>
+
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
 
-" Make map
+" Make mapping
     nnoremap <F4> :make!<CR>
 
 " vim-easy-align plugin
@@ -91,3 +114,9 @@ call plug#end()
 
 " onedark plugin
     let g:onedark_terminal_italics=1
+
+" ycm plugin
+    let g:ycm_confirm_extra_conf = 0
+
+" ultisnips plugin
+    let g:UltiSnipsExpandTrigger="<C-X>"

@@ -29,9 +29,10 @@ separator_block_width=15
 markup=none
 
 # Self-written ASM
-[hello]
-interval=once
-command=~/programming/assembler/test/test
+#
+# [hello]
+# interval=once
+# command=~/programming/asm/test/test
 
 # Volume indicator
 #
@@ -49,16 +50,16 @@ signal=10
 # Memory usage
 #
 # The type defaults to "mem" if the instance is not specified.
-#[memory]
-#label=MEM
-#separator=false
-#interval=30
-#
-#[memory]
-#label=SWAP
-#instance=swap
-#separator=false
-#interval=30
+[memory]
+label=MEM
+separator=false
+interval=5
+
+[memory]
+label=SWAP
+instance=swap
+separator=false
+interval=5
 
 # Disk usage
 #
