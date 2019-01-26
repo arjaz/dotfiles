@@ -10,11 +10,13 @@ Plug 'junegunn/fzf.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
 Plug 'scrooloose/nerdtree'
+Plug 'xuyuanp/nerdtree-git-plugin'
 Plug 'joshdick/onedark.vim'
 Plug 'Raimondi/delimitMate'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --ts-completer' }
+Plug 'easymotion/vim-easymotion'
 
 call plug#end()
 
@@ -55,18 +57,6 @@ call plug#end()
     set colorcolumn=110
     highlight ColorColumn ctermbg=darkgray
 
-" Autoclose brackets
-" ctrl + v to insert one bracket
-" don't really like it
-"    inoremap " ""<left>
-"    inoremap ' ''<left>
-"    inoremap ( ()<left>
-"    inoremap [ []<left>
-"    inoremap { {}<left>
-"    inoremap {<CR> {<CR>}<ESC>O
-"    inoremap {;<CR> {<CR>};<ESC>O
-"    inoremap < <><left>
-
 " Spit navigation
     map <C-h> <C-w>h
     map <C-j> <C-w>j
@@ -74,17 +64,23 @@ call plug#end()
     map <C-l> <C-w>l
 
 " Tabs mapping
-    map <Tab> :tabnext<CR>
-    map <S-Tab> :tabnew<CR>;
+    nmap <Tab> :tabnext<CR>
+    nmap <S-Tab> :tabprevious<CR>
+    " That is <Alt> + <Tab>
+    nmap <Esc><Tab> :tabnew<CR>;
 
-" Close tab mapping
-    map q :q<CR>
+" Save and close tab mapping
+    nmap <F9> :w<CR>
+    nmap q :q<CR>
 
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
 
 " Make mapping
     nnoremap <F4> :make!<CR>
+
+" leader mapping
+    map <leader> ,
 
 " vim-easy-align plugin
     " Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -120,3 +116,11 @@ call plug#end()
 
 " ultisnips plugin
     let g:UltiSnipsExpandTrigger="<C-X>"
+
+" vim-easymotion
+    let g:EasyMotion_do_mapping = 0
+    let g:EasyMotion_smartcase = 1
+
+    nmap s <Plug>(easymotion-overwin-f)
+    map <Leader>j <Plug>(easymotion-j)
+    map <Leader>k <Plug>(easymotion-k)
