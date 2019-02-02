@@ -97,16 +97,16 @@ bindsym $mod+a focus parent
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 # https://fontawesome.com/icons?d=gallery
-set $ws1 "1: Browser "
-set $ws2 "2: Terminals "
-set $ws3 "3: Work "
-set $ws4 "4: VM"
+set $ws1 "1:Browser "
+set $ws2 "2:Terminals "
+set $ws3 "3:Work "
+set $ws4 "4:"
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
-set $ws8 "8: Games "
-set $ws9 "9: Messenger "
-set $ws10 "10: Player "
+set $ws8 "8:Games "
+set $ws9 "9:Messenger "
+set $ws10 "10:Player "
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
