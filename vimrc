@@ -82,6 +82,10 @@ call plug#end()
 " Make mapping
     nnoremap <F4> :make!<CR>
 
+" Plus buffer mapping
+    vnoremap <C-c> "+y
+    map <C-v> "+P
+
 " leader mapping
     map <leader> ,
 
