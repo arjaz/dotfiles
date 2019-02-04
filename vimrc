@@ -42,6 +42,9 @@ call plug#end()
 
     autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
 
+    " system clipboard access
+    set clipboard=unnamedplus
+
 " Set colorscheme
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     syntax enable
@@ -67,7 +70,7 @@ call plug#end()
     nmap <Tab> :tabnext<CR>
     nmap <S-Tab> :tabprevious<CR>
     " That is <Alt> + <Tab>
-    nmap <Esc><Tab> :tabnew<CR>;
+    nmap <M-Tab> :tabnew<CR>;
 
 " Save and close tab mapping
     nmap <F9> :w<CR>

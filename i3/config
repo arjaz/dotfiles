@@ -100,7 +100,7 @@ bindsym $mod+a focus parent
 set $ws1 "1:Browser "
 set $ws2 "2:Terminals "
 set $ws3 "3:Work "
-set $ws4 "4:"
+set $ws4 "4:Virtual Box "
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
@@ -309,10 +309,9 @@ bindsym XF86MonBrightnessUp exec xrandr --output eDP-1 --brightness 1
 
 # escrotum binds
 bindsym --release Print exec --no-startup-id escrotum "~/screenshots/screen-%Y-%m-%d-%T.png"
-bindsym --release Shift+Print exec --no-startup-id escrotum -s "~/screenshots/screen-%Y-%m-%d-%T.png"
+bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/screenshots/screen-%Y-%m-%d-%T.png"
 
 # i3lock bind
-#bindsym $mod+Escape exec i3lock --color "$bar-color"
 bindsym $mod+Escape exec i3lock -fo
 
 # thunar bind
