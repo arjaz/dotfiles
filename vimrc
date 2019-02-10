@@ -84,7 +84,7 @@ call plug#end()
 
 " Plus buffer mapping
     vnoremap <C-c> "+y
-    map <C-v> "+P
+    " map <C-v> "+P
 
 " leader mapping
     map <leader> ,

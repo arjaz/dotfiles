@@ -70,6 +70,7 @@ interval=1
 [disk]
 #label=HOME
 label=
+command=df -h | awk '/home$/ {print $4}'
 #instance=/mnt/data
 interval=30
 

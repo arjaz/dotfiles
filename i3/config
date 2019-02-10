@@ -269,6 +269,7 @@ smart_gaps on
 
 # disable window titlebars
 for_window [class="^.*"] border pixel 2
+# default_border pixel 2
 
 # set smart borders on
 smart_borders no_gaps
@@ -319,6 +320,12 @@ bindsym $mod+o exec thunar
 
 # ranger bind
 bindsym $mod+Shift+o exec ranger
+
+# ncmpcpp bind
+bindsym $mod+m exec konsole -e ncmpcpp
+
+# cava bind
+bindsym $mod+Shift+m exec konsole -e cava
 
 # mpc bindings
 bindsym XF86AudioPrev exec mpc prev
