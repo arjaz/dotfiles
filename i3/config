@@ -133,8 +133,6 @@ bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
 # layout
-assign [class="Rhythmbox"] $ws10
-# assign [class="Firefox"] $ws1
 assign [class="TelegramDesktop"] $ws9
 
 # reload the configuration file
@@ -210,10 +208,14 @@ bar {
         }
 }
 
+# start dmenu
+bindsym $mod+d exec dmenu_run -p Run: -fn Roboto -nb "$bar-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
 # start rofi (a program launcher)
-bindsym $mod+d exec ~/.rofi.sh
+# bindsym $mod+d exec ~/.rofi.sh
 
 # recommended gaps setting
+
+set $gap_step 2
 
 set $mode_gaps Gaps: (o)uter, (i)nner
 set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
@@ -228,24 +230,24 @@ mode "$mode_gaps" {
 }
 
 mode "$mode_gaps_outer" {
-        bindsym plus  gaps outer current plus 5
-        bindsym minus gaps outer current minus 5
+        bindsym plus  gaps outer current plus $gap_step
+        bindsym minus gaps outer current minus $gap_step
         bindsym 0     gaps outer current set 0
 
-        bindsym Shift+plus  gaps outer all plus 5
-        bindsym Shift+minus gaps outer all minus 5
+        bindsym Shift+plus  gaps outer all plus $gap_step
+        bindsym Shift+minus gaps outer all minus $gap_step
         bindsym Shift+0     gaps outer all set 0
 
         bindsym Return mode "$mode_gaps"
         bindsym Escape mode "default"
 }
 mode "$mode_gaps_inner" {
-        bindsym plus  gaps inner current plus 5
-        bindsym minus gaps inner current minus 5
+        bindsym plus  gaps inner current plus $gap_step
+        bindsym minus gaps inner current minus $gap_step
         bindsym 0     gaps inner current set 0
 
-        bindsym Shift+plus  gaps inner all plus 5
-        bindsym Shift+minus gaps inner all minus 5
+        bindsym Shift+plus  gaps inner all plus $gap_step
+        bindsym Shift+minus gaps inner all minus $gap_step
         bindsym Shift+0     gaps inner all set 0
 
         bindsym Return mode "$mode_gaps"
@@ -253,7 +255,7 @@ mode "$mode_gaps_inner" {
 }
 
 # basic gaps
-set $bgaps 10
+set $bgaps 4
 
 # set basic gaps
 gaps inner $bgaps
@@ -331,15 +333,6 @@ bindsym $mod+Shift+m exec konsole -e cava
 bindsym XF86AudioPrev exec mpc prev
 bindsym XF86AudioNext exec mpc next
 bindsym XF86AudioPlay exec mpc toggle
-
-# load firefox
-exec firefox
-
-# load music player
-# exec rhythmbox
-
-# load telegram
-# exec telegram-desktop
 
 # load compton
 exec compton -f

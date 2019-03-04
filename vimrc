@@ -17,6 +17,9 @@ Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --ts-completer' }
 Plug 'easymotion/vim-easymotion'
+Plug 'turbio/bracey.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
 
 call plug#end()
 
@@ -129,3 +132,6 @@ call plug#end()
     nmap s <Plug>(easymotion-overwin-f)
     map <Leader>j <Plug>(easymotion-j)
     map <Leader>k <Plug>(easymotion-k)
+
+" vim-jsx
+    let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
