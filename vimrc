@@ -11,7 +11,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
 Plug 'scrooloose/nerdtree'
 Plug 'xuyuanp/nerdtree-git-plugin'
-Plug 'joshdick/onedark.vim'
+Plug 'morhetz/gruvbox'
 Plug 'Raimondi/delimitMate'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
@@ -20,6 +20,10 @@ Plug 'easymotion/vim-easymotion'
 Plug 'turbio/bracey.vim'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
+Plug 'Yggdroot/indentLine'
+Plug 'airblade/vim-gitgutter'
+Plug 'kien/rainbow_parentheses.vim'
+Plug 'romainl/vim-cool'
 
 call plug#end()
 
@@ -36,6 +40,7 @@ call plug#end()
     set smartindent
     set wrap
     set nu rnu
+    set cursorline
 
     " tabs set to 4 spaces and 2 spaces with html
     set tabstop=4
@@ -51,7 +56,8 @@ call plug#end()
 " Set colorscheme
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     syntax enable
-    colorscheme onedark
+    let g:gruvbox_italic=1
+    colorscheme gruvbox
 
 " Autocompletion
     set wildmode=longest,list,full
@@ -61,7 +67,6 @@ call plug#end()
 
 " Highlighy last column
     set colorcolumn=110
-    highlight ColorColumn ctermbg=darkgray
 
 " Spit navigation
     map <C-h> <C-w>h
@@ -111,13 +116,10 @@ call plug#end()
 " lightline plugin
     set laststatus=2
     set noshowmode
-    let g:lightline = { 'colorscheme': 'onedark' }
+    let g:lightline = { 'colorscheme': 'gruvbox' }
 
 " nerdtree plugin
     map <C-o> :NERDTreeToggle<CR>
-
-" onedark plugin
-    let g:onedark_terminal_italics=1
 
 " ycm plugin
     let g:ycm_confirm_extra_conf = 0
@@ -135,3 +137,12 @@ call plug#end()
 
 " vim-jsx
     let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
+
+" indentLine
+    let g:indentLine_char = '▏'
+
+" rainbow_parentheses
+    au VimEnter * RainbowParenthesesToggle
+    au Syntax * RainbowParenthesesLoadRound
+    au Syntax * RainbowParenthesesLoadSquare
+    au Syntax * RainbowParenthesesLoadBraces
