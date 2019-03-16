@@ -12,7 +12,6 @@ Plug 'tpope/vim-surround'
 Plug 'scrooloose/nerdtree'
 Plug 'xuyuanp/nerdtree-git-plugin'
 Plug 'morhetz/gruvbox'
-Plug 'Raimondi/delimitMate'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --ts-completer' }
@@ -24,6 +23,10 @@ Plug 'Yggdroot/indentLine'
 Plug 'airblade/vim-gitgutter'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'romainl/vim-cool'
+Plug 'jiangmiao/auto-pairs'
+Plug 'gko/vim-coloresque'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
 
 call plug#end()
 
@@ -44,6 +47,7 @@ call plug#end()
 
     " tabs set to 4 spaces and 2 spaces with html
     set tabstop=4
+    set softtabstop=4
     set shiftwidth=4
     set expandtab
     set showcmd
@@ -81,8 +85,8 @@ call plug#end()
     nmap <M-Tab> :tabnew<CR>;
 
 " Save and close tab mapping
-    nmap <F9> :w<CR>
-    nmap q :q<CR>
+    map <C-s> :w<CR>
+    nmap q :q!<CR>
 
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
