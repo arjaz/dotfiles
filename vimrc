@@ -27,6 +27,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'gko/vim-coloresque'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-commentary'
 
 call plug#end()
 

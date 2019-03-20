@@ -294,19 +294,12 @@ focus_follows_mouse off
 bindsym $mod+F1 exec firefox
 bindsym $mod+F2 exec telegram-desktop
 
-# volume control
-#bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
-#bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
-#bindsym XF86AudioMute exec amixer -q set Master toggle
-
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 0 +5% #increase sound volume
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 0 -5% #decrease sound volume
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
 
 # Sreen brightness controls
-#bindsym XF86MonBrightnessDown exec xrandr --output eDP-1 --brightness 0.35
-#bindsym XF86MonBrightnessUp exec xrandr --output eDP-1 --brightness 1
 bindsym XF86MonBrightnessDown exec true &(pkexec /usr/bin/brillo -U 5)
 bindsym XF86MonBrightnessUp exec true $(pkexec /usr/bin/brillo -A 5)
 
@@ -318,10 +311,10 @@ bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/screenshots/scr
 bindsym $mod+Escape exec i3lock -fo
 
 # thunar bind
-bindsym $mod+o exec thunar
+bindsym $mod+Shift+o exec thunar
 
-# ranger bind
-bindsym $mod+Shift+o exec ranger
+# vifm bind
+bindsym $mod+o exec konsole -e vifm
 
 # ncmpcpp bind
 bindsym $mod+m exec konsole -e ncmpcpp
