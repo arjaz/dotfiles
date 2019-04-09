@@ -96,4 +96,6 @@ alias vim=nvim
 alias v=nvim
 alias xterm=konsole
 
-bindkey -v
+# bindkey -v
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"

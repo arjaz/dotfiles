@@ -208,6 +208,9 @@ bar {
         }
 }
 
+# start polybar
+# exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
+
 # start dmenu
 bindsym $mod+d exec dmenu_run -p Run: -fn Roboto -nb "$bar-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
 # start rofi (a program launcher)
