@@ -96,9 +96,8 @@ call plug#end()
     " That is <Alt> + <Tab>
     nmap <M-Tab> :tabnew<CR>;
 
-" Save and close tab mapping
+" Save mapping
     map <C-s> :w<CR>
-    nmap q :q!<CR>
 
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
@@ -125,6 +124,8 @@ call plug#end()
 
 " emmet-vim plugin
     let g:user_emmet_leader_key='<C-M>'
+    let g:user_emmet_install_global = 0
+    autocmd FileType html,css,jsx,js EmmetInstall
 
 " fzf plugin
     map ; :Files<CR>
