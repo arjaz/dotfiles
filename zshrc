@@ -98,4 +98,6 @@ alias xterm=konsole
 
 # bindkey -v
 
+export DRI_PRIME=1
+
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
