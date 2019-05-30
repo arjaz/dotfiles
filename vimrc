@@ -6,8 +6,8 @@ Plug 'mattn/emmet-vim'
 Plug 'junegunn/fzf.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
-" Plug 'scrooloose/nerdtree'
-" Plug 'xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/nerdtree'
+Plug 'xuyuanp/nerdtree-git-plugin'
 Plug 'morhetz/gruvbox'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
@@ -79,6 +79,9 @@ call plug#end()
 " Highlighy last column
     set colorcolumn=110
 
+" leader mapping
+    let mapleader = ","
+
 " Spit navigation
     map <C-h> <C-w>h
     map <C-j> <C-w>j
@@ -89,7 +92,8 @@ call plug#end()
     nmap <Tab> :bnext<CR>
     nmap <S-Tab> :bprevious<CR>
     " That is <Alt> + <Tab>
-    nmap <M-Tab> :vnew<CR>
+    nmap <M-Tab> :Buffers<CR>
+    nmap <leader>d :bd!<CR>
 
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
@@ -101,8 +105,13 @@ call plug#end()
     vnoremap <C-c> "+y
     map <C-p> "+P
 
-" leader mapping
-    let mapleader = ","
+" Terminal mapping
+    nmap <leader>t :terminal<CR>
+
+" Split mapping
+    nmap <leader>v :vsplit<CR>
+    nmap <leader>c :new<CR>:res 8<CR>:terminal<CR>
+    nmap <leader>b :split<CR>
 
 " emmet-vim plugin
     let g:user_emmet_leader_key='<C-M>'
@@ -130,7 +139,9 @@ call plug#end()
     \ }
 
 " nerdtree plugin
-    " map <C-o> :NERDTreeToggle<CR>
+    map <C-o> :NERDTreeToggle<CR>
+    " let g:NERDTreeDirArrowExpandable = '>'
+    " let g:NERDTreeDirArrowCollapsible = '<'
 
 " ultisnips plugin
     let g:UltiSnipsExpandTrigger="<C-X>"

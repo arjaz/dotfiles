@@ -192,10 +192,7 @@ bar {
 # exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
 
 # start dmenu
-bindsym $mod+d exec dmenu_run -p Run: -fn Roboto -nb "$bar-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
-
-# start rofi (a program launcher)
-# bindsym $mod+d exec ~/.rofi.sh
+bindsym $mod+d exec dmenu_run -p Run: -fn "Roboto:pixelsize=15" -nb "$bar-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
 
 # recommended gaps setting
 
@@ -306,6 +303,9 @@ bindsym $mod+m exec konsole -e ncmpcpp
 
 # cava bind
 bindsym $mod+Shift+m exec konsole -e cava
+
+# pass bind
+bindsym $mod+p exec passmenu
 
 # mpc bindings
 bindsym XF86AudioPrev exec mpc prev
