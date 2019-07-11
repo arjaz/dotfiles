@@ -1,30 +1,37 @@
 call  plug#begin('~/.local/share/nvim/plugged')
 
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
 Plug 'vimwiki/vimwiki'
-Plug 'mattn/emmet-vim'
+" Plug 'mattn/emmet-vim'
 Plug 'junegunn/fzf.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
 Plug 'scrooloose/nerdtree'
-Plug 'xuyuanp/nerdtree-git-plugin'
-Plug 'morhetz/gruvbox'
+" Plug 'xuyuanp/nerdtree-git-plugin'
+" Plug 'morhetz/gruvbox'
+Plug 'arcticicestudio/nord-vim'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 " Plug 'easymotion/vim-easymotion'
-Plug 'turbio/bracey.vim'
-" Plug 'pangloss/vim-javascript'
-" Plug 'mxw/vim-jsx'
+" Plug 'turbio/bracey.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
 Plug 'Yggdroot/indentLine'
 Plug 'airblade/vim-gitgutter'
 Plug 'romainl/vim-cool'
 Plug 'jiangmiao/auto-pairs'
-Plug 'gko/vim-coloresque'
+" Plug 'gko/vim-coloresque'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 " Plug 'tweekmonster/django-plus.vim'
 " Plug 'peterhoeg/vim-qml'
+Plug 'lepture/vim-jinja'
+Plug 'moll/vim-bbye'
+Plug 'luochen1990/rainbow'
+Plug 'craigemery/vim-autotag'
+Plug 'jalvesaq/nvim-r'
 
 call plug#end()
 
@@ -67,8 +74,8 @@ call plug#end()
 " Set colorscheme
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     syntax enable
-    let g:gruvbox_italic=1
-    colorscheme gruvbox
+    " let g:gruvbox_italic=1
+    colorscheme nord
 
 " Autocompletion
     set wildmode=longest,list,full
@@ -93,6 +100,7 @@ call plug#end()
     nmap <S-Tab> :bprevious<CR>
     " That is <Alt> + <Tab>
     nmap <M-Tab> :Buffers<CR>
+    nmap <leader>q :Bdelete<CR>
     nmap <leader>d :bd!<CR>
 
 " Delete trailing whitespaces on save
@@ -108,15 +116,18 @@ call plug#end()
 " Terminal mapping
     nmap <leader>t :terminal<CR>
 
+" Terminal resize mapping
+    nmap <leader>r :res 15<CR>
+
 " Split mapping
     nmap <leader>v :vsplit<CR>
-    nmap <leader>c :new<CR>:res 8<CR>:terminal<CR>
+    nmap <leader>c :new<CR>:res 15<CR>:terminal<CR>
     nmap <leader>b :split<CR>
 
 " emmet-vim plugin
-    let g:user_emmet_leader_key='<C-M>'
-    let g:user_emmet_install_global = 0
-    autocmd FileType html,css,jsx,js EmmetInstall
+    " let g:user_emmet_leader_key='<C-M>'
+    " let g:user_emmet_install_global = 0
+    " autocmd FileType html,css,jsx,js EmmetInstall
 
 " fzf plugin
     map <leader><leader> :Files<CR>
@@ -125,7 +136,7 @@ call plug#end()
     set laststatus=2
     set noshowmode
     let g:lightline = {
-    \   'colorscheme': 'gruvbox',
+    \   'colorscheme': 'nord',
     \   'active': {
     \       'left': [
     \                   [ 'mode', 'paste' ],
@@ -155,7 +166,7 @@ call plug#end()
 "     map <Leader>k <Plug>(easymotion-k)
 
 " vim-jsx
-    " let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
+    let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
 
 " indentLine
     let g:indentLine_char = '▏'
@@ -252,3 +263,6 @@ call plug#end()
     nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
     " Resume latest coc list
     nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+
+" vim-autotag
+    let g:autotagTagsFile="tags"

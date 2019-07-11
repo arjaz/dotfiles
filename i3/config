@@ -1,5 +1,3 @@
-# i3 config file (v4)
-
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -10,19 +8,13 @@ font pango:Roboto 9
 floating_modifier $mod
 
 # start a terminal
-# bindsym $mod+Return exec i3-sensible-terminal
 bindsym $mod+Return exec konsole
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
-# start dmenu (a program launcher)
-# bindsym $mod+d exec dmenu_run
-
-# There also is the (new) i3-dmenu-desktop which only displays applications
-# shipping a .desktop file. It is a wrapper around dmenu, so you need that
-# installed.
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+# disable focus followint mouse
+focus_follows_mouse off
 
 # change focus
 bindsym $mod+h focus left
@@ -77,16 +69,16 @@ bindsym $mod+a focus parent
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 # https://fontawesome.com/icons?d=gallery
-set $ws1 "1:Browser "
-set $ws2 "2:Terminals "
-set $ws3 "3:Work "
-set $ws4 "4:Virtual Box "
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
-set $ws8 "8:Games "
-set $ws9 "9:Messenger "
-set $ws10 "10:Player "
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -119,8 +111,6 @@ assign [class="TelegramDesktop"] $ws9
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
-# exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -149,53 +139,28 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-set $bg-color 	         #533875
-set $inactive-bg-color   #2f343f
-set $text-color          #f3f4f5
-set $inactive-text-color #676E7D
-set $urgent-bg-color     #E53935
-set $indicator-color     #8560B3
-set $bar-color           #2f343f
-set $inactive-bar-color  #2f343f
+# nord color scheme
+set $bg-color            #2e3440
+set $text-color          #d8dee9
+set $bg-color-selected   #88c0d0
+set $text-color-selected #d8dee9
+set $bg-color-urgent     #bf616a
+set $indicator-color     #88c0d0
 
-# window colors
-#                       border              background         text                 indicator
-client.focused          $bg-color           $bg-color          $text-color          $indicator-color
-client.unfocused        $inactive-bg-color  $inactive-bg-color $inactive-text-color $indicator-color
-client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $indicator-color
-client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $indicator-color
-
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
-bar {
-        bindsym button4 nop
-        bindsym button5 nop
-        position top
-        status_command i3blocks
-
-        # disable clicking on workspace buttons
-        bindsym button1 nop
-
-        strip_workspace_numbers yes
-
-        colors {
-		background $bar-color
-	    separator #757575
-		#                  border              background          text
-		focused_workspace  $bar-color          $bar-color          $text-color
-		inactive_workspace $inactive-bar-color $inactive-bar-color $inactive-text-color
-		urgent_workspace   $urgent-bg-color    $urgent-bg-color    $text-color
-        }
-}
+# window styling
+#                       border             background         text                 indicator
+client.focused          $bg-color-selected $bg-color-selected $text-color-selected $indicator-color
+client.unfocused        $bg-color          $bg-color          $text-color          $bg-color
+client.focused_inactive $bg-color          $bg-color          $text-color          $bg-color
+client.urgent $bg-color-urgent $bg-color-urgent $text-color $bg-color-urgent
 
 # start polybar
-# exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
+exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
 
 # start dmenu
-bindsym $mod+d exec dmenu_run -p Run: -fn "Roboto:pixelsize=15" -nb "$bar-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
+bindsym $mod+d exec dmenu_run -p Run: -fn "Roboto:pixelsize=15" -nb "$bg-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
 
 # recommended gaps setting
-
 set $gap_step 2
 
 set $mode_gaps Gaps: (o)uter, (i)nner
@@ -269,12 +234,14 @@ exec --no-startup-id fcitx -d -r
 # start blueman
 exec --no-startup-id blueman-applet
 
-# disable focus followint mouse
-focus_follows_mouse off
-
 # custom execs
 bindsym $mod+F1 exec firefox
 bindsym $mod+F2 exec telegram-desktop
+
+# mpc bindings
+bindsym XF86AudioPrev exec mpc prev
+bindsym XF86AudioNext exec mpc next
+bindsym XF86AudioPlay exec mpc toggle
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 0 +5% #increase sound volume
@@ -307,10 +274,8 @@ bindsym $mod+Shift+m exec konsole -e cava
 # pass bind
 bindsym $mod+p exec passmenu
 
-# mpc bindings
-bindsym XF86AudioPrev exec mpc prev
-bindsym XF86AudioNext exec mpc next
-bindsym XF86AudioPlay exec mpc toggle
+# pass bind
+bindsym $mod+Shift+n exec networkmanager_dmenu
 
 # load compton
 exec compton -f
