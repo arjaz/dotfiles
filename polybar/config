@@ -383,11 +383,12 @@ label-charging = %percentage%%
 format-discharging-prefix = ${self.prefix}
 format-discharging = <label-discharging>
 format-discharging-underline = #d08770
-label-discharging = %percentage%% %time%
+label-discharging = %percentage%% (%time%)
 
 format-full-prefix = ${self.prefix}
 format-full-prefix-foreground = ${colors.foreground-alt}
 format-full-underline = ${self.format-charging-underline}
+label-full = %percentage%%
 
 [module/temperature]
 type = internal/temperature
