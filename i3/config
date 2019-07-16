@@ -8,10 +8,13 @@ font pango:Roboto 9
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec konsole
+bindsym $mod+Return exec urxvt
 
 # kill focused window
 bindsym $mod+Shift+q kill
+
+# exit i3
+bindsym $mod+Shift+e exit
 
 # disable focus followint mouse
 focus_follows_mouse off
@@ -257,19 +260,10 @@ bindsym --release Print exec --no-startup-id escrotum "~/screenshots/screen-%Y-%
 bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/screenshots/screen-%Y-%m-%d-%T.png"
 
 # i3lock bind
-bindsym $mod+Escape exec i3lock -fo
+bindsym $mod+Escape exec i3lock-fancy -t "Hello again" -- scrot -z
 
 # thunar bind
 bindsym $mod+Shift+o exec thunar
-
-# vifm bind
-bindsym $mod+o exec konsole -e vifm
-
-# ncmpcpp bind
-bindsym $mod+m exec konsole -e ncmpcpp
-
-# cava bind
-bindsym $mod+Shift+m exec konsole -e cava
 
 # pass bind
 bindsym $mod+p exec passmenu

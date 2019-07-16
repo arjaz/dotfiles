@@ -32,6 +32,7 @@ Plug 'moll/vim-bbye'
 Plug 'luochen1990/rainbow'
 Plug 'craigemery/vim-autotag'
 Plug 'jalvesaq/nvim-r'
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
 
 call plug#end()
 
