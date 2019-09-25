@@ -43,3 +43,8 @@ URxvt*font: xft:Roboto Mono:size=9:style:Semibold
 URxvt.scrollBar: false
 
 URxvt*fading: 0
+
+URxvt.perl-ext-common: resize-font,ibeamcursor
+
+URxvt.iso14755: false
+URxvt.iso14755_52: false

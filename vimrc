@@ -2,6 +2,7 @@ call  plug#begin('~/.local/share/nvim/plugged')
 
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
+Plug 'huawenyu/neogdb.vim'
 Plug 'vimwiki/vimwiki'
 " Plug 'mattn/emmet-vim'
 Plug 'junegunn/fzf.vim'
@@ -32,7 +33,26 @@ Plug 'moll/vim-bbye'
 Plug 'luochen1990/rainbow'
 Plug 'craigemery/vim-autotag'
 Plug 'jalvesaq/nvim-r'
-Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'branch': 'release/1.x',
+  \ 'for': [
+    \ 'javascript',
+    \ 'typescript',
+    \ 'css',
+    \ 'less',
+    \ 'scss',
+    \ 'json',
+    \ 'graphql',
+    \ 'markdown',
+    \ 'vue',
+    \ 'lua',
+    \ 'php',
+    \ 'python',
+    \ 'ruby',
+    \ 'html',
+    \ 'swift' ] }
+Plug 'vimplugin/project.vim'
 
 call plug#end()
 
@@ -90,6 +110,10 @@ call plug#end()
 " leader mapping
     let mapleader = ","
 
+" map esc
+    imap jk <esc>
+    imap kj <esc>
+
 " Spit navigation
     map <C-h> <C-w>h
     map <C-j> <C-w>j
@@ -123,7 +147,7 @@ call plug#end()
 " Split mapping
     nmap <leader>v :vsplit<CR>
     nmap <leader>c :new<CR>:res 15<CR>:terminal<CR>
-    nmap <leader>b :split<CR>
+    nmap <leader>h :split<CR>
 
 " emmet-vim plugin
     " let g:user_emmet_leader_key='<C-M>'
@@ -141,7 +165,7 @@ call plug#end()
     \   'active': {
     \       'left': [
     \                   [ 'mode', 'paste' ],
-    \                   [  'cocstatus', 'gitbranch', 'readonly', 'filename', 'modified' ],
+    \                   [ 'cocstatus', 'gitbranch', 'readonly', 'filename', 'modified' ],
     \               ]
     \   },
     \   'component_function': {
@@ -267,3 +291,7 @@ call plug#end()
 
 " vim-autotag
     let g:autotagTagsFile="tags"
+
+" vim-prettier
+    let g:prettier#autoformat = 0
+    autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html Prettier

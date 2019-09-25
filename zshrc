@@ -96,6 +96,7 @@ alias vim=nvim
 alias v=nvim
 alias xterm=konsole
 alias :q=exit
+alias sl=ls
 
 # bindkey -v
 
