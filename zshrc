@@ -97,6 +97,7 @@ alias v=nvim
 alias xterm=konsole
 alias :q=exit
 alias sl=ls
+alias p=python
 
 # bindkey -v
 

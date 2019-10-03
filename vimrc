@@ -1,38 +1,42 @@
 call  plug#begin('~/.local/share/nvim/plugged')
 
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-fugitive'
-Plug 'huawenyu/neogdb.vim'
-Plug 'vimwiki/vimwiki'
-" Plug 'mattn/emmet-vim'
-Plug 'junegunn/fzf.vim'
-Plug 'itchyny/lightline.vim'
-Plug 'tpope/vim-surround'
-Plug 'scrooloose/nerdtree'
-" Plug 'xuyuanp/nerdtree-git-plugin'
-" Plug 'morhetz/gruvbox'
-Plug 'arcticicestudio/nord-vim'
-Plug 'sirver/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
-" Plug 'easymotion/vim-easymotion'
-" Plug 'turbio/bracey.vim'
+" Languages
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-Plug 'Yggdroot/indentLine'
-Plug 'airblade/vim-gitgutter'
-Plug 'romainl/vim-cool'
-Plug 'jiangmiao/auto-pairs'
-" Plug 'gko/vim-coloresque'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-commentary'
+Plug 'jalvesaq/nvim-r'
+Plug 'lepture/vim-jinja'
+Plug 'jvirtanen/vim-octave'
 " Plug 'tweekmonster/django-plus.vim'
 " Plug 'peterhoeg/vim-qml'
-Plug 'lepture/vim-jinja'
-Plug 'moll/vim-bbye'
-Plug 'luochen1990/rainbow'
+
+" Completion and snippets
+Plug 'jiangmiao/auto-pairs'
+Plug 'sirver/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Visual
+Plug 'itchyny/lightline.vim'
+Plug 'Yggdroot/indentLine'
+Plug 'arcticicestudio/nord-vim'
+Plug 'kien/rainbow_parentheses.vim'
+Plug 'romainl/vim-cool'
+
+" Tags and git
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 Plug 'craigemery/vim-autotag'
-Plug 'jalvesaq/nvim-r'
+
+" Mechanics and general improvements
+Plug 'dhruvasagar/vim-table-mode'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'moll/vim-bbye'
+Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
+Plug 'vimwiki/vimwiki'
+Plug 'scrooloose/nerdtree'
 Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
   \ 'branch': 'release/1.x',
@@ -52,7 +56,6 @@ Plug 'prettier/vim-prettier', {
     \ 'ruby',
     \ 'html',
     \ 'swift' ] }
-Plug 'vimplugin/project.vim'
 
 call plug#end()
 
@@ -65,6 +68,7 @@ call plug#end()
     set noswapfile
     set nobackup
     set nowritebackup
+    set splitbelow splitright
     set ignorecase
     set smartcase
     set incsearch
@@ -72,40 +76,31 @@ call plug#end()
     set wrap
     set nu rnu
     set cursorline
-
-    " tabs set to 4 spaces and 2 spaces with html
     set tabstop=4
     set softtabstop=4
     set shiftwidth=4
     set expandtab
+    autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
     set showcmd
     set cmdheight=2
-
     set updatetime=300
-
     set signcolumn=yes
-
     set shortmess+=c
-
-    autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
-
-    " system clipboard access
     set clipboard=unnamedplus
+    set wildmode=longest,list,full
+
+" Folding
+    set foldmethod=syntax
+    set foldlevelstart=99
 
 " Set colorscheme
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     syntax enable
-    " let g:gruvbox_italic=1
     colorscheme nord
-
-" Autocompletion
-    set wildmode=longest,list,full
-
-" Open split at the bottom and right
-    set splitbelow splitright
-
-" Highlighy last column
     set colorcolumn=110
+
+" Delete trailing whitespaces on save
+    autocmd BufWritePre * %s/\s\+$//e
 
 " leader mapping
     let mapleader = ","
@@ -123,16 +118,8 @@ call plug#end()
 " Buffers mapping
     nmap <Tab> :bnext<CR>
     nmap <S-Tab> :bprevious<CR>
-    " That is <Alt> + <Tab>
-    nmap <M-Tab> :Buffers<CR>
     nmap <leader>q :Bdelete<CR>
     nmap <leader>d :bd!<CR>
-
-" Delete trailing whitespaces on save
-    autocmd BufWritePre * %s/\s\+$//e
-
-" Make mapping
-    nnoremap <F4> :make!<CR>
 
 " Plus buffer mapping
     vnoremap <C-c> "+y
@@ -140,19 +127,14 @@ call plug#end()
 
 " Terminal mapping
     nmap <leader>t :terminal<CR>
+    nmap <leader>c :new<CR>:res 15<CR>:terminal<CR>
 
 " Terminal resize mapping
     nmap <leader>r :res 15<CR>
 
 " Split mapping
     nmap <leader>v :vsplit<CR>
-    nmap <leader>c :new<CR>:res 15<CR>:terminal<CR>
     nmap <leader>h :split<CR>
-
-" emmet-vim plugin
-    " let g:user_emmet_leader_key='<C-M>'
-    " let g:user_emmet_install_global = 0
-    " autocmd FileType html,css,jsx,js EmmetInstall
 
 " fzf plugin
     map <leader><leader> :Files<CR>
@@ -176,19 +158,9 @@ call plug#end()
 
 " nerdtree plugin
     map <C-o> :NERDTreeToggle<CR>
-    " let g:NERDTreeDirArrowExpandable = '>'
-    " let g:NERDTreeDirArrowCollapsible = '<'
 
 " ultisnips plugin
     let g:UltiSnipsExpandTrigger="<C-X>"
-
-" vim-easymotion
-"     let g:EasyMotion_do_mapping = 0
-"     let g:EasyMotion_smartcase = 1
-
-"     nmap s <Plug>(easymotion-overwin-f)
-"     map <Leader>j <Plug>(easymotion-j)
-"     map <Leader>k <Plug>(easymotion-k)
 
 " vim-jsx
     let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
@@ -257,8 +229,8 @@ call plug#end()
     augroup end
 
     " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-    vmap <leader>a  <Plug>(coc-codeaction-selected)
-    nmap <leader>a  <Plug>(coc-codeaction-selected)
+    " vmap <leader>a  <Plug>(coc-codeaction-selected)
+    " nmap <leader>a  <Plug>(coc-codeaction-selected)
 
     " Remap for do codeAction of current line
     nmap <leader>ac  <Plug>(coc-codeaction)
@@ -269,29 +241,35 @@ call plug#end()
     command! -nargs=0 Format :call CocAction('format')
 
     " Use `:Fold` for fold current buffer
-    command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+    " command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
     " Using CocList
     " Show all diagnostics
-    nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
+    " nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
     " Manage extensions
-    nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+    " nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
     " Show commands
-    nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
+    " nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
     " Find symbol of current document
-    nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+    " nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
     " Search workspace symbols
-    nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
+    " nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
     " Do default action for next item.
-    nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+    " nnoremap <silent> <space>j  :<C-u>CocNext<CR>
     " Do default action for previous item.
-    nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
+    " nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
     " Resume latest coc list
-    nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+    " nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
 " vim-autotag
-    let g:autotagTagsFile="tags"
+    let g:autotagTagsFile=".tags"
 
 " vim-prettier
     let g:prettier#autoformat = 0
     autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html Prettier
+
+" rainbow_parentheses
+    au VimEnter * RainbowParenthesesToggle
+    au Syntax * RainbowParenthesesLoadRound
+    au Syntax * RainbowParenthesesLoadSquare
+    au Syntax * RainbowParenthesesLoadBraces

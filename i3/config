@@ -261,8 +261,8 @@ bindsym XF86MonBrightnessDown exec true &(pkexec /usr/bin/brillo -U 5)
 bindsym XF86MonBrightnessUp exec true $(pkexec /usr/bin/brillo -A 5)
 
 # escrotum binds
-bindsym --release Print exec --no-startup-id escrotum "~/screenshots/screen-%Y-%m-%d-%T.png"
-bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/screenshots/screen-%Y-%m-%d-%T.png"
+bindsym --release Print exec --no-startup-id escrotum "~/Pics/screenshots/screen-%Y-%m-%d-%T.png"
+bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/Pics/screenshots/screen-%Y-%m-%d-%T.png"
 
 # i3lock bind
 bindsym $mod+Escape exec i3lock-fancy -t "Hello again"
