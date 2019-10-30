@@ -7,8 +7,6 @@ font pango:Roboto 9
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
-# start a terminal
-bindsym $mod+Shift+Return exec urxvt
 # connect to urxvt daemon
 bindsym $mod+Return exec urxvtc
 
@@ -18,7 +16,7 @@ bindsym $mod+Shift+q kill
 # exit i3
 bindsym $mod+Shift+e exit
 
-# disable focus followint mouse
+# disable focus following mouse
 focus_follows_mouse off
 
 # change focus
@@ -228,7 +226,7 @@ for_window [class="^.*"] border pixel 2
 smart_borders no_gaps
 
 # start nm-applet
-exec --no-startup-id nm-applet --no-agent
+# exec --no-startup-id nm-applet --no-agent
 
 # set background
 exec --no-startup-id ~/.fehbg --restore
@@ -264,16 +262,17 @@ bindsym XF86MonBrightnessUp exec true $(pkexec /usr/bin/brillo -A 5)
 bindsym --release Print exec --no-startup-id escrotum "~/Pics/screenshots/screen-%Y-%m-%d-%T.png"
 bindsym --release Ctrl+Print exec --no-startup-id escrotum -s "~/Pics/screenshots/screen-%Y-%m-%d-%T.png"
 
-# i3lock bind
-bindsym $mod+Escape exec i3lock-fancy -t "Hello again"
+# betterlockscreen bind
+bindsym $mod+Escape exec betterlockscreen -l blur -t "Eendracht Maakt Magt"
 
-# thunar bind
+# file manager bind
 bindsym $mod+Shift+o exec thunar
+bindsym $mod+o exec urxvtc -e ranger
 
 # pass bind
 bindsym $mod+p exec passmenu
 
-# pass bind
+# network manager bind
 bindsym $mod+Shift+n exec networkmanager_dmenu
 
 # load compton

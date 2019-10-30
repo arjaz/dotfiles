@@ -6,8 +6,13 @@ Plug 'mxw/vim-jsx'
 Plug 'jalvesaq/nvim-r'
 Plug 'lepture/vim-jinja'
 Plug 'jvirtanen/vim-octave'
+Plug 'neovimhaskell/haskell-vim'
 " Plug 'tweekmonster/django-plus.vim'
 " Plug 'peterhoeg/vim-qml'
+" Plug 'vim-scripts/ebnf.vim'
+Plug 'vim-scripts/bnf.vim'
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
 
 " Completion and snippets
 Plug 'jiangmiao/auto-pairs'
@@ -26,6 +31,10 @@ Plug 'romainl/vim-cool'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'craigemery/vim-autotag'
+
+" Text objects
+Plug 'wellle/targets.vim'
+Plug 'jeetsukumaran/vim-pythonsense'
 
 " Mechanics and general improvements
 Plug 'dhruvasagar/vim-table-mode'
@@ -61,7 +70,7 @@ call plug#end()
 
 " Basics
     set nocompatible
-    filetype plugin on
+    filetype indent plugin on
     set hidden
     set modelines=0
     set encoding=utf-8
@@ -80,17 +89,16 @@ call plug#end()
     set softtabstop=4
     set shiftwidth=4
     set expandtab
-    autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    autocmd BufRead,BufNewFile *.htm,*.html,*.xml setlocal tabstop=2 shiftwidth=2 softtabstop=2
     set showcmd
     set cmdheight=2
     set updatetime=300
     set signcolumn=yes
     set shortmess+=c
-    set clipboard=unnamedplus
     set wildmode=longest,list,full
 
 " Folding
-    set foldmethod=syntax
+    set foldmethod=indent
     set foldlevelstart=99
 
 " Set colorscheme
@@ -121,7 +129,8 @@ call plug#end()
     nmap <leader>q :Bdelete<CR>
     nmap <leader>d :bd!<CR>
 
-" Plus buffer mapping
+" Plus buffer
+    set clipboard=unnamedplus
     vnoremap <C-c> "+y
     map <C-p> "+P
 
@@ -137,7 +146,7 @@ call plug#end()
     nmap <leader>h :split<CR>
 
 " fzf plugin
-    map <leader><leader> :Files<CR>
+    map <leader><leader> :GFiles --exclude-standard --others --cached<CR>
 
 " lightline plugin
     set laststatus=2
@@ -158,6 +167,7 @@ call plug#end()
 
 " nerdtree plugin
     map <C-o> :NERDTreeToggle<CR>
+    let g:NERDTreeShowLineNumbers=1
 
 " ultisnips plugin
     let g:UltiSnipsExpandTrigger="<C-X>"
@@ -220,13 +230,13 @@ call plug#end()
     vmap <leader>f  <Plug>(coc-format-selected)
     nmap <leader>f  <Plug>(coc-format-selected)
 
-    augroup mygroup
-      autocmd!
-      " Setup formatexpr specified filetype(s).
-      autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-      " Update signature help on jump placeholder
-      autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-    augroup end
+    " augroup mygroup
+    "   autocmd!
+    "   " Setup formatexpr specified filetype(s).
+    "   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    "   " Update signature help on jump placeholder
+    "   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+    " augroup end
 
     " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
     " vmap <leader>a  <Plug>(coc-codeaction-selected)
@@ -266,9 +276,26 @@ call plug#end()
 
 " vim-prettier
     let g:prettier#autoformat = 0
-    autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html Prettier
+    autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html Prettier
 
 " rainbow_parentheses
+    let g:rbpt_colorpairs = [
+    \ ['brown',       'RoyalBlue3'],
+    \ ['Darkblue',    'SeaGreen3'],
+    \ ['darkgray',    'DarkOrchid3'],
+    \ ['darkgreen',   'firebrick3'],
+    \ ['darkcyan',    'RoyalBlue3'],
+    \ ['darkred',     'SeaGreen3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['brown',       'firebrick3'],
+    \ ['gray',        'RoyalBlue3'],
+    \ ['darkmagenta', 'DarkOrchid3'],
+    \ ['Darkblue',    'firebrick3'],
+    \ ['darkgreen',   'RoyalBlue3'],
+    \ ['darkcyan',    'SeaGreen3'],
+    \ ['darkred',     'DarkOrchid3'],
+    \ ['red',         'firebrick3'],
+    \ ]
     au VimEnter * RainbowParenthesesToggle
     au Syntax * RainbowParenthesesLoadRound
     au Syntax * RainbowParenthesesLoadSquare

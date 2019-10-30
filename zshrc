@@ -7,7 +7,8 @@ export ZSH=/home/arjaz/.oh-my-zsh
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="arjaz"
+# ZSH_THEME="arjaz"
+ZSH_THEME="fishy"
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -100,7 +101,7 @@ alias sl=ls
 alias p=python
 
 # bindkey -v
-
+test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 export DRI_PRIME=1
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
