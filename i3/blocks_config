@@ -1,0 +1,68 @@
+# i3blocks config file
+#
+# Please see man i3blocks for a complete reference!
+# The man page is also hosted at http://vivien.github.io/i3blocks
+#
+# List of valid properties:
+#
+# align
+# color
+# command
+# full_text
+# instance
+# interval
+# label
+# min_width
+# name
+# separator
+# separator_block_width
+# short_text
+# signal
+# urgent
+
+# Global properties
+#
+# The top properties below are applied to every block, but can be overridden.
+# Each block command defaults to the script name to avoid boilerplate.
+command=/usr/lib/i3blocks/$BLOCK_NAME/$BLOCK_NAME
+separator_block_width=15
+markup=none
+
+[volume]
+label=
+instance=Master
+interval=1
+signal=10
+
+[memory]
+label=
+command=free -h | awk '/^Mem:/ {print " " $7}'
+separator=false
+interval=1
+
+[memory]
+label=
+command=free -h | awk '/^Swap:/ {print " " $4}'
+separator=false
+interval=1
+
+[disk]
+label=
+command=df -h | awk '/home$/ {print " " $4}'
+interval=30
+
+[battery]
+label=
+command=echo " $(battery_stat -p)"
+interval=1
+
+[temperature]
+interval=4
+
+[time]
+command=date '+%d.%m.%Y, %I:%M%P'
+interval=1
+
+[layout]
+command=xkblayout
+interval=1

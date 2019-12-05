@@ -2,13 +2,15 @@ set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:Roboto 9
+font pango:Hack Nerd Font 10
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # connect to urxvt daemon
-bindsym $mod+Return exec urxvtc
+bindsym $mod+Return exec i3-sensible-terminal
+# bindsym $mod+Return exec urxvtc
+bindsym $mod+Shift+Return exec urxvt
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -72,16 +74,16 @@ bindsym $mod+a focus parent
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 # https://fontawesome.com/icons?d=gallery
-set $ws1 "1"
-set $ws2 "2"
+set $ws1 "1:"
+set $ws2 "2:"
 set $ws3 "3"
 set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
-set $ws9 "9"
-set $ws10 "10"
+set $ws9 "9:"
+set $ws10 "10:"
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -109,6 +111,7 @@ bindsym $mod+Shift+0 move container to workspace $ws10
 
 # layout
 assign [class="TelegramDesktop"] $ws9
+assign [class="torrent"] $ws10
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -155,13 +158,37 @@ set $indicator-color     #88c0d0
 client.focused          $bg-color-selected $bg-color-selected $text-color-selected $indicator-color
 client.unfocused        $bg-color          $bg-color          $text-color          $bg-color
 client.focused_inactive $bg-color          $bg-color          $text-color          $bg-color
-client.urgent $bg-color-urgent $bg-color-urgent $text-color $bg-color-urgent
+client.urgent           $bg-color-urgent   $bg-color-urgent   $text-color          $bg-color-urgent
 
 # start polybar
-exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
+# exec_always --no-startup-id ~/.dotfiles/polybar_launch.sh
+
+bar {
+    # font pango:Font Awesome 5 Free 9
+    font pango:Hack Nerd Font 9
+
+    bindsym button1 nop
+    bindsym button4 nop
+    bindsym button5 nop
+
+    strip_workspace_numbers yes
+
+    status_command i3blocks
+    position top
+
+    colors {
+        background $bg-color
+
+        separator $indicator-color
+
+        focused_workspace $bg-color-selected $bg-color $text-color
+        inactive_workspace $bg-color $bg-color $text-color
+        urgent_workspace $bg-color-urgent $bg-color-urgent $text-color
+    }
+}
 
 # start dmenu
-bindsym $mod+d exec dmenu_run -p Run: -fn "Roboto:pixelsize=15" -nb "$bg-color" -nf "$text-color" -sb "$bg-color" -sf "$text-color"
+bindsym $mod+d exec dmenu_run -p Run: -fn "Hack Nerd Font:pixelsize=15" -nb "$bg-color" -nf "$text-color" -sb "$bg-color-selected" -sf "$bg-color"
 
 # recommended gaps setting
 set $gap_step 2
@@ -190,6 +217,7 @@ mode "$mode_gaps_outer" {
         bindsym Return mode "$mode_gaps"
         bindsym Escape mode "default"
 }
+
 mode "$mode_gaps_inner" {
         bindsym plus  gaps inner current plus $gap_step
         bindsym minus gaps inner current minus $gap_step
@@ -205,15 +233,17 @@ mode "$mode_gaps_inner" {
 
 # basic gaps
 set $bgaps 4
+set $bogaps 6
 
 # set basic gaps
 gaps inner $bgaps
+gaps outer $bogaps
 
 # bind turn off gaps
-bindsym $mod+g gaps inner all set 0
+bindsym $mod+g exec i3-msg "gaps inner all set 0; gaps outer all set 0"
 
 # bind set gaps to $bgaps
-bindsym $mod+t gaps inner all set $bgaps
+bindsym $mod+t exec i3-msg "gaps inner all set $bgaps; gaps outer all set $bogaps"
 
 # set smart gaps on
 smart_gaps on
@@ -232,16 +262,20 @@ smart_borders no_gaps
 exec --no-startup-id ~/.fehbg --restore
 
 # start fcitx
-exec --no-startup-id fcitx -d -r
+# exec --no-startup-id fcitx -d -r
 
 # start blueman
 exec --no-startup-id blueman-applet
 
 # start urxvtd
-exec --no-startup-id urxvtd -q -f -o
+# exec --no-startup-id urxvtd -q -f -o
+
+# bind loadout
+exec --no-startup-id setxkbmap -option "grp:alt_shift_toggle" -layout "us,ru,ua" -option "compose:ralt"
 
 # custom execs
 bindsym $mod+F1 exec firefox
+bindsym $mod+Shift+F1 exec tabbed -c surf -e
 bindsym $mod+F2 exec telegram-desktop
 
 # mpc bindings
@@ -250,9 +284,9 @@ bindsym XF86AudioNext exec mpc next
 bindsym XF86AudioPlay exec mpc toggle
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 0 +5% #increase sound volume
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 0 -5% #decrease sound volume
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 0 +5% && pkill -RTMIN+10 i3blocks
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 0 -5% && pkill -RTMIN+10 i3blocks
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle && pkill -RTMIN+10 i3blocks
 
 # Sreen brightness controls
 bindsym XF86MonBrightnessDown exec true &(pkexec /usr/bin/brillo -U 5)
@@ -267,13 +301,19 @@ bindsym $mod+Escape exec betterlockscreen -l blur -t "Eendracht Maakt Magt"
 
 # file manager bind
 bindsym $mod+Shift+o exec thunar
-bindsym $mod+o exec urxvtc -e ranger
+bindsym $mod+o exec i3-sensible-terminal -e ranger
 
 # pass bind
 bindsym $mod+p exec passmenu
+
+# emacs bind
+bindsym $mod+Shift+w exec emacs
 
 # network manager bind
 bindsym $mod+Shift+n exec networkmanager_dmenu
 
 # load compton
-exec compton -f
+exec compton -f --config ~/.config/compton.conf
+
+# load dunst
+# exec dunst -shrink

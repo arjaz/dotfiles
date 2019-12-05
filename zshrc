@@ -1,5 +1,4 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH:
 
 # Path to your oh-my-zsh installation.
 export ZSH=/home/arjaz/.oh-my-zsh
@@ -7,7 +6,6 @@ export ZSH=/home/arjaz/.oh-my-zsh
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="arjaz"
 ZSH_THEME="fishy"
 
 # Set list of themes to load
@@ -28,7 +26,7 @@ ZSH_THEME="fishy"
 # DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+export UPDATE_ZSH_DAYS=13
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -95,7 +93,7 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias vim=nvim
 alias v=nvim
-alias xterm=konsole
+alias view='nvim -R'
 alias :q=exit
 alias sl=ls
 alias p=python
@@ -104,4 +102,7 @@ alias p=python
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 export DRI_PRIME=1
 
+export FZF_DEFAULT_COMMAND=find
+
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
