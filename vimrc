@@ -16,6 +16,7 @@ Plug 'plasticboy/vim-markdown'
 Plug 'jackguo380/vim-lsp-cxx-highlight'
 Plug 'pboettch/vim-cmake-syntax'
 Plug 'lervag/vimtex'
+" Plug 'vim-scripts/slimv.vim'
 
 " Completion and snippets
 Plug 'jiangmiao/auto-pairs'

@@ -232,8 +232,10 @@ mode "$mode_gaps_inner" {
 }
 
 # basic gaps
-set $bgaps 4
-set $bogaps 6
+# set $bgaps 4
+# set $bogaps 6
+set $bgaps 0
+set $bogaps 0
 
 # set basic gaps
 gaps inner $bgaps
@@ -246,14 +248,15 @@ bindsym $mod+g exec i3-msg "gaps inner all set 0; gaps outer all set 0"
 bindsym $mod+t exec i3-msg "gaps inner all set $bgaps; gaps outer all set $bogaps"
 
 # set smart gaps on
-smart_gaps on
+# smart_gaps on
 
 # disable window titlebars
-for_window [class="^.*"] border pixel 2
+for_window [class="^.*"] border pixel 1
 # default_border pixel 2
 
 # set smart borders on
-smart_borders no_gaps
+# smart_borders no_gaps
+smart_borders on
 
 # start nm-applet
 # exec --no-startup-id nm-applet --no-agent
@@ -270,8 +273,9 @@ exec --no-startup-id blueman-applet
 # start urxvtd
 # exec --no-startup-id urxvtd -q -f -o
 
-# bind loadout
-exec --no-startup-id setxkbmap -option "grp:alt_shift_toggle" -layout "us,ru,ua" -option "compose:ralt"
+# layouts
+# exec --no-startup-id setxkbmap -option "grp:alt_shift_toggle" -layout "us,ru,ua" -option "compose:ralt"
+exec --no-startup-id setxkbmap -option grp:alt_shift_toggle us,ru,ua -option compose:ralt
 
 # custom execs
 bindsym $mod+F1 exec firefox
