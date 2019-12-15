@@ -8,10 +8,12 @@
    (quote
     ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
  '(git-gutter:modified-sign "~")
+ '(helm-completion-style (quote emacs))
+ '(lsp-haskell-process-path-hie "~/.local/bin/hie-8.6.5")
  '(org-agenda-files (quote ("~/.emacs.d/org/tasks.org")))
  '(package-selected-packages
    (quote
-    (evil neotree eglot company auto-virtualenv pipenv flycheck evil-magit magit evil-numbers helm-projectile hl-fill-column all-the-icons-dired all-the-icons haskell-mode projectile yasnippet company-lsp highlight-indent-guides git-gutter diminish rainbow-delimiters rainvow-delimiters hlinum linum-highlight-current-line-number smooth-scrolling use-package org-evil org-bullets nord-theme helm evil-visual-mark-mode evil-surround evil-leader evil-commentary))))
+    (bnf-mode powerline eglot scala-mode rjsx-mode evil company auto-virtualenv pipenv evil-magit magit evil-numbers helm-projectile hl-fill-column all-the-icons-dired all-the-icons haskell-mode projectile yasnippet highlight-indent-guides git-gutter diminish rainbow-delimiters rainvow-delimiters hlinum linum-highlight-current-line-number smooth-scrolling use-package org-evil org-bullets nord-theme helm evil-visual-mark-mode evil-surround evil-leader evil-commentary))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -54,37 +56,14 @@
 (blink-cursor-mode 0)
 
 ;; Highlight current line
-(global-hl-line-mode 1)
+(global-hl-line-mode t)
 
 ;; Auto-follow symlinks
 (setq vc-follow-symlinks t)
 
-;; "after" macro definition
-;; (if (fboundp 'with-eval-after-load)
-;;     (defmacro after (feature &rest body)
-;;       "After FEATURE is loaded, evaluate BODY."
-;;       (declare (indent defun))
-;;       `(with-eval-after-load ,feature ,@body))
-;;   (defmacro after (feature &rest body)
-;;     "After FEATURE is loaded, evaluate BODY."
-;;     (declare (indent defun))
-;;     `(eval-after-load ,feature
-;;        '(progn ,@body))))))
-
-
-(package-initialize)
-
-(require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmoderog/elpa"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-
-(setq package-enable-at-startup nil)
-
-(package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; Move flymake garbage
+(setq flymake-run-in-place nil)
+(setq temporary-file-directory "~/.emacs.d/tmp/")
 
 ;; Wind Mode
 (global-set-key (kbd "C-h") 'windmove-left)
@@ -100,20 +79,38 @@
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 
+(package-initialize)
+
+(require 'package)
+(add-to-list 'package-archives '("org" . "http://orgmoderog/elpa"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+
+(setq package-enable-at-startup nil)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+
 (use-package nord-theme
   :ensure t
   :config
   (load-theme 'nord t))
 
-(use-package magit
+(use-package bnf-mode
   :ensure t)
+
+(use-package magit
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c m") 'magit-status))
 
 (use-package projectile
   :ensure t
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
+  (projectile-mode t))
 
 ;; Helm
 (use-package helm
@@ -143,17 +140,14 @@
   :config
   (add-hook 'org-mode-hook 'org-bullets-mode))
 
-(use-package neotree
-  :ensure t)
-
-;; ;; Evil
+;; Evil
 ;; (use-package treemacs-evil
 ;;   :ensure t)
 
 (use-package evil-surround
   :ensure t
   :config
-  (global-evil-surround-mode 1))
+  (global-evil-surround-mode t))
 
 (use-package evil-commentary
   :ensure t
@@ -168,18 +162,23 @@
   (global-evil-leader-mode)
   (evil-leader/set-leader ",")
   (evil-leader/set-key
+    "q" 'kill-this-buffer
     "b" 'helm-buffers-list
     "v" 'split-window-right
     "h" 'split-window-below
-    "f" 'helm-find-files
+    "o" 'helm-find-files
     "," 'helm-projectile-find-file
-    "m" 'neotree-toggle))
+    "e" 'eglot
+    "d" 'eglot-find-declaration
+    "f" 'eglot-format
+    "a" 'eglot-code-actions
+    "m" 'eglot-help-at-point))
+    ;; "d" 'lsp-find-definition
+    ;; "r" 'lsp-find-references
+    ;; "i" 'lsp-find-implementation))
 
-;; Learn org-mode
 (use-package org-evil
-  :ensure t
-  :config
-  (require 'org-evil))
+  :ensure t)
 
 (use-package evil
   :ensure t
@@ -214,15 +213,7 @@
 (use-package yasnippet
   :ensure t
   :config
-  (yas-global-mode 1))
-
-;; LSP
-
-(use-package eglot
-  :ensure t
-  :config
-  (define-key eglot-mode-map (kbd "C-c d") 'xref-find-definitions)
-  (add-hook 'python-mode 'eglot-ensure))
+  (yas-global-mode t))
 
 (use-package pipenv
   :ensure t
@@ -238,19 +229,33 @@
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
   (add-hook 'projectile-after-switch-project-hook 'auto-virtualenv-set-virtualenv))
 
-;; That shit lags as fuck
+(use-package flymake-cursor
+  :load-path "~/.emacs.d/lisp/emacs-flymake-cursor"
+  :config
+  (flymake-cursor-mode))
+
+;; LSP
+
+(use-package eglot
+  :ensure t)
+  ;; (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp"))))
+
+;; ;; That shit lags as fuck
 ;; (use-package lsp-mode
 ;;   :ensure t
-;;   :hook (prog-mode . lsp)
 ;;   :commands lsp
 ;;   :config
-;;   (setq lsp-prefer-flymake nil)
-;;   (setq lsp-log-io t)
-;;   (setq lsp-response-timeout 25)
-;;   (add-hook 'prog-mode lsp-mode)
+;;   ;; (setq lsp-prefer-flymake nil)
+;;   ;; (setq lsp-log-io t)
+;;   (setq lsp-response-timeout 25
+;;         lsp-document-sync-method 'full)
+;;   (add-hook 'prog-mode-hook #'lsp-deferred)
 ;;   (global-set-key (kbd "C-c d") 'lsp-find-definition)
 ;;   (global-set-key (kbd "C-c r") 'lsp-find-references)
 ;;   (global-set-key (kbd "C-c i") 'lsp-find-implementation))
+
+;; (use-package helm-lsp
+;;   :ensure t)
 
 ;; (use-package flycheck
 ;;   :ensure t
@@ -289,15 +294,20 @@
 (use-package haskell-mode
   :ensure t)
 
-;; (use-package smooth-scrolling
-;;   :ensure t
-;;   :config
-;;   (smooth-scrolling-mode))
+(use-package rjsx-mode
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode)))
 
-;; (use-package autopair
-;;   :ensure t
-;;   :config
-;;   (autopair-global-mode))
+(use-package scala-mode
+  :ensure t
+  :interpreter
+  ("scala" . scala-mode))
+
+(use-package smooth-scrolling
+  :ensure t
+  :config
+  (smooth-scrolling-mode))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -389,5 +399,9 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 
 ;; reload config
 (defun reload-config ()
+  "Reload config file (~/.emacs.d/init.el)."
   (interactive)
   (load-file "~/.emacs.d/init.el"))
+
+(provide 'emacs)
+;;; emacs ends here
