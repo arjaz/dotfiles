@@ -52,6 +52,7 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'romainl/vim-cool'
 Plug 'gko/vim-coloresque'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
@@ -195,6 +196,8 @@ call plug#end()
 " nerdtree plugin
     map <C-o> :NERDTreeToggle<CR>
     let g:NERDTreeShowLineNumbers=1
+    let g:NERDTreeMinimalUI=1
+    let g:NERDTreeShowHidden=1
 
 " ultisnips plugin
     let g:UltiSnipsExpandTrigger="<C-X>"

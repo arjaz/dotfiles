@@ -305,7 +305,6 @@ bindsym $mod+Escape exec betterlockscreen -l blur -t "Eendracht Maakt Magt"
 
 # file manager bind
 bindsym $mod+Shift+o exec thunar
-bindsym $mod+o exec i3-sensible-terminal -e ranger
 
 # pass bind
 bindsym $mod+p exec passmenu
@@ -315,6 +314,10 @@ bindsym $mod+Shift+w exec emacs
 
 # network manager bind
 bindsym $mod+Shift+n exec networkmanager_dmenu
+
+# dmenumount bild
+bindsym $mod+m exec dmenumount.sh
+bindsym $mod+Shift+m exec dmenuumount.sh
 
 # load compton
 exec compton -f --config ~/.config/compton.conf

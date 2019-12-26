@@ -15,13 +15,16 @@
  '(custom-safe-themes
    (quote
     ("d6c5b8dc6049f2e9dabdfcafa9ef2079352640e80dffe3e6cc07c0f89cbf9748" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
- '(git-gutter:modified-sign "~")
  '(helm-completion-style (quote emacs))
  '(lsp-haskell-process-path-hie "~/.local/bin/hie-8.6.5")
  '(org-agenda-files (quote ("~/.emacs.d/org/tasks.org")))
  '(package-selected-packages
    (quote
-    (git-gutter-fringe doom-modeline hl-todo auctex terminal-here bnf-mode eglot scala-mode rjsx-mode evil company auto-virtualenv pipenv evil-magit magit evil-numbers helm-projectile hl-fill-column all-the-icons-dired all-the-icons haskell-mode projectile yasnippet highlight-indent-guides git-gutter diminish rainbow-delimiters rainvow-delimiters hlinum linum-highlight-current-line-number smooth-scrolling use-package org-evil org-bullets helm evil-visual-mark-mode evil-surround evil-leader evil-commentary))))
+    (restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides helm-projectile haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
+ '(safe-local-variable-values
+   (quote
+    ((haskell-process-use-ghci . t)
+     (haskell-indent-spaces . 4)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -80,8 +83,8 @@
 ;; (global-set-key (kbd "C-l") 'windmove-right)
 
 ;; Buffers
-;; (global-set-key (kbd "M-<tab>") 'next-buffer)
-;; (global-set-key (kbd "<backtab>") 'previous-buffer)
+(global-set-key (kbd "M-n") 'next-buffer)
+(global-set-key (kbd "M-p") 'previous-buffer)
 
 ;; Clean buffers
 (setq clean-buffer-list-delay-general 1)
@@ -163,11 +166,6 @@
 ;; (use-package treemacs-evil
 ;;   :ensure t)
 
-(use-package neotree
-  :ensure t
-  :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
-
 (use-package evil-surround
   :ensure t
   :config
@@ -216,7 +214,16 @@
   :ensure t
   :config
   (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
-  (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt))
+  (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
+  (define-key evil-normal-state-map (kbd "C-c a") 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map (kbd "C-c c") 'evil-numbers/dec-at-pt))
+
+(use-package key-chord
+  :ensure t
+  :config
+  (key-chord-mode t)
+  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
+;; (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 
 (use-package evil-magit
   :ensure t)
@@ -234,6 +241,9 @@
   :ensure t
   :config
   (yas-global-mode t))
+
+(use-package yasnippet-snippets
+  :ensure t)
 
 (use-package pipenv
   :ensure t
@@ -275,10 +285,22 @@
   :init
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode)))
 
+(use-package typescript-mode
+  :ensure t)
+
+(use-package purescript-mode
+  :ensure t)
+
+(use-package web-mode
+  :ensure t)
+
 (use-package scala-mode
   :ensure t
   :interpreter
   ("scala" . scala-mode))
+
+(use-package markdown-mode
+  :ensure t)
 
 (use-package smooth-scrolling
   :ensure t
@@ -390,6 +412,9 @@
   (diminish 'auto-revert-mode)
   (diminish 'eldoc-mode))
 
+(use-package restart-emacs
+  :ensure t)
+
 ;; Remove trailing whitespaces
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
@@ -423,12 +448,6 @@ In Delete Selection mode, if the mark is active, just deactivate it;"
 (setq tab-width 4)
 (setq c-default-style "k&r"
       c-basic-offset 4)
-
-;; reload config
-(defun reload-config ()
-  "Reload config file (~/.emacs.d/init.el)."
-  (interactive)
-  (load-file "~/.emacs.d/init.el"))
 
 (provide 'emacs)
 ;;; emacs ends here
