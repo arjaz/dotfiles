@@ -302,6 +302,9 @@
 (use-package markdown-mode
   :ensure t)
 
+(use-package yaml-mode
+  :ensure t)
+
 (use-package smooth-scrolling
   :ensure t
   :config
@@ -428,7 +431,6 @@
 (defun minibuffer-keyboard-quit ()
   "Abort recursive edit.
 In Delete Selection mode, if the mark is active, just deactivate it;"
-
   (interactive)
   (if (and delete-selection-mode transient-mark-mode mark-active)
       (setq deactivate-mark  t)
