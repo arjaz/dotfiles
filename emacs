@@ -76,12 +76,6 @@
 (setq flymake-run-in-place nil)
 (setq temporary-file-directory "~/.emacs.d/tmp/")
 
-;; Wind Mode
-;; (global-set-key (kbd "C-h") 'windmove-left)
-;; (global-set-key (kbd "C-j") 'windmove-down)
-;; (global-set-key (kbd "C-k") 'windmove-up)
-;; (global-set-key (kbd "C-l") 'windmove-right)
-
 ;; Buffers
 (global-set-key (kbd "M-n") 'next-buffer)
 (global-set-key (kbd "M-p") 'previous-buffer)
@@ -113,11 +107,6 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-
-;; (use-package nord-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'nord t))
 
 (use-package bnf-mode
   :ensure t)

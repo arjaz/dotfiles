@@ -146,12 +146,18 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # nord color scheme
-set $bg-color            #2e3440
-set $text-color          #d8dee9
-set $bg-color-selected   #88c0d0
-set $text-color-selected #d8dee9
-set $bg-color-urgent     #bf616a
-set $indicator-color     #88c0d0
+set_from_resource $bg-color background #000000
+set_from_resource $text-color foreground #eeeeee
+set_from_resource $bg-color-selected color6 #333333
+set_from_resource $text-color-selected foreground #ffffff
+set_from_resource $bg-color-urgent color1 #000000
+set_from_resource $indicatior-color color6 #333333
+# set $bg-color            #2e3440
+# set $text-color          #d8dee9
+# set $bg-color-selected   #88c0d0
+# set $text-color-selected #d8dee9
+# set $bg-color-urgent     #bf616a
+# set $indicator-color     #88c0d0
 
 # window styling
 #                       border             background         text                 indicator
