@@ -15,12 +15,11 @@
  '(custom-safe-themes
    (quote
     ("d6c5b8dc6049f2e9dabdfcafa9ef2079352640e80dffe3e6cc07c0f89cbf9748" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
- '(helm-completion-style (quote emacs))
  '(lsp-haskell-process-path-hie "~/.local/bin/hie-8.6.5")
  '(org-agenda-files (quote ("~/.emacs.d/org/tasks.org")))
  '(package-selected-packages
    (quote
-    (restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides helm-projectile haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
+    (telega restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
  '(safe-local-variable-values
    (quote
     ((haskell-process-use-ghci . t)
@@ -33,6 +32,27 @@
  )
 
 ;; My shit
+
+;; Startup optimization
+;; (defun doom-defer-garbage-collection-h ()
+;;   (setq gc-cons-threshold most-positive-fixnum))
+
+;; (defun doom-restore-garbage-collection-h ()
+;;   ;; Defer it so that commands launched immediately after will enjoy the
+;;   ;; benefits.
+;;   (run-at-time
+;;    1 nil (lambda () (setq gc-cons-threshold doom-gc-cons-threshold))))
+
+;; (add-hook 'minibuffer-setup-hook #'doom-defer-garbage-collection-h)
+;; (add-hook 'minibuffer-exit-hook #'doom-restore-garbage-collection-h)
+
+;; (defvar doom--file-name-handler-alist file-name-handler-alist)
+;; (setq file-name-handler-alist nil)
+
+;; (add-hook 'emacs-startup-hook
+;;           (lambda ()
+;;             (setq file-name-handler-alist doom--file-name-handler-alist)))
+
 ;; Disable startup message and gtk pop-ups
 (setq inhibit-startup-message t
       x-gtk-use-system-tooltips nil
@@ -65,6 +85,15 @@
 
 ;; Non-blinking cursor
 (blink-cursor-mode 0)
+
+;; Remove trailing whitespaces
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; Auto pairs
+(electric-pair-mode t)
+
+;; Highlight matching brace
+(show-paren-mode t)
 
 ;; Highlight current line
 (global-hl-line-mode t)
@@ -109,6 +138,7 @@
   (package-install 'use-package))
 
 (use-package bnf-mode
+  :defer t
   :ensure t)
 
 (use-package magit
@@ -119,41 +149,90 @@
 (use-package projectile
   :ensure t
   :config
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode t))
 
-;; Helm
-(use-package helm
+(use-package buffer-flip
   :ensure t
+  :defer t
+  :bind (("<backtab>" . buffer-flip-backward)
+         ("M-<tab>" . buffer-flip-forward))
   :config
-  (require 'helm)
-  (require 'helm-config)
-  (setq helm-split-window-inside-p t
-        helm-move-to-line-cycle-in-source t
-        helm-autoresize-min-height 20
-        helm-autoresize-max-height 20
-        helm-autoresize-mode t)
-  (helm-mode t)
-  (helm-autoresize-mode t)
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
+  (setq buffer-flip-skip-patterns
+        '("^\\*helm\\b"
+          "^\\*swiper\\*$")))
 
-(use-package helm-projectile
+(use-package ivy
   :ensure t
   :config
-  (helm-projectile-on))
+  (ivy-mode 1)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (setq ivy-display-style 'fancy)
+  (setq ivy-format-function 'ivy-format-function-line))
+
+(use-package counsel-projectile
+  :ensure t
+  :config
+  (counsel-projectile-mode t))
+
+;; ;; Helm
+;; (use-package helm
+;;   :ensure t
+;;   :config
+;;   (require 'helm)
+;;   (require 'helm-config)
+;;   (setq helm-split-window-inside-p t
+;;         helm-move-to-line-cycle-in-source t
+;;         helm-autoresize-min-height 20
+;;         helm-autoresize-max-height 20
+;;         helm-autoresize-mode t)
+;;   (helm-mode t)
+;;   (helm-autoresize-mode t)
+;;   (global-set-key (kbd "M-x") 'helm-M-x)
+;;   (global-set-key (kbd "C-x C-f") 'helm-find-files)
+;;   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action))
+
+;; (use-package helm-projectile
+;;   :ensure t
+;;   :config
+;;   (helm-projectile-on))
 
 ;; Org-mode
 (use-package org-bullets
   :ensure t
+  :defer t
   :config
   (add-hook 'org-mode-hook 'org-bullets-mode))
 
+;; Treemacs
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (treemacs-resize-icons 16)
+  ;; (setq treemacs-indentation-string "·")
+  (with-eval-after-load 'treemacs
+    (add-to-list 'treemacs-pre-file-insert-predicates #'treemacs-is-file-git-ignored?))
+  (progn
+    (setq treemacs-follow-mode t)))
+
+(use-package treemacs-magit
+  :ensure t)
+
+(use-package treemacs-projectile
+  :defer t
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :defer t
+  :ensure t)
+
 ;; Evil
-;; (use-package treemacs-evil
-;;   :ensure t)
+(use-package treemacs-evil
+  :ensure t
+  :init
+  (setq evil-want-keybinding nil))
 
 (use-package evil-surround
   :ensure t
@@ -173,18 +252,23 @@
   (evil-leader/set-leader ",")
   (evil-leader/set-key
     "q" 'kill-this-buffer
-    "b" 'helm-buffers-list
-    "v" 'split-window-right
-    "h" 'split-window-below
-    "o" 'helm-find-files
-    "," 'helm-projectile-find-file
+    "b" 'ivy-switch-buffer
+    "v" 'evil-window-vsplit
+    "h" 'evil-window-split
+    "o" 'counsel-find-file
+    "," 'counsel-projectile-find-file
+    "j" 'counsel-file-jump
+    "g" 'counsel-bookmark
     "e" 'eglot
     "d" 'eglot-find-declaration
     "f" 'eglot-format
+    "r" 'eglot-rename
     "a" 'eglot-code-actions
-    "m" 'eglot-help-at-point))
+    "m" 'eglot-help-at-point
+    "t" 'treemacs))
 
 (use-package org-evil
+  :defer t
   :ensure t)
 
 (use-package evil
@@ -197,7 +281,9 @@
                                                   (interactive)
                                                   (evil-scroll-down nil)))
   (add-hook 'evil-mode #'(lambda () (modify-syntax-entry ?_ "w")))
-  (evil-mode t))
+  (evil-mode t)
+  (setq evil-split-window-below t
+        evil-vsplit-window-right t))
 
 (use-package evil-numbers
   :ensure t
@@ -212,18 +298,23 @@
   :config
   (key-chord-mode t)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
-;; (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 
 (use-package evil-magit
   :ensure t)
+
+(use-package evil-collection
+  :ensure t
+  :config
+  (evil-collection-init))
 
 (use-package company
   :ensure t
   :config
   (setq company-idle-delay 0.2)
-  (setq company-minimum-prefix-length 2)
+  (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t)
-  (define-key company-active-map [tab] 'company-complete)
+  (define-key company-active-map (kbd "<tab>") 'company-select-next)
+  (define-key company-active-map (kbd "<return>") 'company-complete)
   (global-company-mode t))
 
 (use-package yasnippet
@@ -236,6 +327,7 @@
 
 (use-package pipenv
   :ensure t
+  :defer t
   :hook (python-mode . pipenv-mode)
   :init
   (setq pipenv-projectile-after-switch-function
@@ -243,6 +335,7 @@
 
 (use-package auto-virtualenv
   :ensure t
+  :defer t
   :config
   (setq python-shell-interpreter "python")
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
@@ -250,48 +343,55 @@
 
 (use-package flymake-cursor
   :load-path "~/.emacs.d/lisp/emacs-flymake-cursor"
+  :defer t
   :config
   (flymake-cursor-mode))
 
 (use-package eglot
+  :ensure t
+  :init
+  (add-hook 'prog-mode 'eglot-ensure))
+
+(use-package cmake-mode
   :ensure t)
 
-;; (use-package flycheck
-;;   :ensure t
-;;   :init
-;;   (global-flycheck-mode))
-
-;; (use-package lsp-haskell
-;;   :ensure t
-;;   :config
-;;   (add-hook 'haskell-mode-hook #'lsp))
-
 (use-package haskell-mode
+  :defer t
+  :ensure t)
+
+(use-package csharp-mode
   :ensure t)
 
 (use-package rjsx-mode
   :ensure t
+  :defer t
   :init
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode)))
 
 (use-package typescript-mode
+  :defer t
   :ensure t)
 
 (use-package purescript-mode
+  :defer t
   :ensure t)
 
 (use-package web-mode
+  :defer t
   :ensure t)
 
 (use-package scala-mode
   :ensure t
+  :defer t
   :interpreter
   ("scala" . scala-mode))
 
 (use-package markdown-mode
+  :defer t
   :ensure t)
 
 (use-package yaml-mode
+  :defer t
   :ensure t)
 
 (use-package smooth-scrolling
@@ -320,6 +420,7 @@
 
 (use-package git-gutter
   :ensure t
+  :defer t
   :config
   (global-git-gutter-mode t)
   (setq git-gutter:window-width 2
@@ -345,11 +446,6 @@
   (define-fringe-bitmap 'git-gutter-fr:deleted
     [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
     nil nil 'center))
-
-;; (use-package hl-fill-column
-;;   :ensure t
-;;   :config
-;;   (global-hl-fill-column-mode))
 
 (use-package highlight-indent-guides
   :ensure t
@@ -388,33 +484,15 @@
               evil-visual-state-map
               evil-insert-state-map)))
 
-;; Clean up powerline
-(use-package diminish
-  :ensure t
-  :config
-  (diminish 'visual-line-mode)
-  (diminish 'undo-tree-mode)
-  (diminish 'projectile-mode)
-  (diminish 'company-mode)
-  (diminish 'git-gutter-mode)
-  (diminish 'helm-mode)
-  (diminish 'yas-minor-mode)
-  (diminish 'highlight-indent-guides-mode)
-  (diminish 'evil-commentary-mode)
-  (diminish 'auto-revert-mode)
-  (diminish 'eldoc-mode))
-
 (use-package restart-emacs
+  :defer t
   :ensure t)
 
-;; Remove trailing whitespaces
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-;; Auto pairs
-(electric-pair-mode t)
-
-;; Highlight matching brace
-(show-paren-mode t)
+;; May be broken
+;; (use-package eaf
+;;   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
+;;   :custom
+;;   (eaf-finde-alternate-file-in-dired t))
 
 ;; <esc> quits
 (defun minibuffer-keyboard-quit ()
@@ -442,3 +520,4 @@ In Delete Selection mode, if the mark is active, just deactivate it;"
 
 (provide 'emacs)
 ;;; emacs ends here
+(put 'erase-buffer 'disabled nil)

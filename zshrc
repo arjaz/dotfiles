@@ -95,8 +95,10 @@ alias vim=nvim
 alias v=nvim
 alias view='nvim -R'
 alias :q=exit
-alias sl=ls
 alias p=python
+alias btw=neofetch
+alias detach='disown; exit'
+alias record='ffmpeg -f x11grab -video_size 1920x1080 -framerate 30 -i $DISPLAY -c:v ffvhuff ~/Videos/screen/$(date +video-%Y-%m-%d-%H-%M-%S).mkv'
 
 # bindkey -v
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
@@ -106,3 +108,9 @@ export FZF_DEFAULT_COMMAND=find
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/arjaz/Programs/google-cloud-sdk/path.zsh.inc' ]; then . '/home/arjaz/Programs/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/arjaz/Programs/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/arjaz/Programs/google-cloud-sdk/completion.zsh.inc'; fi

@@ -27,12 +27,6 @@ bindsym $mod+j focus down
 bindsym $mod+k focus up
 bindsym $mod+l focus right
 
-# alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
-
 # move focused window
 bindsym $mod+Shift+h move left
 bindsym $mod+Shift+j move down
@@ -240,7 +234,7 @@ mode "$mode_gaps_inner" {
 # basic gaps
 # set $bgaps 4
 # set $bogaps 6
-set $bgaps 0
+set $bgaps 8
 set $bogaps 0
 
 # set basic gaps
@@ -254,15 +248,13 @@ bindsym $mod+g exec i3-msg "gaps inner all set 0; gaps outer all set 0"
 bindsym $mod+t exec i3-msg "gaps inner all set $bgaps; gaps outer all set $bogaps"
 
 # set smart gaps on
-# smart_gaps on
+smart_gaps on
+# set smart borders on
+smart_borders on
 
 # disable window titlebars
 for_window [class="^.*"] border pixel 1
 # default_border pixel 2
-
-# set smart borders on
-# smart_borders no_gaps
-smart_borders on
 
 # start nm-applet
 # exec --no-startup-id nm-applet --no-agent
@@ -274,7 +266,10 @@ exec --no-startup-id ~/.fehbg --restore
 # exec --no-startup-id fcitx -d -r
 
 # start blueman
-exec --no-startup-id blueman-applet
+# exec --no-startup-id blueman-applet
+
+# start redshift
+exec --no-startup-id redshift-gtk
 
 # start urxvtd
 # exec --no-startup-id urxvtd -q -f -o
@@ -285,7 +280,6 @@ exec --no-startup-id setxkbmap -option grp:alt_shift_toggle us,ru,ua -option com
 
 # custom execs
 bindsym $mod+F1 exec firefox
-bindsym $mod+Shift+F1 exec tabbed -c surf -e
 bindsym $mod+F2 exec telegram-desktop
 
 # mpc bindings
@@ -299,8 +293,11 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 0 -5%
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle && pkill -RTMIN+10 i3blocks
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessDown exec true &(pkexec /usr/bin/brillo -U 5)
-bindsym XF86MonBrightnessUp exec true $(pkexec /usr/bin/brillo -A 5)
+bindsym XF86MonBrightnessDown exec true &(pkexec /usr/bin/brillo -U 10)
+bindsym XF86MonBrightnessUp exec true $(pkexec /usr/bin/brillo -A 10)
+
+bindsym $mod+Down exec true &(pkexec /usr/bin/brillo -U 10)
+bindsym $mod+Up exec true $(pkexec /usr/bin/brillo -A 10)
 
 # escrotum binds
 bindsym --release Print exec --no-startup-id escrotum "~/Pics/screenshots/screen-%Y-%m-%d-%T.png"
@@ -326,7 +323,7 @@ bindsym $mod+m exec dmenumount.sh
 bindsym $mod+Shift+m exec dmenuumount.sh
 
 # load compton
-exec compton -f --config ~/.config/compton.conf
+exec DRI_PRIME=0 picom --config ~/.picom.conf
 
 # load dunst
 # exec dunst -shrink

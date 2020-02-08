@@ -3,9 +3,9 @@ call  plug#begin('~/.local/share/nvim/plugged')
 " Languages
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-Plug 'jalvesaq/nvim-r'
+" Plug 'jalvesaq/nvim-r'
 Plug 'lepture/vim-jinja'
-Plug 'jvirtanen/vim-octave'
+" Plug 'jvirtanen/vim-octave'
 Plug 'neovimhaskell/haskell-vim'
 " Plug 'tweekmonster/django-plus.vim'
 " Plug 'peterhoeg/vim-qml'
@@ -30,10 +30,10 @@ Plug 'craigemery/vim-autotag'
 
 " Text objects
 Plug 'wellle/targets.vim'
-Plug 'jeetsukumaran/vim-pythonsense'
+" Plug 'jeetsukumaran/vim-pythonsense'
 
 " Mechanics and general improvements
-Plug 'dhruvasagar/vim-table-mode'
+" Plug 'dhruvasagar/vim-table-mode'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'moll/vim-bbye'
@@ -56,7 +56,7 @@ call plug#end()
 
 " Basics
     set nocompatible
-    filetype indent plugin on
+    filetype indent plugin off
     set hidden
     set modelines=0
     set encoding=utf-8
@@ -67,7 +67,7 @@ call plug#end()
     set ignorecase
     set smartcase
     set incsearch
-    set smartindent
+    set autoindent
     set wrap
     set nu rnu
     set cursorline
