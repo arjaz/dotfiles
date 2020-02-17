@@ -57,3 +57,5 @@ URxvt.iso14755: false
 URxvt.iso14755_52: false
 
 URxvt.keysym.M-o: perl:fork-here:fork-at-cwd
+
+emacs.verticalScrollBars: false

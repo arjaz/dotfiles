@@ -1,4 +1,4 @@
-call  plug#begin('~/.local/share/nvim/plugged')
+call plug#begin('~/.local/share/nvim/plugged')
 
 " Languages
 Plug 'pangloss/vim-javascript'

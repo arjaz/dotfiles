@@ -7,16 +7,13 @@ font pango:Hack Nerd Font 10
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
-# connect to urxvt daemon
 bindsym $mod+Return exec i3-sensible-terminal
-# bindsym $mod+Return exec urxvtc
-bindsym $mod+Shift+Return exec urxvt
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
 # exit i3
-bindsym $mod+Shift+e exit
+# bindsym $mod+Shift+e exit
 
 # disable focus following mouse
 focus_follows_mouse off
@@ -32,12 +29,6 @@ bindsym $mod+Shift+h move left
 bindsym $mod+Shift+j move down
 bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
-
-# alternatively, you can use the cursor keys:
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
 bindsym $mod+b split h
@@ -271,6 +262,8 @@ exec --no-startup-id ~/.fehbg --restore
 # start redshift
 exec --no-startup-id redshift-gtk
 
+exec --no-startup-id emacs --daemon
+
 # start urxvtd
 # exec --no-startup-id urxvtd -q -f -o
 
@@ -313,7 +306,7 @@ bindsym $mod+Shift+o exec thunar
 bindsym $mod+p exec passmenu
 
 # emacs bind
-bindsym $mod+Shift+w exec emacs
+bindsym $mod+Shift+w exec emacsclient -c
 
 # network manager bind
 bindsym $mod+Shift+n exec networkmanager_dmenu
