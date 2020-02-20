@@ -17,10 +17,9 @@
     ("d6c5b8dc6049f2e9dabdfcafa9ef2079352640e80dffe3e6cc07c0f89cbf9748" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
  '(lsp-haskell-process-path-hie "~/.local/bin/hie-8.6.5")
  '(org-agenda-files (quote ("~/.emacs.d/org/tasks.org")))
- '(org-trello-current-prefix-keybinding "C-c o")
  '(package-selected-packages
    (quote
-    (all-the-icons-ivy auto-package-update package-safe-delete vterm ledger-mode telega restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
+    (dired-sidebar all-the-icons-ivy auto-package-update package-safe-delete ledger-mode telega restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
  '(safe-local-variable-values
    (quote
     ((haskell-process-use-ghci . t)
@@ -193,6 +192,7 @@
   (evil-leader/set-leader ",")
   (evil-leader/set-key
     "q" 'evil-quit
+    "t" 'dired-sidebar-toggle-with-current-directory
     "b" 'ivy-switch-buffer
     "s" 'swiper-isearch
     "a" 'counsel-ag
@@ -206,8 +206,7 @@
     "d" 'eglot-find-declaration
     "f" 'eglot-format
     "r" 'eglot-rename
-    "m" 'eglot-help-at-point
-    "t" 'vterm-other-window))
+    "m" 'eglot-help-at-point))
 
 (use-package org-evil
   :defer t)
@@ -334,9 +333,6 @@
 (use-package vimrc-mode
   :defer t)
 
-(use-package org-trello
-  :defer t)
-
 (use-package smooth-scrolling
   :config
   (smooth-scrolling-mode t))
@@ -401,6 +397,8 @@
   :config
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
+(use-package dired-sidebar)
+
 (use-package hl-todo
   :config
   (global-hl-todo-mode t))
@@ -411,9 +409,6 @@
   (global-set-key (kbd "M-RET") #'terminal-here-launch))
 
 (use-package ledger-mode
-  :defer t)
-
-(use-package vterm
   :defer t)
 
 (use-package auto-package-update
@@ -434,12 +429,6 @@
 
 (use-package restart-emacs
   :defer t)
-
-;; May be broken
-;; (use-package eaf
-;;   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-;;   :custom
-;;   (eaf-finde-alternate-file-in-dired t))
 
 ;; <esc> quits
 (defun minibuffer-keyboard-quit ()
