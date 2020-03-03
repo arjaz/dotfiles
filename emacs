@@ -12,18 +12,50 @@
      (output-dvi "zathura")
      (output-pdf "zathura")
      (output-html "zathura"))))
+ '(ansi-color-names-vector
+   ["#282828" "#fb4934" "#8ec07c" "#fabd2f" "#268bd2" "#fb2874" "#83a598" "#ebdbb2"])
  '(custom-safe-themes
    (quote
-    ("d6c5b8dc6049f2e9dabdfcafa9ef2079352640e80dffe3e6cc07c0f89cbf9748" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+    ("e1ecb0536abec692b5a5e845067d75273fe36f24d01210bf0aa5842f2a7e029f" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" "d6c5b8dc6049f2e9dabdfcafa9ef2079352640e80dffe3e6cc07c0f89cbf9748" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+ '(fci-rule-color "#555556")
+ '(jdee-db-active-breakpoint-face-colors (cons "#1B2229" "#fabd2f"))
+ '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#8ec07c"))
+ '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#555556"))
  '(lsp-haskell-process-path-hie "~/.local/bin/hie-8.6.5")
+ '(objed-cursor-color "#fb4934")
  '(org-agenda-files (quote ("~/.emacs.d/org/tasks.org")))
  '(package-selected-packages
    (quote
-    (dired-sidebar all-the-icons-ivy auto-package-update package-safe-delete ledger-mode telega restart-emacs yasnippet-snippets web-mode use-package typescript-mode terminal-here smooth-scrolling scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
+    (dired-sidebar all-the-icons-ivy auto-package-update package-safe-delete ledger-mode telega yasnippet-snippets use-package typescript-mode terminal-here scala-mode rjsx-mode rainbow-delimiters purescript-mode powerline pipenv org-evil org-bullets nord-theme markdown-mode key-chord hl-todo highlight-indent-guides haskell-mode git-gutter-fringe evil-surround evil-numbers evil-magit evil-leader evil-escape evil-commentary eglot doom-themes doom-modeline disable-mouse diminish company bnf-mode auto-virtualenv auctex all-the-icons-dired)))
+ '(pdf-view-midnight-colors (cons "#ebdbb2" "#282828"))
+ '(rustic-ansi-faces
+   ["#282828" "#fb4934" "#8ec07c" "#fabd2f" "#268bd2" "#fb2874" "#83a598" "#ebdbb2"])
  '(safe-local-variable-values
    (quote
     ((haskell-process-use-ghci . t)
-     (haskell-indent-spaces . 4)))))
+     (haskell-indent-spaces . 4))))
+ '(vc-annotate-background "#282828")
+ '(vc-annotate-color-map
+   (list
+    (cons 20 "#8ec07c")
+    (cons 40 "#b2bf62")
+    (cons 60 "#d5be48")
+    (cons 80 "#fabd2f")
+    (cons 100 "#fba827")
+    (cons 120 "#fc9420")
+    (cons 140 "#fe8019")
+    (cons 160 "#fd6237")
+    (cons 180 "#fb4555")
+    (cons 200 "#fb2874")
+    (cons 220 "#fb335e")
+    (cons 240 "#fa3e49")
+    (cons 260 "#fb4934")
+    (cons 280 "#d14c3c")
+    (cons 300 "#a84f45")
+    (cons 320 "#7e514d")
+    (cons 340 "#555556")
+    (cons 360 "#555556")))
+ '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -64,8 +96,10 @@
 
 ;; Font and font size
 (set-face-attribute 'default nil :height 100)
-(set-frame-font "Hack Nerd Font Mono-10")
-(setq default-frame-alist '((font . "Hack Nerd Font Mono-10")))
+(set-frame-font "Fira Code-10")
+(setq default-frame-alist '((font . "Fira Code-10")))
+;; (set-frame-font "Inconsolata-12")
+;; (setq default-frame-alist '((font . "Inconsolata-12")))
 
 ;; Don't create backup files
 (setq make-backup-files nil)
@@ -119,6 +153,12 @@
       c-basic-offset 4)
 (setq js-indent-level 2)
 
+;; Smooth scrolling
+(setq scroll-conservatively 101) ;; move minimum when cursor exits view, instead of recentering
+
+;; open *.h as c++-mode
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
 (package-initialize)
 
 (require 'package)
@@ -170,8 +210,7 @@
 ;; Org-mode
 (use-package org-bullets
   :defer t
-  :config
-  (add-hook 'org-mode-hook 'org-bullets-mode))
+  :hook (org-mode . org-bullets-mode))
 
 ;; Evil
 (setq evil-want-keybinding nil)
@@ -257,28 +296,12 @@
 
 (use-package yasnippet-snippets)
 
-(use-package pipenv
-  :defer t
-  :hook (python-mode . pipenv-mode)
-  :init
-  (setq pipenv-projectile-after-switch-function
-        #'pipenv-projectile-after-switch-extended))
-
-(use-package auto-virtualenv
-  :defer t
-  :config
-  (setq python-shell-interpreter "python")
-  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
-  (add-hook 'projectile-after-switch-project-hook 'auto-virtualenv-set-virtualenv))
-
 (use-package yapfify
   :hook (python-mode . yapf-mode))
 
 (use-package prettier-js
   :hook (js-mode . prettier-js-mode)
-  :hook (web-mode . prettier-js-mode)
   :hook (rjsx-mode . prettier-js-mode))
-
 
 (use-package flymake-cursor
   :load-path "~/.emacs.d/lisp/emacs-flymake-cursor"
@@ -286,9 +309,8 @@
   :config
   (flymake-cursor-mode))
 
-(use-package eglot
-  :init
-  (add-hook 'prog-mode 'eglot-ensure))
+(use-package eglot)
+  ;; :hook (prog-mode . eglot-ensure))
 
 (use-package cmake-mode)
 
@@ -333,12 +355,8 @@
 (use-package vimrc-mode
   :defer t)
 
-(use-package smooth-scrolling
-  :config
-  (smooth-scrolling-mode t))
-
 (use-package rainbow-delimiters
-  :hook (prog-mode-hook . raindow-delimeters-mode))
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package doom-themes
   :config
@@ -386,16 +404,15 @@
     nil nil 'center))
 
 (use-package highlight-indent-guides
-  :config
-  (setq highlight-indent-guides-method 'character)
-  (setq highlight-indent-guides-responsive 'stack)
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+ :hook (prog-mode . highlight-indent-guides-mode)
+ :config
+ (setq highlight-indent-guides-method 'character)
+ (setq highlight-indent-guides-responsive 'stack))
 
 (use-package all-the-icons)
 
 (use-package all-the-icons-dired
-  :config
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+ :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package dired-sidebar)
 
@@ -426,9 +443,6 @@
               evil-normal-state-map
               evil-visual-state-map
               evil-insert-state-map)))
-
-(use-package restart-emacs
-  :defer t)
 
 ;; <esc> quits
 (defun minibuffer-keyboard-quit ()

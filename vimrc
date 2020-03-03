@@ -1,35 +1,35 @@
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Languages
-Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+" Plug 'pangloss/vim-javascript'
+" Plug 'mxw/vim-jsx'
 " Plug 'jalvesaq/nvim-r'
-Plug 'lepture/vim-jinja'
+" Plug 'lepture/vim-jinja'
 " Plug 'jvirtanen/vim-octave'
-Plug 'neovimhaskell/haskell-vim'
+" Plug 'neovimhaskell/haskell-vim'
 " Plug 'tweekmonster/django-plus.vim'
 " Plug 'peterhoeg/vim-qml'
 " Plug 'vim-scripts/ebnf.vim'
-Plug 'vim-scripts/bnf.vim'
-Plug 'godlygeek/tabular'
+" Plug 'vim-scripts/bnf.vim'
+" Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'pboettch/vim-cmake-syntax'
-Plug 'lervag/vimtex'
+" Plug 'lervag/vimtex'
 " Plug 'vim-scripts/slimv.vim'
 
 " Completion and snippets
 Plug 'jiangmiao/auto-pairs'
-Plug 'sirver/ultisnips'
-Plug 'honza/vim-snippets'
+" Plug 'sirver/ultisnips'
+" Plug 'honza/vim-snippets'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Tags and git
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-Plug 'craigemery/vim-autotag'
+" Plug 'tpope/vim-fugitive'
+" Plug 'airblade/vim-gitgutter'
+" Plug 'craigemery/vim-autotag'
 
 " Text objects
-Plug 'wellle/targets.vim'
+" Plug 'wellle/targets.vim'
 " Plug 'jeetsukumaran/vim-pythonsense'
 
 " Mechanics and general improvements
@@ -48,9 +48,9 @@ Plug 'Yggdroot/indentLine'
 Plug 'arcticicestudio/nord-vim'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'romainl/vim-cool'
-Plug 'gko/vim-coloresque'
+" Plug 'gko/vim-coloresque'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'ryanoasis/vim-devicons'
+" Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 
@@ -138,43 +138,8 @@ call plug#end()
 " disable json conceal
     let g:vim_json_conceal = 0
 
-" fzf + devicons
-    function! Fzf_dev()
-        function! s:files()
-            let files = split(system("git ls-files -co --exclude-standard"), '\n')
-            if files[0] == "fatal: not a git repository (or any parent up to mount point /)"
-                let files = split(system("find -type f"), '\n')
-            endif
-            return s:prepend_icon(files)
-        endfunction
-
-        function! s:prepend_icon(candidates)
-            let result = []
-            for candidate in a:candidates
-                let filename = fnamemodify(candidate, ':p:t')
-                let icon = WebDevIconsGetFileTypeSymbol(filename, isdirectory(filename))
-                call add(result, printf("%s %s", icon, candidate))
-            endfor
-
-            return result
-        endfunction
-
-        function! s:edit_file(item)
-            let parts = split(a:item, ' ')
-            let file_path = get(parts, 1, '')
-            execute 'silent e' file_path
-        endfunction
-
-        call fzf#run({
-                    \ 'source': <sid>files(),
-                    \ 'sink':   function('s:edit_file'),
-                    \ 'options': '-m',
-                    \ 'down':    '40%' })
-    endfunction
-
 " fzf plugin
-    " nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
-    nmap <silent> <leader><leader> :call Fzf_dev()<CR>
+    nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
 
 " lightline plugin
     set laststatus=2
@@ -199,10 +164,10 @@ call plug#end()
     let g:NERDTreeShowHidden=1
 
 " ultisnips plugin
-    let g:UltiSnipsExpandTrigger="<C-X>"
+    " let g:UltiSnipsExpandTrigger="<C-X>"
 
 " vim-jsx
-    let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
+    " let g:jsx_ext_required = 0 " Allow JSX in ordinary JS files
 
 " indentLine
     let g:indentLine_char = '▏'
@@ -307,7 +272,7 @@ call plug#end()
 "     " nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
 " vim-autotag
-    let g:autotagTagsFile=".tags"
+    " let g:autotagTagsFile=".tags"
 
 " rainbow_parentheses
     let g:rbpt_colorpairs = [
@@ -333,11 +298,11 @@ call plug#end()
     au Syntax * RainbowParenthesesLoadBraces
 
 " vim-lsp-cxx-highlight
-    let g:lsp_cxx_hl_use_text_props = 1
+    " let g:lsp_cxx_hl_use_text_props = 1
 
 " gitgutter
-    let g:gitgutter_highlight_linenrs = 1
+    " let g:gitgutter_highlight_linenrs = 1
 
 " vim-latex
-    let g:tex_flavor='latex'
-    let g:tex_conceal=''
+    " let g:tex_flavor='latex'
+    " let g:tex_conceal=''
