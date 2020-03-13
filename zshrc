@@ -104,8 +104,6 @@ alias record='ffmpeg -f x11grab -video_size 1920x1080 -framerate 30 -i $DISPLAY 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 export DRI_PRIME=1
 
-export FZF_DEFAULT_COMMAND=find
-
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 

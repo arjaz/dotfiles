@@ -1,0 +1,535 @@
+* My config
+** Startup optimization
+   I'm not really sure how to improve that, but I don't care since switching to emacs-daemon
+   #+BEGIN_SRC emacs-lisp
+     (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
+           gc-cons-percentage 0.6)
+
+     (add-hook 'emacs-startup-hook
+               (lambda ()
+                 (setq gc-cons-threshold 134217728 ; 128mb
+                       gc-cons-percentage 0.1)))
+   #+END_SRC
+** QoL features
+   Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some aliases and small adjustments.
+  #+BEGIN_SRC emacs-lisp
+    ;; Disable startup message and gtk pop-ups
+    (setq inhibit-startup-message t
+          x-gtk-use-system-tooltips nil
+          use-dialog-box nil)
+    ;; Disable menu-bar
+    (menu-bar-mode -1)
+    ;; Disable scroll-bar
+    (scroll-bar-mode -1)
+    ;; Disable tool-bar
+    (tool-bar-mode -1)
+    ;; Disable tooltip
+    (tooltip-mode -1)
+
+    ;; Symlinks
+    (setq vc-follow-symlinks t)
+    (setq find-file-visit-truename t)
+
+    ;; Don't create backup files
+    (setq make-backup-files nil)
+
+    ;; Disable auto-saves
+    (setq auto-save-default nil)
+
+    ;; We don't want to type yes and no all the time so, do y and n
+    (defalias 'yes-or-no-p 'y-or-n-p)
+  #+END_SRC
+** Faces
+   I really love FiraCode and someday I'll probably set up ligatures. It's also a good idea to read about the faces a bit more.
+   #+BEGIN_SRC emacs-lisp
+     (set-face-attribute 'default nil :height 100)
+     (set-frame-font "Fira Code-10")
+     (setq default-frame-alist '((font . "Fira Code-10")))
+   #+END_SRC
+** Useful modes and hooks
+*** Hooks
+   #+BEGIN_SRC emacs-lisp
+     ;; Remove trailing whitespaces
+     (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+     ;; Folding
+     (add-hook 'prog-mode-hook 'hs-minor-mode)
+   #+END_SRC
+*** Modes provided by emacs
+   #+BEGIN_SRC emacs-lisp
+     ;; Non-blinking cursor
+     (blink-cursor-mode 0)
+
+     ;; Auto pairs
+     (electric-pair-mode t)
+
+     ;; Highlight matching brace
+     (show-paren-mode t)
+
+     ;; Highlight current line
+     (global-hl-line-mode t)
+
+     ;; Relative line numbers
+     (global-display-line-numbers-mode t)
+   #+END_SRC
+*** Flymake
+    #+BEGIN_SRC emacs-lisp
+      ;; Move flymake garbage
+      (setq flymake-run-in-place nil)
+      (setq temporary-file-directory "~/.emacs.d/tmp/")
+    #+END_SRC
+** Misc
+*** Indentation
+    #+BEGIN_SRC emacs-lisp
+      (setq-default indent-tabs-mode nil)
+      (setq tab-width 4)
+      (setq c-default-style "k&r"
+            c-basic-offset 4)
+      (setq js-indent-level 2)
+    #+END_SRC
+*** Other stuff
+   #+BEGIN_SRC emacs-lisp
+     ;; Clean buffers
+     (setq clean-buffer-list-delay-general 1)
+     (global-set-key (kbd "C-x C-b") 'ibuffer)
+     (require 'ibuf-ext)
+     (add-to-list 'ibuffer-never-show-predicates "^\\*")
+
+    ;; Zathura for pdf
+    (setq TeX-view-program-list '(("zathura" "zathura --page=%(outpage) %o")))
+
+     ;; Relative line numbers
+    (setq display-line-numbers-type 'relative)
+
+    ;; Smooth scrolling
+    (setq scroll-conservatively 101) ;; move minimum when cursor exits view, instead of recentering
+
+    ;; open *.h as c++-mode
+    (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+   #+END_SRC
+** Packages
+   I generally use use-package
+*** init
+    #+BEGIN_SRC emacs-lisp
+      (package-initialize)
+
+      (require 'package)
+      (add-to-list 'package-archives '("org" . "http://orgmoderog/elpa"))
+      (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+
+      (setq package-enable-at-startup nil)
+    #+END_SRC
+*** use-package
+    #+BEGIN_SRC emacs-lisp
+      (unless (package-installed-p 'use-package)
+        (package-refresh-contents)
+        (package-install 'use-package))
+
+      (require 'use-package-ensure)
+      (setq use-package-always-ensure t)
+    #+END_SRC
+**** Visual stuff
+***** Doom-themes
+      #+BEGIN_SRC emacs-lisp
+        (use-package doom-themes
+          :config
+          (setq doom-themes-enable-bold t
+                doom-themes-enable-italic t)
+          (load-theme 'doom-nord t)
+          (doom-themes-org-config))
+      #+END_SRC
+***** Doom-modeline
+      #+BEGIN_SRC emacs-lisp
+        (use-package doom-modeline
+          :hook (after-init . doom-modeline-mode)
+          :init
+          (setq doom-modeline-icon t)
+          (setq doom-modeline-project-detection 'project)
+          (setq doom-modeline-modal-icon t)
+          (setq doom-modeline-major-mode-icon t)
+          (setq doom-modeline-major-mode-color-icon t)
+          (setq doom-modeline-buffer-state-icon t)
+          (setq doom-modeline-buffer-modification-icon t)
+          (setq doom-modeline-lsp t))
+      #+END_SRC
+***** Rainbow-delimiters
+      #+BEGIN_SRC emacs-lisp
+        (use-package rainbow-delimiters
+          :defer t
+          :hook (prog-mode . rainbow-delimiters-mode))
+      #+END_SRC
+***** Git-gutter
+      #+BEGIN_SRC emacs-lisp
+        (use-package git-gutter
+          :config
+          (global-git-gutter-mode t)
+          (setq git-gutter:window-width 2
+                git-gutter:update-interval 1
+                git-gutter:ask-p nil))
+
+        (use-package git-gutter-fringe
+          :diminish git-gutter-mode
+          :after git-gutter
+          :demand fringe-helper
+          :config
+          ;; subtle diff indicators in the fringe
+          ;; places the git gutter outside the margins.
+          (setq-default fringes-outside-margins t)
+          ;; thin fringe bitmaps
+          (define-fringe-bitmap 'git-gutter-fr:added
+            [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+            nil nil 'center)
+          (define-fringe-bitmap 'git-gutter-fr:modified
+            [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+            nil nil 'center)
+          (define-fringe-bitmap 'git-gutter-fr:deleted
+            [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
+            nil nil 'center))
+      #+END_SRC
+***** Highlight-indent-guides
+      #+BEGIN_SRC emacs-lisp
+        (use-package highlight-indent-guides
+         :hook (prog-mode . highlight-indent-guides-mode)
+         :config
+         (setq highlight-indent-guides-method 'character)
+         (setq highlight-indent-guides-responsive 'stack))
+      #+END_SRC
+***** All-the-icons
+      #+BEGIN_SRC emacs-lisp
+        (use-package all-the-icons)
+
+        (use-package all-the-icons-dired
+         :hook (dired-mode . all-the-icons-dired-mode))
+      #+END_SRC
+***** Hl-todo
+      #+BEGIN_SRC emacs-lisp
+        (use-package hl-todo
+          :config
+          (global-hl-todo-mode t))
+      #+END_SRC
+**** Magit
+     #+BEGIN_SRC emacs-lisp
+       (use-package magit
+         :config
+         (global-set-key (kbd "C-c m") 'magit-status))
+     #+END_SRC
+**** Projectile
+     #+BEGIN_SRC emacs-lisp
+       (use-package projectile
+         :config
+         (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+         (projectile-mode t))
+     #+END_SRC
+**** Ivy, Swiper and Counsel
+     #+BEGIN_SRC emacs-lisp
+       (use-package ivy
+         :config
+         (ivy-mode t)
+         (counsel-mode t)
+         (global-set-key (kbd "M-x") 'counsel-M-x)
+         (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+         (setq ivy-display-style 'fancy)
+         (setq ivy-format-function 'ivy-format-function-line))
+
+       (use-package ivy-hydra)
+     #+END_SRC
+**** Org
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-bullets
+         :defer t
+         :hook (org-mode . org-bullets-mode))
+     #+END_SRC
+**** Evil
+     #+BEGIN_SRC emacs-lisp
+       (setq evil-want-keybinding nil)
+       (setq evil-want-integration t)
+
+       (use-package evil
+         :hook (after-change-major-mode . (lambda () (modify-syntax-entry ?_ "w")))
+         :config
+         (define-key evil-normal-state-map (kbd "C-u") (lambda()
+                                                         (interactive)
+                                                         (evil-scroll-up nil)))
+         (define-key evil-normal-state-map (kbd "C-d") (lambda()
+                                                         (interactive)
+                                                         (evil-scroll-down nil)))
+         (evil-mode t)
+         (setq evil-split-window-below t
+               evil-vsplit-window-right t))
+
+       (use-package evil-numbers
+         :config
+         (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+         (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
+         (define-key evil-normal-state-map (kbd "C-c a") 'evil-numbers/inc-at-pt)
+         (define-key evil-normal-state-map (kbd "C-c c") 'evil-numbers/dec-at-pt))
+
+       (use-package evil-surround
+         :config
+         (global-evil-surround-mode t))
+
+       (use-package evil-commentary
+         :config
+         (evil-commentary-mode))
+
+       (use-package evil-leader
+         :config
+         (setq evil-leader/in-all-states 1)
+         (global-evil-leader-mode)
+         (evil-leader/set-leader ",")
+         (evil-leader/set-key
+           "q" 'evil-quit
+           "t" 'dired-sidebar-toggle-with-current-directory
+           "b" 'ivy-switch-buffer
+           "s" 'swiper-isearch
+           "a" 'counsel-ag
+           "v" 'evil-window-vsplit
+           "h" 'evil-window-split
+           "o" 'counsel-find-file
+           "," 'counsel-projectile-find-file
+           "j" 'counsel-file-jump
+           "g" 'counsel-bookmark
+           "e" 'eglot
+           "d" 'eglot-find-declaration
+           "f" 'eglot-format
+           "r" 'eglot-rename
+           "m" 'eglot-help-at-point))
+
+       (use-package evil-collection
+         :config
+         (evil-collection-init))
+     #+END_SRC
+**** Key-chord
+     #+BEGIN_SRC emacs-lisp
+       (use-package key-chord
+         :config
+         (key-chord-mode t)
+         (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
+     #+END_SRC
+**** Dired
+***** Dired-sidebar
+      #+BEGIN_SRC emacs-lisp
+        (use-package dired-sidebar
+          :defer t)
+      #+END_SRC
+**** Terminal-here
+     #+BEGIN_SRC emacs-lisp
+       (use-package terminal-here
+         :config
+         (setq terminal-here-terminal-command (list "st" "--"))
+         (global-set-key (kbd "M-RET") #'terminal-here-launch))
+     #+END_SRC
+**** Company
+     #+BEGIN_SRC emacs-lisp
+     (use-package company
+         :config
+         (setq company-idle-delay 0.2)
+         (setq company-minimum-prefix-length 1)
+         (setq company-selection-wrap-around t)
+         (define-key company-active-map (kbd "<tab>") 'company-select-next)
+         (define-key company-active-map (kbd "<return>") 'company-complete)
+         (global-company-mode t))
+
+       (use-package company-jedi
+         :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+     #+END_SRC
+**** Yasnippet
+     #+BEGIN_SRC emacs-lisp
+       (use-package yasnippet
+         :config
+         (yas-global-mode t))
+
+       (use-package yasnippet-snippets)
+     #+END_SRC
+**** Flycheck
+     #+BEGIN_SRC emacs-lisp
+       (use-package flycheck
+         :init (global-flycheck-mode)
+         :bind (("C-c e" . flycheck-next-error)))
+
+       (use-package flycheck-pos-tip
+         :config
+         (setq flycheck-pos-tip-timeout 0)
+         (flycheck-pos-tip-mode))
+
+       (use-package flycheck-haskell
+         :defer t
+         :hook (haskell-mode . flycheck-haskell-setup))
+
+       (use-package flycheck-kotlin)
+     #+END_SRC
+**** Eglot
+     #+BEGIN_SRC emacs-lisp
+       (use-package eglot
+         :defer t)
+     #+END_SRC
+**** Haskell
+***** Hindent
+      #+BEGIN_SRC emacs-lisp
+        (use-package hindent
+          :defer t
+          :config
+          (setq hindent-reformat-buffer-on-save t))
+      #+END_SRC
+***** Haskell-mode
+      #+BEGIN_SRC emacs-lisp
+        (use-package haskell-mode
+          :defer t
+          :hook (haskell-mode . haskell-indent-mode)
+          :hook (haskell-mode . hindent-mode)
+          :config
+          (flymake-mode 0))
+      #+END_SRC
+***** Shakespeare-mode
+      #+BEGIN_SRC emacs-lisp
+        (use-package shakespeare-mode
+          :defer t)
+      #+END_SRC
+
+**** Python
+***** Yapfify
+      #+BEGIN_SRC emacs-lisp
+        (use-package yapfify
+          :defer t
+          :hook (python-mode . yapf-mode))
+      #+END_SRC
+***** Pyvenv
+      #+BEGIN_SRC emacs-lisp
+        (use-package pyvenv
+          :defer t)
+      #+END_SRC
+***** Coconut-mode
+      #+BEGIN_SRC emacs-lisp
+        (use-package coconut-mode
+          :load-path "~/.emacs.d/lisp/coconut-mode/"
+          :defer t
+          :hook (coconut-mode . (lambda () (setq tab-width 4))))
+      #+END_SRC
+**** JavaScript
+***** Rjsx-mode
+      #+BEGIN_SRC emacs-lisp
+        (use-package rjsx-mode
+          :defer t
+          :init
+          (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode)))
+      #+END_SRC
+***** Prettier-js
+      #+BEGIN_SRC emacs-lisp
+        (use-package prettier-js
+          :defer t
+          :hook (js-mode . prettier-js-mode)
+          :hook (rjsx-mode . prettier-js-mode))
+      #+END_SRC
+**** TypeScript
+     #+BEGIN_SRC emacs-lisp
+       (use-package typescript-mode
+         :defer t)
+     #+END_SRC
+**** PureScript
+     #+BEGIN_SRC emacs-lisp
+       (use-package purescript-mode
+         :defer t)
+     #+END_SRC
+**** Scala
+     #+BEGIN_SRC emacs-lisp
+       (use-package scala-mode
+         :defer t
+         :interpreter
+         ("scala" . scala-mode))
+     #+END_SRC
+**** Kotlin
+     #+BEGIN_SRC emacs-lisp
+       (use-package kotlin-mode
+         :defer t)
+     #+END_SRC
+**** C#
+     #+BEGIN_SRC emacs-lisp
+       (use-package csharp-mode
+         :defer t)
+     #+END_SRC
+**** Cmake
+     #+BEGIN_SRC emacs-lisp
+       (use-package cmake-mode
+         :defer t)
+     #+END_SRC
+**** Jinja2
+     #+BEGIN_SRC emacs-lisp
+       (use-package jinja2-mode
+         :defer t)
+     #+END_SRC
+**** Markdown
+     #+BEGIN_SRC emacs-lisp
+       (use-package markdown-mode
+         :defer t)
+     #+END_SRC
+**** Mermaid
+     #+BEGIN_SRC emacs-lisp
+       (use-package mermaid-mode
+         :defer t)
+     #+END_SRC
+**** PlantUML
+     #+BEGIN_SRC emacs-lisp
+       (use-package plantuml-mode
+         :defer t
+         :config
+         (add-to-list
+          'org-src-lang-modes '("plantuml" . plantuml))
+         (setq plantuml-executable-path "/bin/plantuml")
+         (setq plantuml-default-exec-mode 'executable))
+     #+END_SRC
+**** Yaml
+     #+BEGIN_SRC emacs-lisp
+       (use-package yaml-mode
+         :defer t)
+     #+END_SRC
+**** BNF
+     #+BEGIN_SRC emacs-lisp
+       (use-package bnf-mode
+         :defer t)
+     #+END_SRC
+**** LaTeX
+     #+BEGIN_SRC emacs-lisp
+       (use-package tex
+         :ensure auctex
+         :defer t)
+     #+END_SRC
+**** Vimrc
+     #+BEGIN_SRC emacs-lisp
+       (use-package vimrc-mode
+         :defer t)
+     #+END_SRC
+**** Ledger
+     #+BEGIN_SRC emacs-lisp
+       (use-package ledger-mode
+         :defer t)
+     #+END_SRC
+**** Disable-mouse
+     #+BEGIN_SRC emacs-lisp
+       (use-package disable-mouse
+         :config
+         (global-disable-mouse-mode)
+         (mapc #'disable-mouse-in-keymap
+               (list evil-motion-state-map
+                     evil-normal-state-map
+                     evil-visual-state-map
+                     evil-insert-state-map)))
+     #+END_SRC
+**** Auto-package-update
+     #+BEGIN_SRC emacs-lisp
+       (use-package auto-package-update
+         :config
+         (setq auto-package-update-delete-old-versions t)
+         (setq auto-package-update-hide-results t)
+         (auto-package-update-maybe))
+     #+END_SRC
+**** Cross-packages
+     #+BEGIN_SRC emacs-lisp
+       (use-package counsel-projectile
+         :config
+         (counsel-projectile-mode t))
+
+       (use-package org-evil
+         :defer t)
+
+       (use-package evil-magit)
+     #+END_SRC
