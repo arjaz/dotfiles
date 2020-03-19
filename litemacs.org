@@ -508,7 +508,17 @@
      #+BEGIN_SRC emacs-lisp
        (use-package tex
          :ensure auctex
-         :defer t)
+         :defer t
+         :bind ("M-q" . align-current)
+         :hook (LaTeX-mode . LaTeX-math-mode)
+         :hook (LaTeX-mode . flyspell-mode)
+         :hook (LaTeX-mode . turn-on-reftex)
+         :config
+         (setq TeX-PDF-mode t)
+         (setq TeX-auto-save t)
+         (setq TeX-parse-self t)
+         (setq reftex-plug-into-AUCTeX t)
+         (setq-default TeX-master nul))
      #+END_SRC
 **** Ledger
      #+BEGIN_SRC emacs-lisp

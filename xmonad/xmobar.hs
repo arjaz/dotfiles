@@ -4,13 +4,16 @@ Config
   , border = NoBorder
   , bgColor = "#2e3440"
   , fgColor = "#d8dee9"
-  , position = TopW C 100
+  , lowerOnStart = True
+  , hideOnStart = False
+  , allDesktops = True
+  , persistent = True
   , commands =
-      [ Run Memory ["-t", "Mem: <usedratio>%"] 10
-      , Run Swap [] 10
+      [ Run Memory ["-t", "<available>M"] 10
+      , Run Swap ["-t", "<free>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
       , Run Date "%d/%m/%Y, %I:%M%P" "date" 10
-      , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 10
+      , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 1
       , Run
           CoreTemp
           [ "--template"
@@ -53,15 +56,12 @@ Config
           , "Charged"
           ]
           50
-      -- , DiskU
-      --     [("~", "<used>/<size>")]
-      --     ["-L", "20", "-H", "50", "-m", "1", "-p", "3"]
-      --     20
+      , Run DiskU [("sda8", "<free>")] [] 20
       , Run Kbd []
       , Run StdinReader
       ]
   , sepChar = "%"
   , alignSep = "}{"
   , template =
-      "%StdinReader% }{ %battery% | %memory% %swap% | %coretemp% | %default:Master% | %date% | %kbd%"
+      " %StdinReader% }{ %battery% | %memory% %swap% %disku% | %coretemp% | %default:Master% | %date% | %kbd% "
   }
