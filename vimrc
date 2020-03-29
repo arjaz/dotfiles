@@ -14,7 +14,6 @@ Plug 'moll/vim-bbye'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
-Plug 'scrooloose/nerdtree'
 
 " Visual
 Plug 'itchyny/lightline.vim'
@@ -22,7 +21,6 @@ Plug 'Yggdroot/indentLine'
 Plug 'arcticicestudio/nord-vim'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'romainl/vim-cool'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 call plug#end()
 
@@ -50,17 +48,12 @@ call plug#end()
     autocmd BufRead,BufNewFile *.htm,*.html,*.xml setlocal tabstop=2 shiftwidth=2 softtabstop=2
     set showcmd
     set cmdheight=2
-    set updatetime=300
     set signcolumn=yes
     set shortmess+=c
     set wildmode=longest,list,full
 
 " Preview substitutions
     set inccommand=nosplit
-
-" Folding
-    set foldmethod=indent
-    set foldlevelstart=99
 
 " Set colorscheme
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -78,30 +71,15 @@ call plug#end()
     imap jk <esc>
     imap kj <esc>
 
-" Split navigation
-    map <C-h> <C-w>h
-    map <C-j> <C-w>j
-    map <C-k> <C-w>k
-    map <C-l> <C-w>l
-
 " Buffers mapping
     nmap <Tab> :bnext<CR>
     nmap <S-Tab> :bprevious<CR>
-    nmap <leader>q :Bdelete<CR>
-    nmap <leader>d :bd!<CR>
     nmap <leader>b :Buffers
 
 " Plus buffer
     set clipboard=unnamedplus
     vnoremap <C-c> "+y
     map <C-p> "+P
-
-" Terminal mapping
-    nmap <leader>t :terminal<CR>
-    nmap <leader>c :new<CR>:res 15<CR>:terminal<CR>
-
-" Terminal resize mapping
-    nmap <leader>r :res 15<CR>
 
 " Split mapping
     nmap <leader>v :vsplit<CR>
@@ -128,12 +106,6 @@ call plug#end()
     \       'gitbranch': 'fugitive#head'
     \   },
     \ }
-
-" nerdtree plugin
-    map <C-o> :NERDTreeToggle<CR>
-    let g:NERDTreeShowLineNumbers=1
-    let g:NERDTreeMinimalUI=1
-    let g:NERDTreeShowHidden=1
 
 " indentLine
     let g:indentLine_char = '▏'

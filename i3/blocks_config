@@ -63,6 +63,10 @@ interval=3
 command=date '+%d.%m.%Y, %I:%M%P'
 interval=1
 
-[layout]
-command=xkblayout
-interval=1
+# [layout]
+# command=xkblayout
+# interval=1
+
+[keymap]
+command=xkb-switch -W
+interval=persist

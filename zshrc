@@ -59,6 +59,7 @@ export UPDATE_ZSH_DAYS=13
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -97,12 +98,9 @@ alias view='nvim -R'
 alias :q=exit
 alias p=python
 alias btw=neofetch
-alias detach='disown; exit'
-alias record='ffmpeg -f x11grab -video_size 1920x1080 -framerate 30 -i $DISPLAY -c:v ffvhuff ~/Videos/screen/$(date +video-%Y-%m-%d-%H-%M-%S).mkv'
 
 # bindkey -v
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
-export DRI_PRIME=1
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"

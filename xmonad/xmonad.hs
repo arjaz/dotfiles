@@ -23,24 +23,27 @@ import XMonad.Util.Run
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
 
+import qualified Codec.Binary.UTF8.String as UTF8
+import qualified DBus as D
+import qualified DBus.Client as D
+
 main = do
   xmproc <- spawnPipe "xmobar"
   xmonad $ docks $ myConfig xmproc
 
--- main = xmonad $ docks myConfig
-myConfig ppOutput =
+myConfig output =
   desktopConfig
     { terminal = myTerminal
     , modMask = myModMask
     , borderWidth = myBorderWidth
-    , normalBorderColor = myNormalBorderColor
-    , focusedBorderColor = myFocusedBorderColor
+    , normalBorderColor = bg0
+    , focusedBorderColor = bg1
     , workspaces = myWorkspaces
     , focusFollowsMouse = False
     , manageHook = myManageHook
     , layoutHook = myLayoutHook
     , startupHook = myStartupHook <+> ewmhDesktopsStartup
-    , logHook = dynamicLogWithPP $ myPP ppOutput
+    , logHook = dynamicLogWithPP $ myPP output
     , handleEventHook =
         fullscreenEventHook <+>
         ewmhDesktopsEventHook <+> handleEventHook desktopConfig
@@ -49,11 +52,13 @@ myConfig ppOutput =
 
 myTerminal = "st"
 
-myNormalBorderColor = "#2e3440"
+fg0 = "#d8dee9"
 
-myFocusedBorderColor = "#88c0d0"
+fg1 = "#4c566a"
 
-myBar = "xmobar"
+bg0 = "#2e3440"
+
+bg1 = "#88c0d0"
 
 myCurrentWSColor = "#a3be8c"
 
@@ -79,9 +84,10 @@ myExtraWorkspaces = [(xK_0, "0")]
 
 getKeyBinding mod key prog = [((mod, key), spawn prog)]
 
---TODO: escrotum, networkmanager_dmenu, dmenumount
+--TODO: escrotum, networkmanager_dmenu, dmenumount, pass
 myAdditionalKeys =
   [((myModMask, xK_d), spawn "dmenu_run")] ++
+  [((myModMask, xK_p), spawn "passmenu")] ++
   [ ((myModMask, key), (windows $ W.greedyView ws))
   | (key, ws) <- myExtraWorkspaces
   ] ++
@@ -94,6 +100,7 @@ myAdditionalKeys =
   [((myModMask .|. shiftMask, xK_q), kill)] ++
   [((myModMask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
   [((myModMask .|. shiftMask, xK_w), spawn "emacsclient -c")] ++
+  [((myModMask .|. shiftMask, xK_F1), spawn "tabbed -c surf -e")] ++
   [((myModMask, xK_F1), spawn "firefox")] ++
   [((myModMask, xK_F2), spawn "telegram-desktop")] ++
   [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")] ++
@@ -101,6 +108,12 @@ myAdditionalKeys =
   [((0, xF86XK_AudioMute), spawn "pactl set-sink-mute 0 toggle")] ++
   [((myModMask, xK_Left), spawn "pactl -- set-sink-volume 0 -5%")] ++
   [((myModMask, xK_Right), spawn "pactl -- set-sink-volume 0 +5%")] ++
+  [ ( (0, xK_Print)
+    , spawn "escrotum \"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\"")
+  ] ++
+  [ ( (controlMask, xK_Print)
+    , spawn "escrotum -s \"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\"")
+  ] ++
   [ ( (0, xF86XK_MonBrightnessDown)
     , spawn "true $(pkexec /usr/bin/brillo -U 10)")
   ] ++
