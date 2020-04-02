@@ -1,5 +1,5 @@
 Config
-  { font = "xft:Fira Code-10"
+  { font = "xft:Input Mono-10"
   , borderColor = "#2e3440"
   , border = NoBorder
   , bgColor = "#2e3440"

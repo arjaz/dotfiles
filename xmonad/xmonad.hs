@@ -6,6 +6,8 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.BinarySpacePartition
+import XMonad.Layout.Circle
+import XMonad.Layout.OneBig
 
 import XMonad.Layout.Fullscreen hiding (fullscreenEventHook)
 
@@ -138,12 +140,16 @@ myManageHook =
     moveTo = doF . W.shift
 
 myLayoutHook =
-  avoidStruts . smartBorders . smartSpacing gapSize $
-  mkToggle (NOBORDERS ?? FULL ?? EOT) $ tiled ||| eBSP ||| mono
+  avoidStruts $
+  mkToggle (NOBORDERS ?? FULL ?? EOT) $
+  tiled ||| eBSP ||| big ||| mono ||| circled
   where
-    mono = Full
-    tiled = Tall nmaster delta ratio
-    eBSP = emptyBSP
+    mono = smartBorders . smartSpacing gapSize $ Full
+    tiled = smartBorders . smartSpacing gapSize $ Tall nmaster delta ratio
+    big = smartBorders . smartSpacing gapSize $ OneBig (4 / 5) (4 / 5)
+    circled = Circle
+    eBSP = modify emptyBSP
+    modify = smartBorders . smartSpacing gapSize
     gapSize = 5
     nmaster = 1
     delta = 3 / 100

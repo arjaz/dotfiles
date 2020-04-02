@@ -37,7 +37,7 @@
 *.color15: nord6
 
 /* URxvt*font: xft:Roboto Mono:size=10:style:Semibold */
-URxvt*font: xft:Fira Code:size=10
+URxvt*font: xft:Monoid:size=9
 
 Xft.dpi: 96
 Xft.antialias: true
