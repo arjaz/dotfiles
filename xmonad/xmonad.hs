@@ -7,6 +7,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.BinarySpacePartition
 import XMonad.Layout.Circle
+import XMonad.Layout.Named
 import XMonad.Layout.OneBig
 
 import XMonad.Layout.Fullscreen hiding (fullscreenEventHook)
@@ -102,8 +103,8 @@ myAdditionalKeys =
   [((myModMask .|. shiftMask, xK_q), kill)] ++
   [((myModMask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
   [((myModMask .|. shiftMask, xK_w), spawn "emacsclient -c")] ++
-  [((myModMask .|. shiftMask, xK_F1), spawn "tabbed -c surf -e")] ++
-  [((myModMask, xK_F1), spawn "firefox")] ++
+  -- [((myModMask, xK_F1), spawn "firefox")] ++
+  [((myModMask, xK_F1), spawn "qutebrowser")] ++
   [((myModMask, xK_F2), spawn "telegram-desktop")] ++
   [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")] ++
   [((0, xF86XK_AudioRaiseVolume), spawn "pactl -- set-sink-volume 0 +5%")] ++
@@ -140,16 +141,15 @@ myManageHook =
     moveTo = doF . W.shift
 
 myLayoutHook =
-  avoidStruts $
+  avoidStruts . smartBorders . smartSpacing gapSize $
   mkToggle (NOBORDERS ?? FULL ?? EOT) $
   tiled ||| eBSP ||| big ||| mono ||| circled
   where
-    mono = smartBorders . smartSpacing gapSize $ Full
-    tiled = smartBorders . smartSpacing gapSize $ Tall nmaster delta ratio
-    big = smartBorders . smartSpacing gapSize $ OneBig (4 / 5) (4 / 5)
+    mono = Full
+    tiled = Tall nmaster delta ratio
+    big = named "One Big" $ OneBig (4 / 5) (4 / 5)
     circled = Circle
-    eBSP = modify emptyBSP
-    modify = smartBorders . smartSpacing gapSize
+    eBSP = emptyBSP
     gapSize = 5
     nmaster = 1
     delta = 3 / 100

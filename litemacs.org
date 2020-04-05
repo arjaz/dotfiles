@@ -114,7 +114,6 @@ I generally use use-package
 
   (require 'package)
   (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-  ;; (add-to-list 'package-archives '("gnu" . "http://mirrors.163.com/elpa/gnu/"))
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
@@ -318,9 +317,11 @@ I generally use use-package
     (evil-leader/set-key
       ; Windows
       "w h" 'evil-window-left
-      "w j" 'evil-window-bottom
-      "w k" 'evil-window-top
+      "w j" 'evil-window-down
+      "w k" 'evil-window-up
       "w l" 'evil-window-right
+
+      "x" 'counsel-M-x
 
       "q" 'evil-quit
       "t" 'eshell-toggle
@@ -533,6 +534,18 @@ I generally use use-package
        (use-package kotlin-mode)
          ; :defer t)
 #+END_SRC
+**** Rust
+#+BEGIN_SRC emacs-lisp
+  (use-package rust-mode
+    :config
+    (setq rust-format-on-save t)
+    (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
+
+  (use-package flycheck-rust
+    :after flycheck
+    :after rust-mode
+    :hook (flycheck-mode . flycheck-rust-setup))
+#+END_SRC
 **** C#
 #+BEGIN_SRC emacs-lisp
        (use-package csharp-mode)
@@ -629,7 +642,6 @@ I generally use use-package
     :after (evil magit)
     :config
     (setq evil-magit-want-vertical-movement t))
-
 
   (use-package evil-smartparens
     :after (evil)

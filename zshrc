@@ -96,6 +96,7 @@ alias vim=nvim
 alias v=nvim
 alias view='nvim -R'
 alias :q=exit
+alias vtop='vtop --theme=nord'
 alias p=python
 alias btw=neofetch
 
