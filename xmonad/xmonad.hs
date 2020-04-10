@@ -91,6 +91,7 @@ getKeyBinding mod key prog = [((mod, key), spawn prog)]
 myAdditionalKeys =
   [((myModMask, xK_d), spawn "dmenu_run")] ++
   [((myModMask, xK_p), spawn "passmenu")] ++
+  [((myModMask, xK_n), spawn "networkmanager_dmenu")] ++
   [ ((myModMask, key), (windows $ W.greedyView ws))
   | (key, ws) <- myExtraWorkspaces
   ] ++
@@ -142,14 +143,13 @@ myManageHook =
 
 myLayoutHook =
   avoidStruts . smartBorders . smartSpacing gapSize $
-  mkToggle (NOBORDERS ?? FULL ?? EOT) $
-  tiled ||| eBSP ||| big ||| mono ||| circled
+  mkToggle (NOBORDERS ?? FULL ?? EOT) $ tiled ||| big ||| circled
   where
-    mono = Full
+    -- mono = Full
     tiled = Tall nmaster delta ratio
     big = named "One Big" $ OneBig (4 / 5) (4 / 5)
     circled = Circle
-    eBSP = emptyBSP
+    -- eBSP = emptyBSP
     gapSize = 5
     nmaster = 1
     delta = 3 / 100

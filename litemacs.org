@@ -6,7 +6,7 @@ I'm not really sure how to improve that, but I don't care since switching to ema
 
   (add-hook 'emacs-startup-hook
             (lambda ()
-              (setq gc-cons-threshold 134217728 ; 128mb
+              (setq gc-cons-threshold 268435456 ; 256mb
                     gc-cons-percentage 0.1)))
 #+END_SRC
 * QoL features
@@ -74,7 +74,7 @@ Now I think between Monoid and Input
 #+BEGIN_SRC emacs-lisp
   ;; Move flymake garbage
   (setq flymake-run-in-place nil)
-  (setq temporary-file-directory "~/.emacs.d/tmp/")
+  (setq temporary-file-directory "~/.config/emacs/tmp/")
 #+END_SRC
 * Misc
 ** Indentation
@@ -320,6 +320,7 @@ I generally use use-package
       "w j" 'evil-window-down
       "w k" 'evil-window-up
       "w l" 'evil-window-right
+      "w o" 'delete-other-windows
 
       "x" 'counsel-M-x
 
@@ -336,10 +337,7 @@ I generally use use-package
       "g" 'counsel-bookmark
       "p" 'counsel-projectile-switch-project
       "e" 'eshell
-      "d" 'dired-sidebar-toggle-with-current-directory
-      "f" 'eglot-format
-      "r" 'eglot-rename
-      "m" 'eglot-help-at-point))
+      "d" 'dired-sidebar-toggle-with-current-directory))
 
   (use-package evil-collection
     :after evil
@@ -368,17 +366,21 @@ I generally use use-package
 #+END_SRC
 *** Company
 #+BEGIN_SRC emacs-lisp
-    (use-package company
-        :config
-        (setq company-idle-delay 0.2)
-        (setq company-minimum-prefix-length 1)
-        (setq company-selection-wrap-around t)
-        (define-key company-active-map (kbd "<tab>") 'company-select-next)
-        (define-key company-active-map (kbd "<return>") 'company-complete)
-        (global-company-mode t))
+  (use-package company
+    :config
+    (advice-add 'company-complete-common :before (lambda () (setq my-company-point (point))))
+    (advice-add 'company-complete-common :after (lambda ()
+                                                  (when (equal my-company-point (point))
+                                                    (yas-expand)))) 
+    (setq company-idle-delay 0)
+    (setq company-minimum-prefix-length 1)
+    (setq company-selection-wrap-around t)
+    (define-key company-active-map (kbd "<tab>") 'company-select-next)
+    (define-key company-active-map (kbd "<return>") 'company-complete)
+    (global-company-mode t))
 
-      (use-package company-jedi
-        :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+  (use-package company-jedi
+    :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
 #+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -405,10 +407,34 @@ I generally use use-package
 
       (use-package flycheck-kotlin)
 #+END_SRC
-*** Eglot
+*** Dap
+# #+BEGIN_SRC emacs-lisp
+#   (use-package dap-mode)
+# #+END_SRC
+*** LSP
 #+BEGIN_SRC emacs-lisp
-      (use-package eglot)
-        ; :defer t)
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :hook (before-save . lsp-format-buffer)
+    :config
+    (setq lsp-idle-delay 0.750)
+    :init
+    (setq read-process-output-max (* 1024 1024)))
+
+  (use-package company-lsp
+    :after (lsp-mode company)
+    :commands company-lsp
+    :config
+    (setq lsp-enable-snippet nil)
+    (push 'company-lsp company-backends))
+
+  (use-package lsp-ivy
+    :commands lsp-ivy-workspace-symbol)
+
+  (use-package lsp-ui
+    :config
+    (setq lsp-ui-sideline-show-diagnostics t
+          lsp-ui-sideline-show-hover t))
 #+END_SRC
 *** Languages
 **** C++
@@ -443,8 +469,7 @@ I generally use use-package
 #+BEGIN_SRC emacs-lisp
         (use-package haskell-mode
           ; :defer t
-          :hook (haskell-mode . haskell-indent-mode)
-          :hook (haskell-mode . hindentation-mode)
+          :hook (haskell-mode . haskell-indentation-mode)
           :hook (haskell-mode . interactive-haskell-mode)
           :hook (haskell-mode . hindent-mode)
           ;; :hook (haskell-mode . haskell-decl-scan-mode)
@@ -464,6 +489,12 @@ I generally use use-package
     ; :defer t
     :hook (haskell-mode . hlint-refactor-mode))
 #+END_SRC
+***** Lsp
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-haskell
+    :config
+    (setq lsp-haskell-process-path-hie "hie-wrapper"))
+#+END_SRC
 **** Python
 ***** Yapfify
 #+BEGIN_SRC emacs-lisp
@@ -480,13 +511,13 @@ I generally use use-package
   ;;   :hook (python-mode . auto-virtualenv-mode))
 #+END_SRC
 **** Coconut
-#+BEGIN_SRC emacs-lisp
-       (use-package coconut-mode
-         :load-path "~/.emacs.d/lisp/coconut-mode/"
-         ; :defer t
-         :mode "\\.coco\\'"
-         :hook (coconut-mode . (lambda () (setq tab-width 4))))
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+#        (use-package coconut-mode
+#          :load-path "~/.config/emacs/lisp/coconut-mode/"
+#          ; :defer t
+#          :mode "\\.coco\\'"
+#          :hook (coconut-mode . (lambda () (setq tab-width 4))))
+# #+END_SRC
 **** JavaScript
 ***** Rjsx-mode
 #+BEGIN_SRC emacs-lisp
@@ -611,6 +642,12 @@ I generally use use-package
 #+BEGIN_SRC emacs-lisp
        (use-package ledger-mode)
          ; :defer t)
+#+END_SRC
+*** Which key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :config
+    (which-key-mode))
 #+END_SRC
 *** Auto-package-update
 #+BEGIN_SRC emacs-lisp
