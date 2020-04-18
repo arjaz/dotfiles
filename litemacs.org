@@ -69,6 +69,8 @@ Now I think between Monoid and Input
 
   ;; Relative line numbers
   (global-display-line-numbers-mode t)
+
+  (electric-pair-mode t)
 #+END_SRC
 ** Flymake
 #+BEGIN_SRC emacs-lisp
@@ -105,6 +107,8 @@ Now I think between Monoid and Input
 
   ;; open *.h as c++-mode
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
+  (global-set-key (kbd "<f5>") 'compile)
 #+END_SRC
 * Packages
 I generally use use-package
@@ -210,8 +214,8 @@ I generally use use-package
 *** Smartparens
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
-    :hook (prog-mode . smartparens-mode)
     :config
+    (setq smartparens-global-mode t)
     (require 'smartparens-config))
 #+END_SRC
 *** Eshell
@@ -407,7 +411,7 @@ I generally use use-package
 
       (use-package flycheck-kotlin)
 #+END_SRC
-*** Dap
+*** TODO Dap
 # #+BEGIN_SRC emacs-lisp
 #   (use-package dap-mode)
 # #+END_SRC
@@ -431,13 +435,17 @@ I generally use use-package
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
 
-  (use-package lsp-ui
-    :config
-    (setq lsp-ui-sideline-show-diagnostics t
-          lsp-ui-sideline-show-hover t))
+  ;; (use-package lsp-ui
+  ;;   :config
+  ;;   (setq lsp-ui-doc-mode nil)
+  ;;   (setq lsp-ui-sideline-show-diagnostics t
+  ;;         lsp-ui-sideline-show-hover t))
 #+END_SRC
 *** Languages
 **** C++
+#+BEGIN_SRC emacs-lisp
+  (use-package ccls)
+#+END_SRC
 # ***** Irony
 # #+BEGIN_SRC emacs-lisp
 #         ;; (use-package irony
@@ -680,9 +688,9 @@ I generally use use-package
     :config
     (setq evil-magit-want-vertical-movement t))
 
-  (use-package evil-smartparens
-    :after (evil)
-    :after (smartparens)
-    :config
-    (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode))
+  ;; (use-package evil-smartparens
+  ;;   :after (evil)
+  ;;   :after (smartparens)
+  ;;   :config
+  ;;   (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode))
 #+END_SRC

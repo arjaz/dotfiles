@@ -20,11 +20,11 @@ alias vim=nvim
 alias v=nvim
 alias view='nvim -R'
 alias :q=exit
-alias vtop='vtop --theme=nord'
 alias p=python
 alias btw=neofetch
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
+export PATH="$HIME/.cabal/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"

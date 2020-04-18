@@ -87,11 +87,14 @@ myExtraWorkspaces = [(xK_0, "0")]
 
 getKeyBinding mod key prog = [((mod, key), spawn prog)]
 
---TODO: escrotum, networkmanager_dmenu, dmenumount, pass
+dmenu_options =
+  "-fn \"Input Mono-10\" -nb \"" ++
+  bg0 ++ "\" -nf \"" ++ fg0 ++ "\" -sb \"" ++ bg1 ++ "\" -sf \"" ++ bg0 ++ "\""
+
 myAdditionalKeys =
-  [((myModMask, xK_d), spawn "dmenu_run")] ++
-  [((myModMask, xK_p), spawn "passmenu")] ++
-  [((myModMask, xK_n), spawn "networkmanager_dmenu")] ++
+  [((myModMask, xK_d), spawn $ "dmenu_run -p Run: " ++ dmenu_options)] ++
+  [((myModMask, xK_p), spawn $ "passmenu -p Pass: " ++ dmenu_options)] ++
+  [((myModMask, xK_n), spawn $ "networkmanager_dmenu " ++ dmenu_options)] ++
   [ ((myModMask, key), (windows $ W.greedyView ws))
   | (key, ws) <- myExtraWorkspaces
   ] ++
@@ -104,7 +107,6 @@ myAdditionalKeys =
   [((myModMask .|. shiftMask, xK_q), kill)] ++
   [((myModMask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
   [((myModMask .|. shiftMask, xK_w), spawn "emacsclient -c")] ++
-  -- [((myModMask, xK_F1), spawn "firefox")] ++
   [((myModMask, xK_F1), spawn "qutebrowser")] ++
   [((myModMask, xK_F2), spawn "telegram-desktop")] ++
   [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")] ++
@@ -150,7 +152,7 @@ myLayoutHook =
     big = named "One Big" $ OneBig (4 / 5) (4 / 5)
     circled = Circle
     -- eBSP = emptyBSP
-    gapSize = 5
+    gapSize = 4
     nmaster = 1
     delta = 3 / 100
     ratio = 1 / 2
