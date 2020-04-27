@@ -107,7 +107,7 @@ myAdditionalKeys =
   [((myModMask .|. shiftMask, xK_q), kill)] ++
   [((myModMask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
   [((myModMask .|. shiftMask, xK_w), spawn "emacsclient -c")] ++
-  [((myModMask, xK_F1), spawn "qutebrowser")] ++
+  [((myModMask, xK_F1), spawn "qutebrowser --enable-webengine-inspector")] ++
   [((myModMask, xK_F2), spawn "telegram-desktop")] ++
   [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")] ++
   [((0, xF86XK_AudioRaiseVolume), spawn "pactl -- set-sink-volume 0 +5%")] ++

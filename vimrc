@@ -65,15 +65,13 @@ call plug#end()
     autocmd BufWritePre * %s/\s\+$//e
 
 " leader mapping
-    let mapleader = ","
+    let mapleader = " "
 
 " map esc
     imap jk <esc>
     imap kj <esc>
 
 " Buffers mapping
-    nmap <Tab> :bnext<CR>
-    nmap <S-Tab> :bprevious<CR>
     nmap <leader>b :Buffers
 
 " Plus buffer
@@ -92,6 +90,15 @@ call plug#end()
     nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
 
 " lightline plugin
+    " set statusline=
+    " set statusline+=\ %f
+    " set statusline+=\ %M
+    " set statusline+=\ %r
+    " set statusline+=%=
+    " set statusline+=\ %c:%l/%L
+    " set statusline+=\ %p%%
+    " set statusline+=\ %y
+
     set laststatus=2
     set noshowmode
     let g:lightline = {
@@ -99,12 +106,9 @@ call plug#end()
     \   'active': {
     \       'left': [
     \                   [ 'mode', 'paste' ],
-    \                   [ 'gitbranch', 'readonly', 'filename', 'modified' ],
+    \                   [ 'readonly', 'filename', 'modified' ],
     \               ]
-    \   },
-    \   'component_function': {
-    \       'gitbranch': 'fugitive#head'
-    \   },
+    \   }
     \ }
 
 " indentLine

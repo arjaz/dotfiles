@@ -41,7 +41,6 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 * Faces
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
-
 #+Begin_src emacs-lisp
   (set-frame-font "Monoid-9")
   (setq default-frame-alist '((font . "Monoid-9")))
@@ -123,6 +122,14 @@ I generally use use-package
 
   (setq package-enable-at-startup nil)
 #+END_SRC
+** Quelpa
+#+BEGIN_SRC emacs-lisp
+  (quelpa
+   '(quelpa-use-package
+     :fetcher git
+     :url "https://github.com/quelpa/quelpa-use-package.git"))
+  (require 'quelpa-use-package)
+#+END_SRC
 ** use-package
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -131,6 +138,7 @@ I generally use use-package
 
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)
+  (setq use-package-ensure-function 'quelpa)
 #+END_SRC
 *** Visual stuff
 **** Doom-themes
@@ -154,6 +162,7 @@ I generally use use-package
          (setq doom-modeline-major-mode-color-icon t)
          (setq doom-modeline-buffer-state-icon t)
          (setq doom-modeline-buffer-modification-icon t)
+         (setq doom-modeline-env-version t)
          (setq doom-modeline-lsp t))
 #+END_SRC
 **** Rainbow-delimiters
@@ -211,6 +220,13 @@ I generally use use-package
          :config
          (global-hl-todo-mode t))
 #+END_SRC
+**** Perfect-margin
+#+BEGIN_SRC emacs-lisp
+  (use-package perfect-margin
+    :config
+    (perfect-margin-mode t))
+#+END_SRC
+**** TODO Olivetti
 *** Smartparens
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
@@ -296,10 +312,12 @@ I generally use use-package
           evil-vsplit-window-right t))
 
   (use-package evil-numbers
+    :quelpa (:fetcher github
+             :repo "janpath/evil-numbers")
     :after evil
     :config
-    (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
-    (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt))
+    (define-key evil-normal-state-map (kbd "C-c j") 'evil-numbers/inc-at-pt)
+    (define-key evil-normal-state-map (kbd "C-c k") 'evil-numbers/dec-at-pt))
 
   (use-package evil-surround
     :after evil
@@ -343,6 +361,11 @@ I generally use use-package
       "e" 'eshell
       "d" 'dired-sidebar-toggle-with-current-directory))
 
+  (use-package evil-goggles
+    :hook (evil-mode . evil-goggles-mode)
+    :config
+    (setq evil-goggles-duration 0.100))
+
   (use-package evil-collection
     :after evil
     :config
@@ -375,7 +398,7 @@ I generally use use-package
     (advice-add 'company-complete-common :before (lambda () (setq my-company-point (point))))
     (advice-add 'company-complete-common :after (lambda ()
                                                   (when (equal my-company-point (point))
-                                                    (yas-expand)))) 
+                                                    (yas-expand))))
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 1)
     (setq company-selection-wrap-around t)
@@ -383,8 +406,9 @@ I generally use use-package
     (define-key company-active-map (kbd "<return>") 'company-complete)
     (global-company-mode t))
 
-  (use-package company-jedi
-    :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+  ;; (use-package company-box
+  ;; company-box
+  ;;   :hook (company-mode . company-box-mode))
 #+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -412,9 +436,13 @@ I generally use use-package
       (use-package flycheck-kotlin)
 #+END_SRC
 *** TODO Dap
-# #+BEGIN_SRC emacs-lisp
-#   (use-package dap-mode)
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package dap-mode
+    :config
+    (setq dap-mode t
+          dap-ui-mode t)
+    (require 'dap-python))
+#+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
@@ -440,6 +468,11 @@ I generally use use-package
   ;;   (setq lsp-ui-doc-mode nil)
   ;;   (setq lsp-ui-sideline-show-diagnostics t
   ;;         lsp-ui-sideline-show-hover t))
+#+END_SRC
+*** Docker
+#+BEGIN_SRC emacs-lisp
+  (use-package docker
+    :bind ("C-c d" . docker))
 #+END_SRC
 *** Languages
 **** C++
@@ -504,6 +537,11 @@ I generally use use-package
     (setq lsp-haskell-process-path-hie "hie-wrapper"))
 #+END_SRC
 **** Python
+***** Jedi
+#+BEGIN_SRC emacs-lisp
+  (use-package company-jedi
+    :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+#+END_SRC
 ***** Yapfify
 #+BEGIN_SRC emacs-lisp
         (use-package yapfify
@@ -554,12 +592,15 @@ I generally use use-package
 #+END_SRC
 **** Elm
 #+BEGIN_SRC emacs-lisp
-       (use-package elm-mode
-         ; :defer t
-         :after company
-         :hook (elm-mode . elm-format-on-save-mode)
-         :config
-         (add-to-list 'company-backends 'company-elm))
+  (use-package elm-mode
+    :after company
+    :hook (elm-mode . elm-format-on-save-mode)
+    :config
+    (add-to-list 'company-backends 'company-elm))
+
+  (use-package flycheck-elm
+    :after (flycheck)
+    :hook (flycheck-mode . flycheck-elm-setup))
 #+END_SRC
 **** Scala
 #+BEGIN_SRC emacs-lisp
@@ -629,6 +670,15 @@ I generally use use-package
 #+BEGIN_SRC emacs-lisp
        (use-package bnf-mode)
          ; :defer t)
+#+END_SRC
+**** Dockerfile
+#+BEGIN_SRC emacs-lisp
+  (use-package dockerfile-mode)
+#+END_SRC
+**** HTML
+#+BEGIN_SRC emacs-lisp
+  (use-package emmet-mode
+    :hook (jinja2-mode . emmet-mode))
 #+END_SRC
 **** LaTeX
 #+BEGIN_SRC emacs-lisp
