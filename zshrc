@@ -16,6 +16,7 @@ else
   export EDITOR='nvim'
 fi
 
+alias em='emacsclient -c . &; disown; exit'
 alias vim=nvim
 alias v=nvim
 alias view='nvim -R'

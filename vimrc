@@ -2,10 +2,6 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 " Languages
 Plug 'plasticboy/vim-markdown'
-Plug 'pboettch/vim-cmake-syntax'
-
-" Completion and snippets
-Plug 'jiangmiao/auto-pairs'
 
 " Mechanics and general improvements
 Plug 'tpope/vim-sensible'
@@ -17,9 +13,7 @@ Plug 'tpope/vim-repeat'
 
 " Visual
 Plug 'itchyny/lightline.vim'
-Plug 'Yggdroot/indentLine'
 Plug 'arcticicestudio/nord-vim'
-Plug 'kien/rainbow_parentheses.vim'
 Plug 'romainl/vim-cool'
 
 call plug#end()
@@ -59,7 +53,7 @@ call plug#end()
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     syntax enable
     colorscheme nord
-    set colorcolumn=110
+    set colorcolumn=81
 
 " Delete trailing whitespaces on save
     autocmd BufWritePre * %s/\s\+$//e
@@ -90,15 +84,6 @@ call plug#end()
     nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
 
 " lightline plugin
-    " set statusline=
-    " set statusline+=\ %f
-    " set statusline+=\ %M
-    " set statusline+=\ %r
-    " set statusline+=%=
-    " set statusline+=\ %c:%l/%L
-    " set statusline+=\ %p%%
-    " set statusline+=\ %y
-
     set laststatus=2
     set noshowmode
     let g:lightline = {
@@ -110,29 +95,3 @@ call plug#end()
     \               ]
     \   }
     \ }
-
-" indentLine
-    let g:indentLine_char = '▏'
-
-" rainbow_parentheses
-    let g:rbpt_colorpairs = [
-    \ ['brown',       'RoyalBlue3'],
-    \ ['Darkblue',    'SeaGreen3'],
-    \ ['darkgray',    'DarkOrchid3'],
-    \ ['darkgreen',   'firebrick3'],
-    \ ['darkcyan',    'RoyalBlue3'],
-    \ ['darkred',     'SeaGreen3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['brown',       'firebrick3'],
-    \ ['gray',        'RoyalBlue3'],
-    \ ['darkmagenta', 'DarkOrchid3'],
-    \ ['Darkblue',    'firebrick3'],
-    \ ['darkgreen',   'RoyalBlue3'],
-    \ ['darkcyan',    'SeaGreen3'],
-    \ ['darkred',     'DarkOrchid3'],
-    \ ['red',         'firebrick3'],
-    \ ]
-    au VimEnter * RainbowParenthesesToggle
-    au Syntax * RainbowParenthesesLoadRound
-    au Syntax * RainbowParenthesesLoadSquare
-    au Syntax * RainbowParenthesesLoadBraces

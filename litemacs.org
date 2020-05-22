@@ -42,19 +42,23 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (set-frame-font "Monoid-9")
-  (setq default-frame-alist '((font . "Monoid-9")))
-  ;; (set-face-attribute 'default nil :height 100 :weight 'semi-bold)
+  (set-frame-font "Input Mono-10")
+  (setq default-frame-alist '((font . "Input Mono-10")))
+  ;; (set-face-attribute 'default nil :height 100 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
 ** Hooks
 #+BEGIN_SRC emacs-lisp
   ;; Remove trailing whitespaces
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   ;; Folding
   (add-hook 'prog-mode-hook 'hs-minor-mode)
 #+END_SRC
+
+#+RESULTS:
+| company-mode | highlight-indent-guides-mode | rainbow-delimiters-mode | hs-minor-mode | whitespace-mode |
+
 ** Modes provided by emacs
 #+BEGIN_SRC emacs-lisp
   ;; Non-blinking cursor
@@ -80,8 +84,8 @@ Now I think between Monoid and Input
 * Misc
 ** Indentation
 #+BEGIN_SRC emacs-lisp
-  (setq-default indent-tabs-mode nil)
-  (setq tab-width 4)
+  (setq-default indent-tabs-mode nil
+                tab-width 4)
   (setq c-default-style "k&r"
         c-basic-offset 4)
   (setq js-indent-level 2)
@@ -122,14 +126,6 @@ I generally use use-package
 
   (setq package-enable-at-startup nil)
 #+END_SRC
-** Quelpa
-#+BEGIN_SRC emacs-lisp
-  (quelpa
-   '(quelpa-use-package
-     :fetcher git
-     :url "https://github.com/quelpa/quelpa-use-package.git"))
-  (require 'quelpa-use-package)
-#+END_SRC
 ** use-package
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -138,7 +134,6 @@ I generally use use-package
 
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)
-  (setq use-package-ensure-function 'quelpa)
 #+END_SRC
 *** Visual stuff
 **** Doom-themes
@@ -168,44 +163,15 @@ I generally use use-package
 **** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
        (use-package rainbow-delimiters
-         ; :defer t
          :hook (prog-mode . rainbow-delimiters-mode))
-#+END_SRC
-**** Git-gutter
-#+BEGIN_SRC emacs-lisp
-       (use-package git-gutter
-         :config
-         (global-git-gutter-mode t)
-         (setq git-gutter:window-width 2
-               git-gutter:update-interval 1
-               git-gutter:ask-p nil))
-
-       (use-package git-gutter-fringe
-         :diminish git-gutter-mode
-         :after git-gutter
-         :demand fringe-helper
-         :config
-         ;; subtle diff indicators in the fringe
-         ;; places the git gutter outside the margins.
-         (setq-default fringes-outside-margins t)
-         ;; thin fringe bitmaps
-         (define-fringe-bitmap 'git-gutter-fr:added
-           [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
-           nil nil 'center)
-         (define-fringe-bitmap 'git-gutter-fr:modified
-           [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
-           nil nil 'center)
-         (define-fringe-bitmap 'git-gutter-fr:deleted
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
-           nil nil 'center))
 #+END_SRC
 **** Highlight-indent-guides
 #+BEGIN_SRC emacs-lisp
-       (use-package highlight-indent-guides
-        :hook (prog-mode . highlight-indent-guides-mode)
-        :config
-        (setq highlight-indent-guides-method 'character)
-        (setq highlight-indent-guides-responsive 'stack))
+  (use-package highlight-indent-guides
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :config
+    (setq highlight-indent-guides-method 'character
+          highlight-indent-guides-responsive 'stack))
 #+END_SRC
 **** All-the-icons
 #+BEGIN_SRC emacs-lisp
@@ -220,13 +186,101 @@ I generally use use-package
          :config
          (global-hl-todo-mode t))
 #+END_SRC
-**** Perfect-margin
+**** Git-gutter
 #+BEGIN_SRC emacs-lisp
-  (use-package perfect-margin
+  (use-package git-gutter
     :config
-    (perfect-margin-mode t))
+    (global-git-gutter-mode t)
+    (setq git-gutter:window-width 2
+          git-gutter:update-interval 1
+          git-gutter:ask-p nil))
+
+  (use-package git-gutter-fringe
+    :diminish git-gutter-mode
+    :after git-gutter
+    :demand fringe-helper
+    :config
+    ;; subtle diff indicators in the fringe
+    ;; places the git gutter outside the margins.
+    (setq-default fringes-outside-margins t)
+    ;; thin fringe bitmaps
+    (define-fringe-bitmap 'git-gutter-fr:added
+      [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+      nil nil 'center)
+    (define-fringe-bitmap 'git-gutter-fr:modified
+      [224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224 224]
+      nil nil 'center)
+    (define-fringe-bitmap 'git-gutter-fr:deleted
+      [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
+      nil nil 'center))
+#+END_SRC
+**** Centaur-tabs
+#+BEGIN_SRC emacs-lisp
+  (use-package centaur-tabs
+    :bind
+    (:map evil-normal-state-map
+               ("g t" . centaur-tabs-forward)
+               ("g T" . centaur-tabs-backward))
+    ;; (centaur-tabs-headline-match)
+    :init
+    (setq centaur-tabs-set-icons t
+          centaur-tabs-style "bar"
+          centaur-tabs-gray-out-icons 'buffer
+          centaur-tabs-set-close-button nil
+          centaur-tabs-set-bar 'under
+          x-underline-at-descent-line t
+          centaur-tabs-cycle-scope 'tabs)
+    :config
+    (centaur-tabs-mode t)
+    (centaur-tabs-group-by-projectile-project))
+#+END_SRC
+**** Focus
+I should look into integrating it with lsp-mode via (add-to-list 'focus-mode-to-thing '(c-mode . lsp-folding-range)), but that should only be done when enabling lsp-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package focus
+    :bind ("C-c f" . focus-mode)
+    :config
+    (add-to-list 'focus-mode-to-thing '(python-mode . lsp-folding-range)))
+#+END_SRC
+**** Darkroom
+#+BEGIN_SRC emacs-lisp
+  (use-package darkroom
+    ;; :hook (prog-mode . darkroom-tentative-mode)
+    :custom
+    (darkroom-text-scale-increase 0.5))
 #+END_SRC
 **** TODO Olivetti
+*** Ws-butler
+#+BEGIN_SRC emacs-lisp
+  (use-package ws-butler
+    :config
+    (ws-butler-global-mode t))
+#+END_SRC
+*** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-items '((recents  . 5)
+                            (bookmarks . 5)
+                            (projects . 5)
+                            (agenda . 5)))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+#+END_SRC
+*** Smart-tabs
+I've fallen into the heresy.
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-tabs-mode
+    :hook (c-mode . (lambda ()
+                      (setq intent-tabs-mode t)))
+    :hook (c++-mode . (lambda ()
+                      (setq intent-tabs-mode t)))
+    :config
+    (smart-tabs-insinuate 'c 'c++ 'javascript))
+#+END_SRC
 *** Smartparens
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
@@ -236,10 +290,19 @@ I generally use use-package
 #+END_SRC
 *** Eshell
 #+BEGIN_SRC emacs-lisp
-      (use-package eshell-toggle
-        ; :defer t
-        :custom
-        (eshell-toggle-size-fraction 5))
+  (defun eshell-clear-buffer ()
+    "Clear terminal"
+    (interactive)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eshell-send-input)))
+  (add-hook 'eshell-mode-hook
+            '(lambda()
+               (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+
+  (use-package eshell-toggle
+    :custom
+    (eshell-toggle-size-fraction 5))
 #+END_SRC
 *** Magit
 #+BEGIN_SRC emacs-lisp
@@ -249,28 +312,38 @@ I generally use use-package
 #+END_SRC
 *** Projectile
 #+BEGIN_SRC emacs-lisp
-      (use-package projectile
-        :config
-        (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-        (projectile-mode t))
+  (use-package projectile
+    :config
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (projectile-mode t))
 #+END_SRC
 *** Ivy, Swiper and Counsel
 #+BEGIN_SRC emacs-lisp
-      (use-package ivy
-        :config
-        (ivy-mode t)
-        (counsel-mode t)
-        (global-set-key (kbd "M-x") 'counsel-M-x)
-        (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-        (setq ivy-display-style 'fancy)
-        (setq ivy-format-function 'ivy-format-function-line))
+  (use-package ivy
+    :config
+    (ivy-mode t)
+    (counsel-mode t)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (setq ivy-display-style 'fancy)
+    (setq ivy-format-function 'ivy-format-function-line))
 
-      (use-package ivy-hydra)
+  (use-package ivy-hydra)
 #+END_SRC
 *** Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :config
+    ;; enable python for in-buffer evaluation
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)))
+
+    ;; all python code be safe
+    (defun my-org-confirm-babel-evaluate (lang body)
+      (not (string= lang "python")))
+    (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+
     (setq org-directory "~/.org/")
     (setq org-default-notes-file (concat org-directory "notes.org"))
     (setq org-hide-leading-stars t)
@@ -284,14 +357,21 @@ I generally use use-package
   (setq org-capture-templates
         '(("t" "Tasks" entry (file+headline org-default-notes-file "Tasks")
            "* TODO %?\n%u\n" :prepend t)
-          ("s" "Look later" entry (file+headline org-default-notes-file "Look later")
+          ("l" "Look later" entry (file+headline org-default-notes-file "Look later")
+           "* TODO %?")
+          ("s" "Skills" entry (file+headline org-default-notes-file "Skills")
+           "* TODO %?")
+          ("g" "Gifts" entry (file+headline org-default-notes-file "Gifts")
            "* TODO %?")
           ))
 
   (use-package org-bullets
-    ; :defer t
     :after org
     :hook (org-mode . org-bullets-mode))
+#+END_SRC
+*** Iedit
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit)
 #+END_SRC
 *** Evil
 #+BEGIN_SRC emacs-lisp
@@ -312,8 +392,6 @@ I generally use use-package
           evil-vsplit-window-right t))
 
   (use-package evil-numbers
-    :quelpa (:fetcher github
-             :repo "janpath/evil-numbers")
     :after evil
     :config
     (define-key evil-normal-state-map (kbd "C-c j") 'evil-numbers/inc-at-pt)
@@ -344,6 +422,16 @@ I generally use use-package
       "w l" 'evil-window-right
       "w o" 'delete-other-windows
 
+      ; Lsp
+      ; TODO: rename
+      "l l" 'lsp
+      "l s" 'lsp-describe-thing-at-point
+      "l f" 'lsp-format-buffer
+      "l d" 'lsp-find-definition
+      "l t" 'lsp-find-type-definition
+      "l r" 'lsp-find-references
+      "l i" 'lsp-find-implementation
+
       "x" 'counsel-M-x
 
       "q" 'evil-quit
@@ -361,10 +449,16 @@ I generally use use-package
       "e" 'eshell
       "d" 'dired-sidebar-toggle-with-current-directory))
 
+  (use-package evil-iedit-state)
+
+  (use-package evil-quickscope
+    :config
+    (global-evil-quickscope-mode t))
+
   (use-package evil-goggles
     :hook (evil-mode . evil-goggles-mode)
     :config
-    (setq evil-goggles-duration 0.100))
+    (setq evil-goggles-duration 0.025))
 
   (use-package evil-collection
     :after evil
@@ -379,10 +473,15 @@ I generally use use-package
         (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 #+END_SRC
 *** Dired
+**** Settings
+#+BEGIN_SRC emacs-lisp
+  (setq dired-listing-switches "-alh")
+#+END_SRC
 **** Dired-sidebar
 #+BEGIN_SRC emacs-lisp
-       (use-package dired-sidebar)
-         ; :defer t)
+  (use-package dired-sidebar
+    :config
+    (add-to-list 'dired-sidebar-display-alist '(side . right)))
 #+END_SRC
 *** Terminal-here
 #+BEGIN_SRC emacs-lisp
@@ -404,7 +503,7 @@ I generally use use-package
     (setq company-selection-wrap-around t)
     (define-key company-active-map (kbd "<tab>") 'company-select-next)
     (define-key company-active-map (kbd "<return>") 'company-complete)
-    (global-company-mode t))
+    :hook (prog-mode . company-mode))
 
   ;; (use-package company-box
   ;; company-box
@@ -420,20 +519,23 @@ I generally use use-package
 #+END_SRC
 *** Flycheck
 #+BEGIN_SRC emacs-lisp
-      (use-package flycheck
-        :init (global-flycheck-mode)
-        :bind (("C-c C-e" . flycheck-next-error)))
+  (use-package flycheck
+    :init (global-flycheck-mode)
+    :config
+    (setq flycheck-indication-mode 'right-fringe)
+    (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+      [16 48 112 240 112 48 16] nil nil 'center)
+    :bind (("C-c C-e" . flycheck-next-error)))
 
-      (use-package flycheck-pos-tip
-        :config
-        (setq flycheck-pos-tip-timeout 0)
-        (flycheck-pos-tip-mode))
+  (use-package flycheck-pos-tip
+    :config
+    (setq flycheck-pos-tip-timeout 0)
+    (flycheck-pos-tip-mode))
 
-      (use-package flycheck-haskell
-        ; :defer t
-        :hook (haskell-mode . flycheck-haskell-setup))
+  (use-package flycheck-haskell
+    :hook (haskell-mode . flycheck-haskell-setup))
 
-      (use-package flycheck-kotlin)
+  (use-package flycheck-kotlin)
 #+END_SRC
 *** TODO Dap
 #+BEGIN_SRC emacs-lisp
@@ -443,13 +545,22 @@ I generally use use-package
           dap-ui-mode t)
     (require 'dap-python))
 #+END_SRC
+*** Dumb Jump
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :bind
+    (:map evil-normal-state-map
+          ("g d" . dumb-jump-go))
+    :config
+    (setq dumb-jump-selector 'ivy))
+#+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
-    :hook (before-save . lsp-format-buffer)
     :config
     (setq lsp-idle-delay 0.750)
+    (setq lsp-ui-mode nil)
     :init
     (setq read-process-output-max (* 1024 1024)))
 
@@ -482,7 +593,6 @@ I generally use use-package
 # ***** Irony
 # #+BEGIN_SRC emacs-lisp
 #         ;; (use-package irony
-#         ;;   ; :defer t
 #         ;;   :hook (c++-mode . irony-mode)
 #         ;;   :hook (c-mode . irony-mode)
 #         ;;   :hook (irony-mode . irony-cdb-autosetup-compile-options))
@@ -501,33 +611,30 @@ I generally use use-package
 **** Haskell
 ***** Hindent
 #+BEGIN_SRC emacs-lisp
-        (use-package hindent
-          ; :defer t
-          :config
-          (setq hindent-reformat-buffer-on-save t))
+  (use-package hindent
+    :config
+    (setq hindent-reformat-buffer-on-save t))
 #+END_SRC
 ***** Haskell-mode
 #+BEGIN_SRC emacs-lisp
-        (use-package haskell-mode
-          ; :defer t
-          :hook (haskell-mode . haskell-indentation-mode)
-          :hook (haskell-mode . interactive-haskell-mode)
-          :hook (haskell-mode . hindent-mode)
-          ;; :hook (haskell-mode . haskell-decl-scan-mode)
-          ;; :hook (haskell-mode . haskell-doc-mode)
-          :bind (:map haskell-mode-map ("C-c C-c" . haskell-process-load-file))
-          :config
-          (flymake-mode 0))
+  (use-package haskell-mode
+    :hook (haskell-mode . haskell-indentation-mode)
+    :hook (haskell-mode . interactive-haskell-mode)
+    :hook (haskell-mode . hindent-mode)
+    ;; :hook (haskell-mode . haskell-decl-scan-mode)
+    ;; :hook (haskell-mode . haskell-doc-mode)
+    :bind (:map haskell-mode-map ("C-c C-c" . haskell-process-load-file))
+    :config
+    (flymake-mode 0)
+    (setq haskell-compile-cabal-build-command "stack build"))
 #+END_SRC
 ***** Shakespeare-mode
 #+BEGIN_SRC emacs-lisp
         (use-package shakespeare-mode)
-          ; :defer t)
 #+END_SRC
 ***** Hlint-refactor
 #+BEGIN_SRC emacs-lisp
   (use-package hlint-refactor
-    ; :defer t
     :hook (haskell-mode . hlint-refactor-mode))
 #+END_SRC
 ***** Lsp
@@ -537,10 +644,25 @@ I generally use use-package
     (setq lsp-haskell-process-path-hie "hie-wrapper"))
 #+END_SRC
 **** Python
+***** Jupyter
+#+BEGIN_SRC emacs-lisp
+  (use-package ein
+    :config
+    (setq ein:output-area-inlined-images t))
+#+END_SRC
 ***** Jedi
 #+BEGIN_SRC emacs-lisp
   (use-package company-jedi
     :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+#+END_SRC
+***** TODO Elpy
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package elpy
+  ;;   :init
+  ;;   (elpy-enable)
+  ;;   (setq elpy-rpc-backend "jedi")
+  ;;   :config
+  ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
 #+END_SRC
 ***** Yapfify
 #+BEGIN_SRC emacs-lisp
@@ -556,14 +678,6 @@ I generally use use-package
   ;; (use-package auto-virtualenv
   ;;   :hook (python-mode . auto-virtualenv-mode))
 #+END_SRC
-**** Coconut
-# #+BEGIN_SRC emacs-lisp
-#        (use-package coconut-mode
-#          :load-path "~/.config/emacs/lisp/coconut-mode/"
-#          ; :defer t
-#          :mode "\\.coco\\'"
-#          :hook (coconut-mode . (lambda () (setq tab-width 4))))
-# #+END_SRC
 **** JavaScript
 ***** Rjsx-mode
 #+BEGIN_SRC emacs-lisp
@@ -589,6 +703,20 @@ I generally use use-package
        (use-package purescript-mode
          ; :defer t
          :hook (purescript-mode . purescript-indentation-mode))
+#+END_SRC
+**** Hy
+#+BEGIN_SRC emacs-lisp
+  (use-package hy-mode)
+#+END_SRC
+**** Clojure
+#+BEGIN_SRC emacs-lisp
+  (use-package clojure-mode)
+
+  (use-package cider)
+#+END_SRC
+**** Racket
+#+BEGIN_SRC emacs-lisp
+  (use-package racket-mode)
 #+END_SRC
 **** Elm
 #+BEGIN_SRC emacs-lisp

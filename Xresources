@@ -36,8 +36,7 @@
 *.color14: nord7
 *.color15: nord6
 
-/* URxvt*font: xft:Roboto Mono:size=10:style:Semibold */
-URxvt*font: xft:Monoid:size=9
+URxvt*font: xft:Input Mono:size=10
 
 Xft.dpi: 96
 Xft.antialias: true

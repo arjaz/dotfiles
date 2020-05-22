@@ -70,7 +70,7 @@ myUrgentWSColor = "#d08770"
 myPP xmproc =
   xmobarPP
     { ppUrgent = xmobarColor myUrgentWSColor ""
-    , ppCurrent = xmobarColor myCurrentWSColor "" . wrap "<" ">"
+    , ppCurrent = xmobarColor myCurrentWSColor ""
     , ppTitle = const ""
     , ppOutput = hPutStrLn xmproc
     }
@@ -79,7 +79,7 @@ toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_b)
 
 myModMask = mod4Mask
 
-myBorderWidth = 1
+myBorderWidth = 2
 
 myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
 
@@ -120,12 +120,10 @@ myAdditionalKeys =
   [ ( (controlMask, xK_Print)
     , spawn "escrotum -s \"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\"")
   ] ++
-  [ ( (0, xF86XK_MonBrightnessDown)
-    , spawn "true $(pkexec /usr/bin/brillo -U 10)")
-  ] ++
-  [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 10)")] ++
-  [((myModMask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 10)")] ++
-  [((myModMask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 10)")] ++
+  [((0, xF86XK_MonBrightnessDown), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
+  [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 5)")] ++
+  [((myModMask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")] ++
+  [((myModMask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
   [ ( (myModMask, xK_Escape)
     , spawn "betterlockscreen -l blur -t 'Eendracht Maakt Magt'")
   ]

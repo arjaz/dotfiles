@@ -12,7 +12,7 @@ Config
       [ Run Memory ["-t", "<available>M"] 10
       , Run Swap ["-t", "<free>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
-      , Run Date "%d/%m/%Y, %I:%M%P" "date" 10
+      , Run Date "%d/%m/%Y, %a, %I:%M%P" "date" 10
       , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 1
       , Run
           CoreTemp
