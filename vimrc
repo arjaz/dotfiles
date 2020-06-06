@@ -10,11 +10,15 @@ Plug 'moll/vim-bbye'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
+Plug 'mileszs/ack.vim'
+Plug 'cohama/lexima.vim'
 
 " Visual
 Plug 'itchyny/lightline.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'romainl/vim-cool'
+Plug 'frazrepo/vim-rainbow'
+Plug 'airblade/vim-gitgutter'
 
 call plug#end()
 
@@ -95,3 +99,9 @@ call plug#end()
     \               ]
     \   }
     \ }
+
+" rainbows
+    let g:rainbow_active = 1
+
+" Ag
+    nmap <leader>a :Ag<CR>
