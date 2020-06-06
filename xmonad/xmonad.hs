@@ -12,7 +12,6 @@ import XMonad.Layout.OneBig
 
 import XMonad.Layout.Fullscreen hiding (fullscreenEventHook)
 
--- import XMonad.Layout.Fullscreen
 import XMonad.Layout.Gaps
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
@@ -36,8 +35,8 @@ main = do
 
 myConfig output =
   desktopConfig
-    { terminal = myTerminal
-    , modMask = myModMask
+    { terminal = term
+    , modMask = mask
     , borderWidth = myBorderWidth
     , normalBorderColor = bg0
     , focusedBorderColor = bg1
@@ -53,7 +52,7 @@ myConfig output =
     } `additionalKeys`
   myAdditionalKeys
 
-myTerminal = "st"
+term = "st"
 
 fg0 = "#d8dee9"
 
@@ -75,9 +74,9 @@ myPP xmproc =
     , ppOutput = hPutStrLn xmproc
     }
 
-toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_b)
+toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_o)
 
-myModMask = mod4Mask
+mask = mod4Mask
 
 myBorderWidth = 2
 
@@ -85,46 +84,43 @@ myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
 
 myExtraWorkspaces = [(xK_0, "0")]
 
-getKeyBinding mod key prog = [((mod, key), spawn prog)]
-
 dmenu_options =
   "-fn \"Input Mono-10\" -nb \"" ++
   bg0 ++ "\" -nf \"" ++ fg0 ++ "\" -sb \"" ++ bg1 ++ "\" -sf \"" ++ bg0 ++ "\""
 
+browser = "qutebrowser --enable-webengine-inspector"
+
+shotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
+
 myAdditionalKeys =
-  [((myModMask, xK_d), spawn $ "dmenu_run -p Run: " ++ dmenu_options)] ++
-  [((myModMask, xK_p), spawn $ "passmenu -p Pass: " ++ dmenu_options)] ++
-  [((myModMask, xK_n), spawn $ "networkmanager_dmenu " ++ dmenu_options)] ++
-  [ ((myModMask, key), (windows $ W.greedyView ws))
+  [((mask, xK_d), spawn $ "dmenu_run -p Run: " ++ dmenu_options)] ++
+  [((mask, xK_p), spawn $ "passmenu -p Pass: " ++ dmenu_options)] ++
+  [((mask, xK_n), spawn $ "networkmanager_dmenu " ++ dmenu_options)] ++
+  [((mask, key), (windows $ W.greedyView ws)) | (key, ws) <- myExtraWorkspaces] ++
+  [ ((mask .|. shiftMask, key), (windows $ W.shift ws))
   | (key, ws) <- myExtraWorkspaces
   ] ++
-  [ ((myModMask .|. shiftMask, key), (windows $ W.shift ws))
-  | (key, ws) <- myExtraWorkspaces
-  ] ++
-  [((myModMask, xK_Tab), sendMessage NextLayout)] ++
-  [((myModMask, xK_m), windows W.swapMaster)] ++
-  [((myModMask, xK_Return), spawn myTerminal)] ++
-  [((myModMask .|. shiftMask, xK_q), kill)] ++
-  [((myModMask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
-  [((myModMask .|. shiftMask, xK_w), spawn "emacsclient -c")] ++
-  [((myModMask, xK_F1), spawn "qutebrowser --enable-webengine-inspector")] ++
-  [((myModMask, xK_F2), spawn "telegram-desktop")] ++
+  [((mask, xK_Tab), sendMessage NextLayout)] ++
+  [((mask, xK_m), windows W.swapMaster)] ++
+  [((mask, xK_Return), spawn term)] ++
+  [((mask .|. shiftMask, xK_q), kill)] ++
+  [((mask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
+  [((mask, xK_e), spawn "emacsclient -c")] ++
+  [((mask, xK_w), spawn browser)] ++
+  [((mask, xK_b), spawn "thunar")] ++
+  [((mask, xK_F2), spawn "telegram-desktop")] ++
   [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")] ++
   [((0, xF86XK_AudioRaiseVolume), spawn "pactl -- set-sink-volume 0 +5%")] ++
   [((0, xF86XK_AudioMute), spawn "pactl set-sink-mute 0 toggle")] ++
-  [((myModMask, xK_Left), spawn "pactl -- set-sink-volume 0 -5%")] ++
-  [((myModMask, xK_Right), spawn "pactl -- set-sink-volume 0 +5%")] ++
-  [ ( (0, xK_Print)
-    , spawn "escrotum \"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\"")
-  ] ++
-  [ ( (controlMask, xK_Print)
-    , spawn "escrotum -s \"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\"")
-  ] ++
+  [((mask, xK_Left), spawn "pactl -- set-sink-volume 0 -5%")] ++
+  [((mask, xK_Right), spawn "pactl -- set-sink-volume 0 +5%")] ++
+  [((0, xK_Print), spawn $ "escrotum " ++ shotsFolder)] ++
+  [((controlMask, xK_Print), spawn $ "escrotum -s " ++ shotsFolder)] ++
   [((0, xF86XK_MonBrightnessDown), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
   [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 5)")] ++
-  [((myModMask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")] ++
-  [((myModMask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
-  [ ( (myModMask, xK_Escape)
+  [((mask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")] ++
+  [((mask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
+  [ ( (mask, xK_Escape)
     , spawn "betterlockscreen -l blur -t 'Eendracht Maakt Magt'")
   ]
 
@@ -145,11 +141,9 @@ myLayoutHook =
   avoidStruts . smartBorders . smartSpacing gapSize $
   mkToggle (NOBORDERS ?? FULL ?? EOT) $ tiled ||| big ||| circled
   where
-    -- mono = Full
     tiled = Tall nmaster delta ratio
     big = named "One Big" $ OneBig (4 / 5) (4 / 5)
     circled = Circle
-    -- eBSP = emptyBSP
     gapSize = 4
     nmaster = 1
     delta = 3 / 100
