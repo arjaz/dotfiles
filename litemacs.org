@@ -55,10 +55,6 @@ Now I think between Monoid and Input
   ;; Folding
   (add-hook 'prog-mode-hook 'hs-minor-mode)
 #+END_SRC
-
-#+RESULTS:
-| company-mode | highlight-indent-guides-mode | rainbow-delimiters-mode | hs-minor-mode | whitespace-mode |
-
 ** Modes provided by emacs
 #+BEGIN_SRC emacs-lisp
   ;; Non-blinking cursor
@@ -262,6 +258,7 @@ I should look into integrating it with lsp-mode via (add-to-list 'focus-mode-to-
     :config
     (dashboard-setup-startup-hook)
     (setq dashboard-set-heading-icons t)
+    (setq dashboard-startup-banner 3)
     (setq dashboard-set-navigator t)
     (setq dashboard-set-file-icons t)
     (setq dashboard-items '((recents  . 5)
@@ -290,6 +287,29 @@ I've fallen into the heresy.
 #+END_SRC
 *** Eshell
 #+BEGIN_SRC emacs-lisp
+  (defun shortened-path (path max-len)
+    "Return a modified version of `path', replacing some components
+        with single characters starting from the left to try and get
+        the path down to `max-len'"
+    (let* ((components (split-string (abbreviate-file-name path) "/"))
+           (len (+ (1- (length components))
+                   (reduce '+ components :key 'length)))
+           (str ""))
+      (while (and (> len max-len)
+                  (cdr components))
+        (setq str (concat str (if (= 0 (length (car components)))
+                                  "/"
+                                (string (elt (car components) 0) ?/)))
+              len (- len (1- (length (car components))))
+              components (cdr components)))
+      (concat str (reduce (lambda (a b) (concat a "/" b)) components))))
+
+  (setq eshell-prompt-function
+        (lambda nil
+          (concat (shortened-path (eshell/pwd) 20)
+                  (if (= (user-uid) 0)
+                      " # " " λ "))))
+
   (defun eshell-clear-buffer ()
     "Clear terminal"
     (interactive)
@@ -504,10 +524,6 @@ I've fallen into the heresy.
     (define-key company-active-map (kbd "<tab>") 'company-select-next)
     (define-key company-active-map (kbd "<return>") 'company-complete)
     :hook (prog-mode . company-mode))
-
-  ;; (use-package company-box
-  ;; company-box
-  ;;   :hook (company-mode . company-box-mode))
 #+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -559,17 +575,18 @@ I've fallen into the heresy.
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
     :config
+    (setq lsp-prefer-capf t)
     (setq lsp-idle-delay 0.750)
     (setq lsp-ui-mode nil)
     :init
     (setq read-process-output-max (* 1024 1024)))
 
-  (use-package company-lsp
-    :after (lsp-mode company)
-    :commands company-lsp
-    :config
-    (setq lsp-enable-snippet nil)
-    (push 'company-lsp company-backends))
+  ;; (use-package company-lsp
+  ;;   :after (lsp-mode company)
+  ;;   :commands company-lsp
+  ;;   :config
+  ;;   (setq lsp-enable-snippet nil)
+  ;;   (push 'company-lsp company-backends))
 
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
