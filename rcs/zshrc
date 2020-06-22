@@ -1,6 +1,8 @@
 export ZSH=/home/arjaz/.oh-my-zsh
 
+# ZSH theme
 ZSH_THEME="typewritten"
+TYPEWRITTEN_SYMBOL="λ"
 
 export UPDATE_ZSH_DAYS=13
 plugins=(
@@ -16,6 +18,7 @@ else
   export EDITOR='nvim'
 fi
 
+# Aliases
 alias em='emacsclient -c . &; disown; exit'
 alias vim=nvim
 alias v=nvim

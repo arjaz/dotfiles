@@ -50,7 +50,7 @@ Config
           , "<left>% (<timeleft>)"
                                        -- AC "on" status
           , "-O"
-          , "Charging"
+          , "<left>% Charging"
                                        -- charged status
           , "-i"
           , "Charged"

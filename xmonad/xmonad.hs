@@ -20,7 +20,7 @@ import XMonad.Layout.Reflect
 import XMonad.Layout.Spacing
 import XMonad.Layout.ZoomRow
 import qualified XMonad.StackSet as W
-import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.EZConfig (additionalKeys, additionalKeysP)
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
@@ -92,6 +92,10 @@ browser = "qutebrowser --enable-webengine-inspector"
 
 shotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
 
+-- myAdditionalKeysP = [ ("M-d", spawn $ "dmenu_run -p Run:" ++ dmenu_options)
+--                     , ("M-p", spawn $ "passmenu -p Pass:" ++ dmenu_options)
+--                     , ("M-n", spawn $ "networkmanager_dmenu " ++ dmenu_options)
+--                     , ("M")]
 myAdditionalKeys =
   [((mask, xK_d), spawn $ "dmenu_run -p Run: " ++ dmenu_options)] ++
   [((mask, xK_p), spawn $ "passmenu -p Pass: " ++ dmenu_options)] ++
@@ -122,7 +126,10 @@ myAdditionalKeys =
   [((mask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")] ++
   [ ( (mask, xK_Escape)
     , spawn "betterlockscreen -l blur -t 'Eendracht Maakt Magt'")
-  ]
+  ] ++
+  [((mask, xK_a), scratchPad)]
+  where
+    scratchPad = scratchpadSpawnActionTerminal "urxvt"
 
 myManageHook =
   composeAll
@@ -132,10 +139,15 @@ myManageHook =
     , className =? "TelegramDesktop" --> moveTo "9"
     , manageHook desktopConfig
     , fullscreenManageHook
-    , scratchpadManageHookDefault
+    , scratchpadHook
     ]
   where
     moveTo = doF . W.shift
+    scratchpadHook = scratchpadManageHook (W.RationalRect l t w h)
+    h = 0.25 -- terminal height
+    w = 1 -- terminal width
+    t = 1 - h -- distance from the top edge
+    l = 1 - w -- distance from the left edge
 
 myLayoutHook =
   avoidStruts . smartBorders . smartSpacing gapSize $

@@ -1,4 +1,6 @@
-* Startup optimization
+#+STARTUP: showeverything
+
+ Startup optimization
 I'm not really sure how to improve that, but I don't care since switching to emacs-daemon
 #+BEGIN_SRC emacs-lisp
   (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
@@ -42,15 +44,15 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (set-frame-font "Input Mono-10")
-  (setq default-frame-alist '((font . "Input Mono-10")))
+  (set-frame-font "FiraCode-10")
+  (setq default-frame-alist '((font . "FiraCode-10")))
   ;; (set-face-attribute 'default nil :height 100 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
 ** Hooks
 #+BEGIN_SRC emacs-lisp
   ;; Remove trailing whitespaces
-  ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   ;; Folding
   (add-hook 'prog-mode-hook 'hs-minor-mode)
@@ -310,6 +312,8 @@ I've fallen into the heresy.
                   (if (= (user-uid) 0)
                       " # " " λ "))))
 
+  (setq eshell-prompt-regexp "[^ ]?* λ ")
+
   (defun eshell-clear-buffer ()
     "Clear terminal"
     (interactive)
@@ -323,6 +327,16 @@ I've fallen into the heresy.
   (use-package eshell-toggle
     :custom
     (eshell-toggle-size-fraction 5))
+#+END_SRC
+*** Elfeed
+#+BEGIN_SRC emacs-lisp
+  (use-package elfeed
+    :config
+    (setq elfeed-feeds
+          '("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA"
+            "https://www.youtube.com/feeds/videos.xml?channel_id=UCZAENaOaceQUMd84GDc26EA"
+            "https://www.youtube.com/feeds/videos.xml?channel_id=UCVls1GmFKf6WlTraIb_IaJg"
+            "https://lukesmith.xyz/rss.xml")))
 #+END_SRC
 *** Magit
 #+BEGIN_SRC emacs-lisp
@@ -441,10 +455,14 @@ I've fallen into the heresy.
       "w k" 'evil-window-up
       "w l" 'evil-window-right
       "w o" 'delete-other-windows
+      "v" 'evil-window-vsplit
+      "h" 'evil-window-split
+      "q" 'evil-quit
 
       ; Lsp
-      ; TODO: rename
       "l l" 'lsp
+      "l c" 'lsp-treemacs-call-hierarchy
+      "l n" 'lsp-rename
       "l s" 'lsp-describe-thing-at-point
       "l f" 'lsp-format-buffer
       "l d" 'lsp-find-definition
@@ -454,19 +472,26 @@ I've fallen into the heresy.
 
       "x" 'counsel-M-x
 
-      "q" 'evil-quit
+      "m" 'magit-status
+
+      ; Eshell
       "t" 'eshell-toggle
-      "b" 'ivy-switch-buffer
+      "e" 'eshell
+
+      ; Elfeed
+      "f" 'elfeed
+
+      ; Search
       "s" 'swiper-isearch
       "a" 'counsel-ag
-      "v" 'evil-window-vsplit
-      "h" 'evil-window-split
+
+      ; Moving
+      "b" 'ivy-switch-buffer
       "o" 'counsel-find-file
       "<SPC>" 'counsel-projectile-find-file
       "j" 'counsel-file-jump
       "g" 'counsel-bookmark
       "p" 'counsel-projectile-switch-project
-      "e" 'eshell
       "d" 'dired-sidebar-toggle-with-current-directory))
 
   (use-package evil-iedit-state)
@@ -519,11 +544,18 @@ I've fallen into the heresy.
                                                   (when (equal my-company-point (point))
                                                     (yas-expand))))
     (setq company-idle-delay 0)
+    (setq company-show-numbers t)
     (setq company-minimum-prefix-length 1)
     (setq company-selection-wrap-around t)
     (define-key company-active-map (kbd "<tab>") 'company-select-next)
     (define-key company-active-map (kbd "<return>") 'company-complete)
     :hook (prog-mode . company-mode))
+#+END_SRC
+*** TabNine
+#+BEGIN_SRC emacs-lisp
+  (use-package company-tabnine
+    :config
+    (add-to-list 'company-backends #'company-tabnine))
 #+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -555,11 +587,11 @@ I've fallen into the heresy.
 #+END_SRC
 *** TODO Dap
 #+BEGIN_SRC emacs-lisp
-  (use-package dap-mode
-    :config
-    (setq dap-mode t
-          dap-ui-mode t)
-    (require 'dap-python))
+  ;; (use-package dap-mode
+  ;;   :config
+  ;;   (setq dap-mode t
+  ;;         dap-ui-mode t)
+  ;;   (require 'dap-python))
 #+END_SRC
 *** Dumb Jump
 #+BEGIN_SRC emacs-lisp
@@ -574,19 +606,16 @@ I've fallen into the heresy.
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
+    :hook (python-mode . lsp)
+    :hook (elm-mode . lsp)
     :config
+    (setq lsp-semantic-highlighting t)
+    (setq lsp-enable-symbol-highlighting nil)
     (setq lsp-prefer-capf t)
     (setq lsp-idle-delay 0.750)
     (setq lsp-ui-mode nil)
     :init
     (setq read-process-output-max (* 1024 1024)))
-
-  ;; (use-package company-lsp
-  ;;   :after (lsp-mode company)
-  ;;   :commands company-lsp
-  ;;   :config
-  ;;   (setq lsp-enable-snippet nil)
-  ;;   (push 'company-lsp company-backends))
 
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
@@ -663,14 +692,14 @@ I've fallen into the heresy.
 **** Python
 ***** Jupyter
 #+BEGIN_SRC emacs-lisp
-  (use-package ein
-    :config
-    (setq ein:output-area-inlined-images t))
+  ;; (use-package ein
+  ;;   :config
+  ;;   (setq ein:output-area-inlined-images t))
 #+END_SRC
 ***** Jedi
 #+BEGIN_SRC emacs-lisp
-  (use-package company-jedi
-    :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+  ;; (use-package company-jedi
+  ;;   :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
 #+END_SRC
 ***** TODO Elpy
 #+BEGIN_SRC emacs-lisp
@@ -739,9 +768,8 @@ I've fallen into the heresy.
 #+BEGIN_SRC emacs-lisp
   (use-package elm-mode
     :after company
-    :hook (elm-mode . elm-format-on-save-mode)
-    :config
-    (add-to-list 'company-backends 'company-elm))
+    :hook (elm-mode . elm-format-on-save-mode))
+    ;; (add-to-list 'company-backends 'company-elm))
 
   (use-package flycheck-elm
     :after (flycheck)
