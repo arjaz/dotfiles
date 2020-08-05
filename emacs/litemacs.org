@@ -1,6 +1,6 @@
 #+STARTUP: showeverything
 
- Startup optimization
+* Startup optimization
 I'm not really sure how to improve that, but I don't care since switching to emacs-daemon
 #+BEGIN_SRC emacs-lisp
   (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
@@ -44,9 +44,9 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (set-frame-font "FiraCode-10")
   (setq default-frame-alist '((font . "FiraCode-10")))
-  ;; (set-face-attribute 'default nil :height 100 :weight 'normal)
+  (set-frame-font "FiraCode-10")
+  (set-face-attribute 'default nil :height 110 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
 ** Hooks
@@ -134,14 +134,34 @@ I generally use use-package
   (setq use-package-always-ensure t)
 #+END_SRC
 *** Visual stuff
+I'm not sure about solaire
+**** Solaire
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package solaire-mode
+  ;;   :hook
+  ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+  ;;   (minibuffer-setup . solaire-mode-in-minibuffer)
+  ;;   :config
+  ;;   (solaire-global-mode +1)
+  ;;   (solaire-mode-swap-bg))
+#+END_SRC
+**** Ligatures
+#+BEGIN_SRC emacs-lisp
+  (use-package fira-code-mode
+    :custom (fira-code-mode-disabled-ligatures '("[]" "x"))
+    :config
+    (setq fira-code-mode-enable-hex-literal nil)
+    (global-fira-code-mode))
+#+END_SRC
 **** Doom-themes
 #+BEGIN_SRC emacs-lisp
-       (use-package doom-themes
-         :config
-         (setq doom-themes-enable-bold t
-               doom-themes-enable-italic t)
-         (load-theme 'doom-nord t)
-         (doom-themes-org-config))
+  (use-package doom-themes
+    :config
+    (setq doom-themes-enable-bold t
+          doom-themes-enable-italic t)
+    (load-theme 'doom-nord t)
+    ;; (load-theme 'doom-nord t)
+    (doom-themes-org-config))
 #+END_SRC
 **** Doom-modeline
 #+BEGIN_SRC emacs-lisp
@@ -180,10 +200,36 @@ I generally use use-package
 #+END_SRC
 **** Hl-todo
 #+BEGIN_SRC emacs-lisp
-       (use-package hl-todo
-         :config
-         (global-hl-todo-mode t))
+  (use-package hl-todo
+    :config
+    (global-hl-todo-mode t)
+    (setq hl-todo-highlight-punctuation ":"
+          hl-todo-keyword-faces
+          `(;; For things that need to be done, just not today.
+            ("TODO" warning bold)
+            ;; For problems that will become bigger problems later if not
+            ;; fixed ASAP.
+            ("FIXME" error bold)
+            ;; For tidbits that are unconventional and not intended uses of the
+            ;; constituent parts, and may break in a future update.
+            ("HACK" font-lock-constant-face bold)
+            ;; For things that were done hastily and/or hasn't been thoroughly
+            ;; tested. It may not even be necessary!
+            ("REVIEW" font-lock-keyword-face bold)
+            ;; For especially important gotchas with a given implementation,
+            ;; directed at another user other than the author.
+            ("NOTE" success bold)
+            ;; For things that just gotta go and will soon be gone.
+            ("DEPRECATED" font-lock-doc-face bold)
+            ;; For a known bug that needs a workaround
+            ("BUG" error bold)
+            ;; For warning about a problematic or misguiding code
+            ("XXX" font-lock-constant-face bold))))
 #+END_SRC
+
+#+RESULTS:
+: t
+
 **** Git-gutter
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter
@@ -212,42 +258,6 @@ I generally use use-package
       [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
       nil nil 'center))
 #+END_SRC
-**** Centaur-tabs
-#+BEGIN_SRC emacs-lisp
-  (use-package centaur-tabs
-    :bind
-    (:map evil-normal-state-map
-               ("g t" . centaur-tabs-forward)
-               ("g T" . centaur-tabs-backward))
-    ;; (centaur-tabs-headline-match)
-    :init
-    (setq centaur-tabs-set-icons t
-          centaur-tabs-style "bar"
-          centaur-tabs-gray-out-icons 'buffer
-          centaur-tabs-set-close-button nil
-          centaur-tabs-set-bar 'under
-          x-underline-at-descent-line t
-          centaur-tabs-cycle-scope 'tabs)
-    :config
-    (centaur-tabs-mode t)
-    (centaur-tabs-group-by-projectile-project))
-#+END_SRC
-**** Focus
-I should look into integrating it with lsp-mode via (add-to-list 'focus-mode-to-thing '(c-mode . lsp-folding-range)), but that should only be done when enabling lsp-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package focus
-    :bind ("C-c f" . focus-mode)
-    :config
-    (add-to-list 'focus-mode-to-thing '(python-mode . lsp-folding-range)))
-#+END_SRC
-**** Darkroom
-#+BEGIN_SRC emacs-lisp
-  (use-package darkroom
-    ;; :hook (prog-mode . darkroom-tentative-mode)
-    :custom
-    (darkroom-text-scale-increase 0.5))
-#+END_SRC
-**** TODO Olivetti
 *** Ws-butler
 #+BEGIN_SRC emacs-lisp
   (use-package ws-butler
@@ -289,30 +299,29 @@ I've fallen into the heresy.
 #+END_SRC
 *** Eshell
 #+BEGIN_SRC emacs-lisp
-  (defun shortened-path (path max-len)
-    "Return a modified version of `path', replacing some components
-        with single characters starting from the left to try and get
-        the path down to `max-len'"
-    (let* ((components (split-string (abbreviate-file-name path) "/"))
-           (len (+ (1- (length components))
-                   (reduce '+ components :key 'length)))
-           (str ""))
-      (while (and (> len max-len)
-                  (cdr components))
-        (setq str (concat str (if (= 0 (length (car components)))
-                                  "/"
-                                (string (elt (car components) 0) ?/)))
-              len (- len (1- (length (car components))))
-              components (cdr components)))
-      (concat str (reduce (lambda (a b) (concat a "/" b)) components))))
+  (setq eshell-prompt-regexp "^.* λ "
+        eshell-prompt-function #'+eshell/prompt)
 
-  (setq eshell-prompt-function
-        (lambda nil
-          (concat (shortened-path (eshell/pwd) 20)
-                  (if (= (user-uid) 0)
-                      " # " " λ "))))
 
-  (setq eshell-prompt-regexp "[^ ]?* λ ")
+  (defun +eshell/prompt ()
+    (let ((base/dir (shrink-path-prompt default-directory)))
+          (concat (propertize (car base/dir)
+                              'face 'font-lock-comment-face)
+                  (propertize (cdr base/dir)
+                              'face 'font-lock-constant-face)
+                  (propertize (+eshell--current-git-branch)
+                              'face 'font-lock-function-name-face)
+                  (propertize " λ" 'face 'eshell-prompt-face)
+                  ;; needed for the input text to not have prompt face
+                  (propertize " " 'face 'default))))
+
+  (defun +eshell--current-git-branch ()
+      (let ((branch (car (cl-loop for match in (split-string (shell-command-to-string "git branch") "\n")
+                               when (string-match "^\*" match)
+                               collect match))))
+        (if (not (eq branch nil))
+            (concat " [" (substring branch 2) "]")
+          "")))
 
   (defun eshell-clear-buffer ()
     "Clear terminal"
@@ -327,22 +336,61 @@ I've fallen into the heresy.
   (use-package eshell-toggle
     :custom
     (eshell-toggle-size-fraction 5))
+
+  (use-package eshell-did-you-mean
+    :config
+    (eshell-did-you-mean-setup))
+
+  (use-package esh-help
+    :config
+    (setup-esh-help-eldoc))
+
+  (use-package shrink-path)
+
+  (use-package bash-completion)
+    ;; :config
+    ;; (bash-completion-setup))
+
+  (use-package fish-completion
+    :config
+    (global-fish-completion-mode)
+    (setq fish-completion-fallback-on-bash-p t))
 #+END_SRC
 *** Elfeed
 #+BEGIN_SRC emacs-lisp
+  (defun elfeed-v-mpv (url)
+    "Watch a video from URL in MPV"
+    (start-process "mpv" nil "mpv" url))
+
+  (defun elfeed-view-mpv (&optional use-generic-p)
+    "YouTube-feed link"
+    (interactive "P")
+    (let ((entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               do (elfeed-untag entry 'unread)
+               when (elfeed-entry-link entry)
+               do (elfeed-v-mpv it))
+      (mapc #'elfeed-search-update-entry entries)
+      (unless (use-region-p) (forward-line))))
+
   (use-package elfeed
+    :bind ("C-c C-v" . elfeed-view-mpv)
     :config
     (setq elfeed-feeds
           '("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA"
             "https://www.youtube.com/feeds/videos.xml?channel_id=UCZAENaOaceQUMd84GDc26EA"
             "https://www.youtube.com/feeds/videos.xml?channel_id=UCVls1GmFKf6WlTraIb_IaJg"
-            "https://lukesmith.xyz/rss.xml")))
+            "https://lukesmith.xyz/rss.xml"
+            "https://videos.lukesmith.xyz/feeds/videos.xml?videoChannelId=2"
+            "https://bay12games.com/dwarves/b12_call.rss")))
 #+END_SRC
 *** Magit
 #+BEGIN_SRC emacs-lisp
-      (use-package magit
-        :config
-        (global-set-key (kbd "C-c m") 'magit-status))
+  (use-package magit
+    :config
+    (global-set-key (kbd "C-c m") 'magit-status))
+
+  (use-package magit-todos)
 #+END_SRC
 *** Projectile
 #+BEGIN_SRC emacs-lisp
@@ -431,10 +479,32 @@ I've fallen into the heresy.
     (define-key evil-normal-state-map (kbd "C-c j") 'evil-numbers/inc-at-pt)
     (define-key evil-normal-state-map (kbd "C-c k") 'evil-numbers/dec-at-pt))
 
+  (use-package evil-indent-plus)
+
   (use-package evil-surround
     :after evil
     :config
     (global-evil-surround-mode t))
+
+  (use-package evil-embrace
+    :config
+    (setq evil-embrace-show-help-p nil)
+    (evil-embrace-enable-evil-surround-integration))
+
+  (use-package evil-args
+    :config
+    ;; bind evil-args text objects
+    (define-key evil-inner-text-objects-map "a" 'evil-inner-arg)
+    (define-key evil-outer-text-objects-map "a" 'evil-outer-arg)
+
+    ;; bind evil-forward/backward-args
+    (define-key evil-normal-state-map "L" 'evil-forward-arg)
+    (define-key evil-normal-state-map "H" 'evil-backward-arg)
+    (define-key evil-motion-state-map "L" 'evil-forward-arg)
+    (define-key evil-motion-state-map "H" 'evil-backward-arg)
+
+    ;; bind evil-jump-out-args
+    (define-key evil-normal-state-map "K" 'evil-jump-out-args))
 
   (use-package evil-commentary
     :after evil
@@ -459,6 +529,9 @@ I've fallen into the heresy.
       "h" 'evil-window-split
       "q" 'evil-quit
 
+      ; Terminal
+      "n t" 'terminal-here-launch
+
       ; Lsp
       "l l" 'lsp
       "l c" 'lsp-treemacs-call-hierarchy
@@ -469,6 +542,7 @@ I've fallen into the heresy.
       "l t" 'lsp-find-type-definition
       "l r" 'lsp-find-references
       "l i" 'lsp-find-implementation
+      "l a" 'lsp-execute-code-action
 
       "x" 'counsel-M-x
 
@@ -505,22 +579,49 @@ I've fallen into the heresy.
     :config
     (setq evil-goggles-duration 0.025))
 
+  (use-package evil-magit
+    :after (evil magit)
+    :config
+    (setq evil-magit-want-vertical-movement t))
+
   (use-package evil-collection
     :after evil
     :config
     (evil-collection-init))
 #+END_SRC
+*** Parinfer
+#+BEGIN_SRC emacs-lisp
+  (use-package parinfer
+    :ensure t
+    :bind
+    (("C-," . parinfer-toggle-mode))
+    :init
+    (progn
+      (setq parinfer-extensions
+            '(defaults        ; should be included.
+               pretty-parens  ; different paren styles for different modes.
+               evil           ; If you use Evil.
+               smart-tab))    ; C-b & C-f jump positions and smart shift with tab & S-tab.
+      (add-hook 'clojure-mode-hook #'parinfer-mode)
+      (add-hook 'hy-mode-hook #'parinfer-mode)
+      (add-hook 'racket-mode-hook #'parinfer-mode)
+      (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+      (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+      (add-hook 'scheme-mode-hook #'parinfer-mode)
+      (add-hook 'lisp-mode-hook #'parinfer-mode)))
+#+END_SRC
 *** Key-chord
 #+BEGIN_SRC emacs-lisp
-      (use-package key-chord
-        :config
-        (key-chord-mode t)
-        (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
+  (use-package key-chord
+    :config
+    (key-chord-mode t)
+    (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 #+END_SRC
 *** Dired
 **** Settings
 #+BEGIN_SRC emacs-lisp
   (setq dired-listing-switches "-alh")
+  (setq dired-dwim-target t)
 #+END_SRC
 **** Dired-sidebar
 #+BEGIN_SRC emacs-lisp
@@ -550,6 +651,7 @@ I've fallen into the heresy.
     (define-key company-active-map (kbd "<tab>") 'company-select-next)
     (define-key company-active-map (kbd "<return>") 'company-complete)
     :hook (prog-mode . company-mode))
+    ;; :hook (eshell-mode . company-mode))
 #+END_SRC
 *** TabNine
 #+BEGIN_SRC emacs-lisp
@@ -573,7 +675,7 @@ I've fallen into the heresy.
     (setq flycheck-indication-mode 'right-fringe)
     (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
       [16 48 112 240 112 48 16] nil nil 'center)
-    :bind (("C-c C-e" . flycheck-next-error)))
+    :bind ("C-c C-e" . flycheck-next-error))
 
   (use-package flycheck-pos-tip
     :config
@@ -584,23 +686,30 @@ I've fallen into the heresy.
     :hook (haskell-mode . flycheck-haskell-setup))
 
   (use-package flycheck-kotlin)
+
+  (use-package flycheck-rust
+    :hook (flycheck-mode . flycheck-rust-setup))
 #+END_SRC
 *** TODO Dap
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package dap-mode
-  ;;   :config
-  ;;   (setq dap-mode t
-  ;;         dap-ui-mode t)
-  ;;   (require 'dap-python))
+  (use-package dap-mode
+    :config
+    (setq dap-mode t
+          dap-ui-mode t)
+    (require 'dap-python))
 #+END_SRC
 *** Dumb Jump
 #+BEGIN_SRC emacs-lisp
+  ;; TODO: add dump-jump to evil-goto-definition-functions
+
   (use-package dumb-jump
     :bind
     (:map evil-normal-state-map
-          ("g d" . dumb-jump-go))
+          ("g d" . xref-find-definitions))
     :config
-    (setq dumb-jump-selector 'ivy))
+    (setq dumb-jump-selector 'ivy)
+    (advice-add 'dumb-jump-go :before (lambda (&rest r) (evil-set-jump))))
+    ;; (add-to-list 'evil-goto-definition-functions 'dumb-jump-go))
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
@@ -608,23 +717,23 @@ I've fallen into the heresy.
     :commands (lsp lsp-deferred)
     :hook (python-mode . lsp)
     :hook (elm-mode . lsp)
+    :hook (c++-mode . lsp)
     :config
     (setq lsp-semantic-highlighting t)
     (setq lsp-enable-symbol-highlighting nil)
     (setq lsp-prefer-capf t)
     (setq lsp-idle-delay 0.750)
-    (setq lsp-ui-mode nil)
     :init
     (setq read-process-output-max (* 1024 1024)))
 
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol)
 
-  ;; (use-package lsp-ui
-  ;;   :config
-  ;;   (setq lsp-ui-doc-mode nil)
-  ;;   (setq lsp-ui-sideline-show-diagnostics t
-  ;;         lsp-ui-sideline-show-hover t))
+  (use-package lsp-ui
+    :config
+    (setq lsp-ui-doc-enable nil
+          lsp-ui-sideline-show-diagnostics nil
+          lsp-ui-sideline-show-hover nil))
 #+END_SRC
 *** Docker
 #+BEGIN_SRC emacs-lisp
@@ -634,7 +743,7 @@ I've fallen into the heresy.
 *** Languages
 **** C++
 #+BEGIN_SRC emacs-lisp
-  (use-package ccls)
+  ;; (use-package ccls)
 #+END_SRC
 # ***** Irony
 # #+BEGIN_SRC emacs-lisp
@@ -658,7 +767,7 @@ I've fallen into the heresy.
 ***** Hindent
 #+BEGIN_SRC emacs-lisp
   (use-package hindent
-    :config
+    :init
     (setq hindent-reformat-buffer-on-save t))
 #+END_SRC
 ***** Haskell-mode
@@ -687,19 +796,17 @@ I've fallen into the heresy.
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-haskell
     :config
-    (setq lsp-haskell-process-path-hie "hie-wrapper"))
+    (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper"))
 #+END_SRC
 **** Python
-***** Jupyter
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package ein
-  ;;   :config
-  ;;   (setq ein:output-area-inlined-images t))
-#+END_SRC
-***** Jedi
+***** TODO Jedi
 #+BEGIN_SRC emacs-lisp
   ;; (use-package company-jedi
   ;;   :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
+#+END_SRC
+***** Cython
+#+BEGIN_SRC emacs-lisp
+  (use-package cython-mode)
 #+END_SRC
 ***** TODO Elpy
 #+BEGIN_SRC emacs-lisp
@@ -758,6 +865,8 @@ I've fallen into the heresy.
 #+BEGIN_SRC emacs-lisp
   (use-package clojure-mode)
 
+  (use-package clojure-mode-extra-font-locking)
+
   (use-package cider)
 #+END_SRC
 **** Racket
@@ -790,9 +899,11 @@ I've fallen into the heresy.
 **** Rust
 #+BEGIN_SRC emacs-lisp
   (use-package rust-mode
+    :bind (:map rust-mode-map
+                ("C-c C-p" . rust-run-clippy)
+                ("C-c C-c" . rust-run))
     :config
-    (setq rust-format-on-save t)
-    (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
+    (setq rust-format-on-save t))
 
   (use-package flycheck-rust
     :after flycheck
@@ -905,11 +1016,6 @@ I've fallen into the heresy.
                 (evil-org-set-key-theme)))
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys))
-
-  (use-package evil-magit
-    :after (evil magit)
-    :config
-    (setq evil-magit-want-vertical-movement t))
 
   ;; (use-package evil-smartparens
   ;;   :after (evil)
