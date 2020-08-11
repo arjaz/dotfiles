@@ -44,8 +44,8 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (setq default-frame-alist '((font . "FiraCode-10")))
-  (set-frame-font "FiraCode-10")
+  (setq default-frame-alist '((font . "FiraCode-11")))
+  (set-frame-font "FiraCode-11")
   (set-face-attribute 'default nil :height 110 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
@@ -135,15 +135,16 @@ I generally use use-package
 #+END_SRC
 *** Visual stuff
 I'm not sure about solaire
-**** Solaire
+**** Tree-sitter
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package solaire-mode
-  ;;   :hook
-  ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-  ;;   (minibuffer-setup . solaire-mode-in-minibuffer)
-  ;;   :config
-  ;;   (solaire-global-mode +1)
-  ;;   (solaire-mode-swap-bg))
+  (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
+
+  (use-package tree-sitter
+    :config
+    (global-tree-sitter-mode)
+    :hook (tree-sitter-after-on . tree-sitter-hl-mode))
+
+  (use-package tree-sitter-langs)
 #+END_SRC
 **** Ligatures
 #+BEGIN_SRC emacs-lisp
@@ -203,8 +204,7 @@ I'm not sure about solaire
   (use-package hl-todo
     :config
     (global-hl-todo-mode t)
-    (setq hl-todo-highlight-punctuation ":"
-          hl-todo-keyword-faces
+    (setq hl-todo-keyword-faces
           `(;; For things that need to be done, just not today.
             ("TODO" warning bold)
             ;; For problems that will become bigger problems later if not
@@ -226,10 +226,6 @@ I'm not sure about solaire
             ;; For warning about a problematic or misguiding code
             ("XXX" font-lock-constant-face bold))))
 #+END_SRC
-
-#+RESULTS:
-: t
-
 **** Git-gutter
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter
@@ -335,7 +331,7 @@ I've fallen into the heresy.
 
   (use-package eshell-toggle
     :custom
-    (eshell-toggle-size-fraction 5))
+    (eshell-toggle-size-fraction 4))
 
   (use-package eshell-did-you-mean
     :config
@@ -543,6 +539,7 @@ I've fallen into the heresy.
       "l r" 'lsp-find-references
       "l i" 'lsp-find-implementation
       "l a" 'lsp-execute-code-action
+      "l m" 'lsp-ui-imenu
 
       "x" 'counsel-M-x
 
@@ -714,7 +711,6 @@ I've fallen into the heresy.
 *** LSP
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
-    :commands (lsp lsp-deferred)
     :hook (python-mode . lsp)
     :hook (elm-mode . lsp)
     :hook (c++-mode . lsp)
@@ -731,9 +727,9 @@ I've fallen into the heresy.
 
   (use-package lsp-ui
     :config
-    (setq lsp-ui-doc-enable nil
-          lsp-ui-sideline-show-diagnostics nil
-          lsp-ui-sideline-show-hover nil))
+    (setq lsp-ui-doc-enable t
+          lsp-ui-sideline-show-diagnostics t
+          lsp-ui-sideline-show-hover t))
 #+END_SRC
 *** Docker
 #+BEGIN_SRC emacs-lisp
@@ -820,13 +816,11 @@ I've fallen into the heresy.
 ***** Yapfify
 #+BEGIN_SRC emacs-lisp
         (use-package yapfify
-          ; :defer t
           :hook (python-mode . yapf-mode))
 #+END_SRC
 ***** Pyvenv
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv)
-    ; :defer t)
 
   ;; (use-package auto-virtualenv
   ;;   :hook (python-mode . auto-virtualenv-mode))
@@ -835,13 +829,11 @@ I've fallen into the heresy.
 ***** Rjsx-mode
 #+BEGIN_SRC emacs-lisp
         (use-package rjsx-mode
-          ; :defer t
           :mode "\\.jsx?$")
 #+END_SRC
 ***** Prettier-js
 #+BEGIN_SRC emacs-lisp
         (use-package prettier-js
-          ; :defer t
           :hook (js-mode . prettier-js-mode)
           :hook (rjsx-mode . prettier-js-mode))
 #+END_SRC
@@ -849,12 +841,10 @@ I've fallen into the heresy.
 **** TypeScript
 #+BEGIN_SRC emacs-lisp
        (use-package typescript-mode)
-         ; :defer t)
 #+END_SRC
 **** PureScript
 #+BEGIN_SRC emacs-lisp
        (use-package purescript-mode
-         ; :defer t
          :hook (purescript-mode . purescript-indentation-mode))
 #+END_SRC
 **** Hy
@@ -887,14 +877,12 @@ I've fallen into the heresy.
 **** Scala
 #+BEGIN_SRC emacs-lisp
        (use-package scala-mode
-         ; :defer t
          :interpreter
          ("scala" . scala-mode))
 #+END_SRC
 **** Kotlin
 #+BEGIN_SRC emacs-lisp
        (use-package kotlin-mode)
-         ; :defer t)
 #+END_SRC
 **** Rust
 #+BEGIN_SRC emacs-lisp
@@ -913,32 +901,28 @@ I've fallen into the heresy.
 **** C#
 #+BEGIN_SRC emacs-lisp
        (use-package csharp-mode)
-         ; :defer t)
 #+END_SRC
 **** Cmake
 #+BEGIN_SRC emacs-lisp
-       (use-package cmake-mode)
-         ; :defer t)
+  (use-package cmake-mode)
+
+  (use-package cmake-font-lock)
 #+END_SRC
 **** Jinja2
 #+BEGIN_SRC emacs-lisp
        (use-package jinja2-mode)
-         ; :defer t)
 #+END_SRC
 **** Markdown
 #+BEGIN_SRC emacs-lisp
        (use-package markdown-mode)
-         ; :defer t)
 #+END_SRC
 **** Mermaid
 #+BEGIN_SRC emacs-lisp
        (use-package mermaid-mode)
-         ; :defer t)
 #+END_SRC
 **** PlantUML
 #+BEGIN_SRC emacs-lisp
        (use-package plantuml-mode
-         ; :defer t
          :config
          (add-to-list
           'org-src-lang-modes '("plantuml" . plantuml))
@@ -948,12 +932,10 @@ I've fallen into the heresy.
 **** Yaml
 #+BEGIN_SRC emacs-lisp
        (use-package yaml-mode)
-         ; :defer t)
 #+END_SRC
 **** BNF
 #+BEGIN_SRC emacs-lisp
        (use-package bnf-mode)
-         ; :defer t)
 #+END_SRC
 **** Dockerfile
 #+BEGIN_SRC emacs-lisp
@@ -968,7 +950,6 @@ I've fallen into the heresy.
 #+BEGIN_SRC emacs-lisp
        (use-package tex
          :ensure auctex
-         ; :defer t
          :bind ("M-q" . align-current)
          :hook (LaTeX-mode . LaTeX-math-mode)
          :hook (LaTeX-mode . flyspell-mode)
@@ -983,7 +964,6 @@ I've fallen into the heresy.
 **** Ledger
 #+BEGIN_SRC emacs-lisp
        (use-package ledger-mode)
-         ; :defer t)
 #+END_SRC
 *** Which key
 #+BEGIN_SRC emacs-lisp

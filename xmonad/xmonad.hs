@@ -109,7 +109,7 @@ myAdditionalKeys =
   [((mask, xK_Return), spawn term)] ++
   [((mask .|. shiftMask, xK_q), kill)] ++
   [((mask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)] ++
-  [((mask, xK_e), spawn "emacsclient -c")] ++
+  [((mask, xK_e), spawn "emacsclient -c --alternate-editor=\"\"")] ++
   [((mask, xK_w), spawn browser)] ++
   [((mask, xK_b), spawn "thunar")] ++
   [((mask, xK_F2), spawn "telegram-desktop")] ++
