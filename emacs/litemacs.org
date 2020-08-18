@@ -33,6 +33,13 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 
   ;; Don't create backup files
   (setq make-backup-files nil)
+  (setq backup-directory-alist '(("." . "~/.config/emacs/saves")))
+
+  ;; Automaticalyy revert changes
+  (global-auto-revert-mode t)
+
+  ;; That's for tramp
+  (setq tramp-default-method "ssh")
 
   ;; Disable auto-saves
   (setq auto-save-default nil)
@@ -109,7 +116,7 @@ Now I think between Monoid and Input
   ;; open *.h as c++-mode
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-  (global-set-key (kbd "<f5>") 'compile)
+  (global-set-key (kbd "<f5>") 'recompile)
 #+END_SRC
 * Packages
 I generally use use-package
@@ -161,7 +168,6 @@ I'm not sure about solaire
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
     (load-theme 'doom-nord t)
-    ;; (load-theme 'doom-nord t)
     (doom-themes-org-config))
 #+END_SRC
 **** Doom-modeline
@@ -352,6 +358,40 @@ I've fallen into the heresy.
     (global-fish-completion-mode)
     (setq fish-completion-fallback-on-bash-p t))
 #+END_SRC
+*** Mu4e
+#+BEGIN_SRC emacs-lisp
+  (require 'mu4e)
+
+  ;; default
+  (setq mu4e-maildir "~/Maildir")
+  (setq mu4e-drafts-folder "/[Gmail].Drafts")
+  (setq mu4e-sent-folder "/[Gmail].Sent Mail")
+  (setq mu4e-trash-folder "/[Gmail].Trash")
+
+  ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
+  (setq mu4e-sent-messages-behavior 'delete)
+
+  ;; allow for updating mail in the main view:
+  (setq mu4e-get-mail-command "offlineimap")
+
+  ;; something about ourselves
+  (setq user-mail-address "art6661322@gmail.com"
+        user-full-name  "Eugene Rossokha")
+
+  (setq mu4e-view-show-images t
+        mu4e-view-image-max-width 800)
+
+  ;; (require 'smptpmail)
+
+  ;; (setq message-send-mail-function 'smtpmail-send-it
+  ;;       smtpmail-stream-type 'starttls
+  ;;       smtpmail-default-smtp-server "smtp.gmail.com"
+  ;;       smtpmail-smtp-server "smtp.gmail.com"
+  ;;       smtpmail-smtp-service 587)
+
+  ;; don't keep message buffers around
+  (setq message-kill-buffer-on-exit t)
+#+END_SRC
 *** Elfeed
 #+BEGIN_SRC emacs-lisp
   (defun elfeed-v-mpv (url)
@@ -382,12 +422,12 @@ I've fallen into the heresy.
 #+END_SRC
 *** Magit
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :config
-    (global-set-key (kbd "C-c m") 'magit-status))
+  (use-package magit)
 
-  (use-package magit-todos)
+  (use-package magit-todos
+    :hook (prog-mode . magit-todos-mode))
 #+END_SRC
+*** TODO Forge
 *** Projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
@@ -398,11 +438,16 @@ I've fallen into the heresy.
 *** Ivy, Swiper and Counsel
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
+    :bind (("C-x C-f" . counsel-find-file)
+           ("M-x" . counsel-M-x)
+           :map ivy-mode-map
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line))
+    :after (evil)
     :config
+    ;; (defalias 'evil-search-forward 'swiper-isearch)
     (ivy-mode t)
     (counsel-mode t)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
     (setq ivy-display-style 'fancy)
     (setq ivy-format-function 'ivy-format-function-line))
 
@@ -411,6 +456,8 @@ I've fallen into the heresy.
 *** Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
+    :bind (("C-c a" . org-agenda)
+           ("C-c c" . org-capture))
     :config
     ;; enable python for in-buffer evaluation
     (org-babel-do-load-languages
@@ -427,8 +474,6 @@ I've fallen into the heresy.
     (setq org-hide-leading-stars t)
     (setq org-startup-folded t)
     (setq org-startup-indented t)
-    (global-set-key (kbd "C-c a") 'org-agenda)
-    (global-set-key (kbd "C-c c") 'org-capture)
     (setq org-agenda-files (list org-default-notes-file)))
 
   ;; TODO: agenda, capture templates
@@ -527,6 +572,8 @@ I've fallen into the heresy.
 
       ; Terminal
       "n t" 'terminal-here-launch
+      "n f" 'elfeed
+      "n m" 'mu4e
 
       ; Lsp
       "l l" 'lsp
@@ -543,14 +590,13 @@ I've fallen into the heresy.
 
       "x" 'counsel-M-x
 
-      "m" 'magit-status
+      ; Magit bindings
+      "m m" 'magit-status
+      "m b" 'magit-blame
 
       ; Eshell
       "t" 'eshell-toggle
       "e" 'eshell
-
-      ; Elfeed
-      "f" 'elfeed
 
       ; Search
       "s" 'swiper-isearch
@@ -565,7 +611,10 @@ I've fallen into the heresy.
       "p" 'counsel-projectile-switch-project
       "d" 'dired-sidebar-toggle-with-current-directory))
 
-  (use-package evil-iedit-state)
+  (use-package evil-iedit-state
+    :after (iedit evil)
+    :config
+    (defalias 'iedit-cleanup 'iedit-lib-cleanup))
 
   (use-package evil-quickscope
     :config
@@ -617,8 +666,16 @@ I've fallen into the heresy.
 *** Dired
 **** Settings
 #+BEGIN_SRC emacs-lisp
+  (require 'dired)
   (setq dired-listing-switches "-alh")
   (setq dired-dwim-target t)
+#+END_SRC
+**** Dired-hacks
+#+BEGIN_SRC emacs-lisp
+  (use-package dired-hacks-utils)
+  (use-package dired-narrow
+    :bind ((:map dired-mode-map
+                ("C-c C-/" . dired-narrow-fuzzy))))
 #+END_SRC
 **** Dired-sidebar
 #+BEGIN_SRC emacs-lisp
@@ -682,6 +739,10 @@ I've fallen into the heresy.
   (use-package flycheck-haskell
     :hook (haskell-mode . flycheck-haskell-setup))
 
+  ;; (use-package flycheck-clang-tidy
+  ;;   :after flycheck
+  ;;   :hook (flycheck-mode . flycheck-clang-tidy-setup))
+
   (use-package flycheck-kotlin)
 
   (use-package flycheck-rust
@@ -697,16 +758,10 @@ I've fallen into the heresy.
 #+END_SRC
 *** Dumb Jump
 #+BEGIN_SRC emacs-lisp
-  ;; TODO: add dump-jump to evil-goto-definition-functions
-
   (use-package dumb-jump
-    :bind
-    (:map evil-normal-state-map
-          ("g d" . xref-find-definitions))
     :config
-    (setq dumb-jump-selector 'ivy)
-    (advice-add 'dumb-jump-go :before (lambda (&rest r) (evil-set-jump))))
-    ;; (add-to-list 'evil-goto-definition-functions 'dumb-jump-go))
+    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+    (setq dumb-jump-default-project "~/code"))
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
@@ -715,6 +770,7 @@ I've fallen into the heresy.
     :hook (elm-mode . lsp)
     :hook (c++-mode . lsp)
     :config
+    (add-to-list 'lsp-clients-clangd-args "--clang-tidy")
     (setq lsp-semantic-highlighting t)
     (setq lsp-enable-symbol-highlighting nil)
     (setq lsp-prefer-capf t)
@@ -760,6 +816,11 @@ I've fallen into the heresy.
 #         ;;   :hook (flycheck-mode . flycheck-irony-setup))
 # #+END_SRC
 **** Haskell
+***** Ormolu
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package ormolu
+  ;;   :hook (haskell-mode . ormolu-format-on-save-mode))
+#+END_SRC
 ***** Hindent
 #+BEGIN_SRC emacs-lisp
   (use-package hindent
@@ -818,12 +879,12 @@ I've fallen into the heresy.
         (use-package yapfify
           :hook (python-mode . yapf-mode))
 #+END_SRC
-***** Pyvenv
+***** Venv
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv)
 
-  ;; (use-package auto-virtualenv
-  ;;   :hook (python-mode . auto-virtualenv-mode))
+  (use-package auto-virtualenv
+    :hook (python-mode . auto-virtualenv-set-virtualenv))
 #+END_SRC
 **** JavaScript
 ***** Rjsx-mode

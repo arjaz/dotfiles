@@ -4,6 +4,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 Plug 'plasticboy/vim-markdown'
 
 " Mechanics and general improvements
+Plug 'preservim/nerdtree'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'moll/vim-bbye'
@@ -23,85 +24,91 @@ Plug 'airblade/vim-gitgutter'
 call plug#end()
 
 " Basics
-    set nocompatible
-    filetype indent plugin off
-    set hidden
-    set modelines=0
-    set encoding=utf-8
-    set noswapfile
-    set nobackup
-    set nowritebackup
-    set splitbelow splitright
-    set ignorecase
-    set smartcase
-    set incsearch
-    set autoindent
-    set wrap
-    set nu rnu
-    set cursorline
-    set tabstop=4
-    set softtabstop=4
-    set shiftwidth=4
-    set expandtab
-    autocmd BufRead,BufNewFile *.htm,*.html,*.xml setlocal tabstop=2 shiftwidth=2 softtabstop=2
-    set showcmd
-    set cmdheight=2
-    set signcolumn=yes
-    set shortmess+=c
-    set wildmode=longest,list,full
+set nocompatible
+filetype indent plugin off
+set hidden
+set modelines=0
+set encoding=utf-8
+set noswapfile
+set nobackup
+set nowritebackup
+set splitbelow splitright
+set ignorecase
+set smartcase
+set incsearch
+set autoindent
+set wrap
+set nu rnu
+set cursorline
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+autocmd BufRead,BufNewFile *.htm,*.html,*.xml setlocal tabstop=2 shiftwidth=2 softtabstop=2
+set showcmd
+set cmdheight=2
+set signcolumn=yes
+set shortmess+=c
+set wildmode=longest,list,full
 
 " Preview substitutions
-    set inccommand=nosplit
+set inccommand=nosplit
 
 " Set colorscheme
-    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-    syntax enable
-    colorscheme nord
-    set colorcolumn=81
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+syntax enable
+colorscheme nord
+set colorcolumn=81
 
 " Delete trailing whitespaces on save
-    autocmd BufWritePre * %s/\s\+$//e
+autocmd BufWritePre * %s/\s\+$//e
+
+" Automatically change working directory
+set autochdir
 
 " leader mapping
-    let mapleader = " "
+let mapleader = " "
 
 " map esc
-    imap jk <esc>
-    imap kj <esc>
+imap jk <esc>
+imap kj <esc>
 
 " Buffers mapping
-    nmap <leader>b :Buffers
+nmap <leader>b :Buffers
 
 " Plus buffer
-    set clipboard=unnamedplus
-    vnoremap <C-c> "+y
-    map <C-p> "+P
+set clipboard=unnamedplus
+vnoremap <C-c> "+y
+map <C-p> "+P
 
 " Split mapping
-    nmap <leader>v :vsplit<CR>
-    nmap <leader>h :split<CR>
+nmap <leader>v :vsplit<CR>
+nmap <leader>h :split<CR>
 
 " disable json conceal
-    let g:vim_json_conceal = 0
+let g:vim_json_conceal = 0
 
 " fzf plugin
-    nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
+nmap <silent> <leader><leader> :GFiles --exclude-standard --others --cached<CR>
 
 " lightline plugin
-    set laststatus=2
-    set noshowmode
-    let g:lightline = {
-    \   'colorscheme': 'nord',
-    \   'active': {
-    \       'left': [
-    \                   [ 'mode', 'paste' ],
-    \                   [ 'readonly', 'filename', 'modified' ],
-    \               ]
-    \   }
-    \ }
+set laststatus=2
+set noshowmode
+let g:lightline = {
+\   'colorscheme': 'nord',
+\   'active': {
+\       'left': [
+\                   [ 'mode', 'paste' ],
+\                   [ 'readonly', 'filename', 'modified' ],
+\               ]
+\   }
+\ }
 
 " rainbows
-    let g:rainbow_active = 1
+let g:rainbow_active=1
 
 " Ag
-    nmap <leader>a :Ag<CR>
+nmap <leader>a :Ag<CR>
+
+" Nerdtree
+nmap <C-o> :NERDTree<CR>
