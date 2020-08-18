@@ -56,16 +56,13 @@ Now I think between Monoid and Input
   (set-face-attribute 'default nil :height 110 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
-** Hooks
 #+BEGIN_SRC emacs-lisp
   ;; Remove trailing whitespaces
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   ;; Folding
   (add-hook 'prog-mode-hook 'hs-minor-mode)
-#+END_SRC
-** Modes provided by emacs
-#+BEGIN_SRC emacs-lisp
+
   ;; Non-blinking cursor
   (blink-cursor-mode 0)
 
@@ -112,9 +109,6 @@ Now I think between Monoid and Input
 
   ;; Smooth scrolling
   (setq scroll-conservatively 101) ;; move minimum when cursor exits view, instead of recentering
-
-  ;; open *.h as c++-mode
-  (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
   (global-set-key (kbd "<f5>") 'recompile)
 #+END_SRC
@@ -172,23 +166,23 @@ I'm not sure about solaire
 #+END_SRC
 **** Doom-modeline
 #+BEGIN_SRC emacs-lisp
-       (use-package doom-modeline
-         :hook (after-init . doom-modeline-mode)
-         :init
-         (setq doom-modeline-icon t)
-         (setq doom-modeline-project-detection 'project)
-         (setq doom-modeline-modal-icon t)
-         (setq doom-modeline-major-mode-icon t)
-         (setq doom-modeline-major-mode-color-icon t)
-         (setq doom-modeline-buffer-state-icon t)
-         (setq doom-modeline-buffer-modification-icon t)
-         (setq doom-modeline-env-version t)
-         (setq doom-modeline-lsp t))
+  (use-package doom-modeline
+    :hook (after-init . doom-modeline-mode)
+    :init
+    (setq doom-modeline-icon t)
+    (setq doom-modeline-project-detection 'project)
+    (setq doom-modeline-modal-icon t)
+    (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-major-mode-color-icon t)
+    (setq doom-modeline-buffer-state-icon t)
+    (setq doom-modeline-buffer-modification-icon t)
+    (setq doom-modeline-env-version t)
+    (setq doom-modeline-lsp t))
 #+END_SRC
 **** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
-       (use-package rainbow-delimiters
-         :hook (prog-mode . rainbow-delimiters-mode))
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 **** Highlight-indent-guides
 #+BEGIN_SRC emacs-lisp
@@ -200,10 +194,10 @@ I'm not sure about solaire
 #+END_SRC
 **** All-the-icons
 #+BEGIN_SRC emacs-lisp
-       (use-package all-the-icons)
+  (use-package all-the-icons)
 
-       (use-package all-the-icons-dired
-        :hook (dired-mode . all-the-icons-dired-mode))
+  (use-package all-the-icons-dired
+   :hook (dired-mode . all-the-icons-dired-mode))
 #+END_SRC
 **** Hl-todo
 #+BEGIN_SRC emacs-lisp
@@ -685,14 +679,17 @@ I've fallen into the heresy.
 #+END_SRC
 *** Terminal-here
 #+BEGIN_SRC emacs-lisp
-      (use-package terminal-here
-        :config
-        (setq terminal-here-terminal-command (list "st" "--"))
-        (global-set-key (kbd "M-RET") #'terminal-here-launch))
+  (use-package terminal-here
+    :bind (("M-RET" . terminal-here-launch))
+    :config
+    (setq terminal-here-terminal-command (list "st" "--")))
 #+END_SRC
 *** Company
 #+BEGIN_SRC emacs-lisp
   (use-package company
+    :bind (:map company-active-map
+                ("<tab>" . company-select-next)
+                ("<return>" . company-complete))
     :config
     (advice-add 'company-complete-common :before (lambda () (setq my-company-point (point))))
     (advice-add 'company-complete-common :after (lambda ()
@@ -702,10 +699,7 @@ I've fallen into the heresy.
     (setq company-show-numbers t)
     (setq company-minimum-prefix-length 1)
     (setq company-selection-wrap-around t)
-    (define-key company-active-map (kbd "<tab>") 'company-select-next)
-    (define-key company-active-map (kbd "<return>") 'company-complete)
     :hook (prog-mode . company-mode))
-    ;; :hook (eshell-mode . company-mode))
 #+END_SRC
 *** TabNine
 #+BEGIN_SRC emacs-lisp
@@ -715,11 +709,11 @@ I've fallen into the heresy.
 #+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
-      (use-package yasnippet
-        :config
-        (yas-global-mode t))
+  (use-package yasnippet
+    :config
+    (yas-global-mode t))
 
-      (use-package yasnippet-snippets)
+  (use-package yasnippet-snippets)
 #+END_SRC
 *** Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -794,8 +788,9 @@ I've fallen into the heresy.
 #+END_SRC
 *** Languages
 **** C++
+Open *.h as c++-mode
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package ccls)
+  (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 #+END_SRC
 # ***** Irony
 # #+BEGIN_SRC emacs-lisp
@@ -842,7 +837,7 @@ I've fallen into the heresy.
 #+END_SRC
 ***** Shakespeare-mode
 #+BEGIN_SRC emacs-lisp
-        (use-package shakespeare-mode)
+  (use-package shakespeare-mode)
 #+END_SRC
 ***** Hlint-refactor
 #+BEGIN_SRC emacs-lisp
@@ -856,6 +851,12 @@ I've fallen into the heresy.
     (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper"))
 #+END_SRC
 **** Python
+***** Python-X
+#+BEGIN_SRC emacs-lisp
+  (use-package python-x
+    :config
+    (python-x-setup))
+#+END_SRC
 ***** TODO Jedi
 #+BEGIN_SRC emacs-lisp
   ;; (use-package company-jedi
@@ -876,8 +877,8 @@ I've fallen into the heresy.
 #+END_SRC
 ***** Yapfify
 #+BEGIN_SRC emacs-lisp
-        (use-package yapfify
-          :hook (python-mode . yapf-mode))
+  (use-package yapfify
+    :hook (python-mode . yapf-mode))
 #+END_SRC
 ***** Venv
 #+BEGIN_SRC emacs-lisp
@@ -889,24 +890,24 @@ I've fallen into the heresy.
 **** JavaScript
 ***** Rjsx-mode
 #+BEGIN_SRC emacs-lisp
-        (use-package rjsx-mode
-          :mode "\\.jsx?$")
+  (use-package rjsx-mode
+    :mode "\\.jsx?$")
 #+END_SRC
 ***** Prettier-js
 #+BEGIN_SRC emacs-lisp
-        (use-package prettier-js
-          :hook (js-mode . prettier-js-mode)
-          :hook (rjsx-mode . prettier-js-mode))
+  (use-package prettier-js
+    :hook (js-mode . prettier-js-mode)
+    :hook (rjsx-mode . prettier-js-mode))
 #+END_SRC
 ***** TODO Tide
 **** TypeScript
 #+BEGIN_SRC emacs-lisp
-       (use-package typescript-mode)
+  (use-package typescript-mode)
 #+END_SRC
 **** PureScript
 #+BEGIN_SRC emacs-lisp
-       (use-package purescript-mode
-         :hook (purescript-mode . purescript-indentation-mode))
+  (use-package purescript-mode
+    :hook (purescript-mode . purescript-indentation-mode))
 #+END_SRC
 **** Hy
 #+BEGIN_SRC emacs-lisp
@@ -937,13 +938,13 @@ I've fallen into the heresy.
 #+END_SRC
 **** Scala
 #+BEGIN_SRC emacs-lisp
-       (use-package scala-mode
-         :interpreter
-         ("scala" . scala-mode))
+  (use-package scala-mode
+    :interpreter
+    ("scala" . scala-mode))
 #+END_SRC
 **** Kotlin
 #+BEGIN_SRC emacs-lisp
-       (use-package kotlin-mode)
+  (use-package kotlin-mode)
 #+END_SRC
 **** Rust
 #+BEGIN_SRC emacs-lisp
@@ -961,7 +962,7 @@ I've fallen into the heresy.
 #+END_SRC
 **** C#
 #+BEGIN_SRC emacs-lisp
-       (use-package csharp-mode)
+  (use-package csharp-mode)
 #+END_SRC
 **** Cmake
 #+BEGIN_SRC emacs-lisp
@@ -971,32 +972,32 @@ I've fallen into the heresy.
 #+END_SRC
 **** Jinja2
 #+BEGIN_SRC emacs-lisp
-       (use-package jinja2-mode)
+  (use-package jinja2-mode)
 #+END_SRC
 **** Markdown
 #+BEGIN_SRC emacs-lisp
-       (use-package markdown-mode)
+  (use-package markdown-mode)
 #+END_SRC
 **** Mermaid
 #+BEGIN_SRC emacs-lisp
-       (use-package mermaid-mode)
+  (use-package mermaid-mode)
 #+END_SRC
 **** PlantUML
 #+BEGIN_SRC emacs-lisp
-       (use-package plantuml-mode
-         :config
-         (add-to-list
-          'org-src-lang-modes '("plantuml" . plantuml))
-         (setq plantuml-executable-path "/bin/plantuml")
-         (setq plantuml-default-exec-mode 'executable))
+  (use-package plantuml-mode
+    :config
+    (add-to-list
+     'org-src-lang-modes '("plantuml" . plantuml))
+    (setq plantuml-executable-path "/bin/plantuml")
+    (setq plantuml-default-exec-mode 'executable))
 #+END_SRC
 **** Yaml
 #+BEGIN_SRC emacs-lisp
-       (use-package yaml-mode)
+  (use-package yaml-mode)
 #+END_SRC
 **** BNF
 #+BEGIN_SRC emacs-lisp
-       (use-package bnf-mode)
+  (use-package bnf-mode)
 #+END_SRC
 **** Dockerfile
 #+BEGIN_SRC emacs-lisp
@@ -1009,22 +1010,22 @@ I've fallen into the heresy.
 #+END_SRC
 **** LaTeX
 #+BEGIN_SRC emacs-lisp
-       (use-package tex
-         :ensure auctex
-         :bind ("M-q" . align-current)
-         :hook (LaTeX-mode . LaTeX-math-mode)
-         :hook (LaTeX-mode . flyspell-mode)
-         :hook (LaTeX-mode . turn-on-reftex)
-         :config
-         (flycheck-mode 0)
-         (setq TeX-PDF-mode t)
-         (setq TeX-auto-save t)
-         (setq TeX-parse-self t)
-         (setq reftex-plug-into-AUCTeX t))
+  (use-package tex
+    :ensure auctex
+    :bind ("M-q" . align-current)
+    :hook (LaTeX-mode . LaTeX-math-mode)
+    :hook (LaTeX-mode . flyspell-mode)
+    :hook (LaTeX-mode . turn-on-reftex)
+    :config
+    (flycheck-mode 0)
+    (setq TeX-PDF-mode t)
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq reftex-plug-into-AUCTeX t))
 #+END_SRC
 **** Ledger
 #+BEGIN_SRC emacs-lisp
-       (use-package ledger-mode)
+  (use-package ledger-mode)
 #+END_SRC
 *** Which key
 #+BEGIN_SRC emacs-lisp
@@ -1034,11 +1035,11 @@ I've fallen into the heresy.
 #+END_SRC
 *** Auto-package-update
 #+BEGIN_SRC emacs-lisp
-      (use-package auto-package-update
-        :config
-        (setq auto-package-update-delete-old-versions t)
-        (setq auto-package-update-hide-results t)
-        (auto-package-update-maybe))
+  (use-package auto-package-update
+    :config
+    (setq auto-package-update-delete-old-versions t)
+    (setq auto-package-update-hide-results t)
+    (auto-package-update-maybe))
 #+END_SRC
 *** Cross-packages
 #+BEGIN_SRC emacs-lisp
@@ -1048,19 +1049,12 @@ I've fallen into the heresy.
     (counsel-projectile-mode t))
 
   (use-package evil-org
-    :ensure t
     :after org
+    :hook (org-mode . evil-org-mode)
     :config
-    (add-hook 'org-mode-hook 'evil-org-mode)
     (add-hook 'evil-org-mode-hook
               (lambda ()
                 (evil-org-set-key-theme)))
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys))
-
-  ;; (use-package evil-smartparens
-  ;;   :after (evil)
-  ;;   :after (smartparens)
-  ;;   :config
-  ;;   (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode))
 #+END_SRC
