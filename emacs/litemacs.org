@@ -51,9 +51,9 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (setq default-frame-alist '((font . "FiraCode-11")))
-  (set-frame-font "FiraCode-11")
-  (set-face-attribute 'default nil :height 110 :weight 'normal)
+  (setq default-frame-alist '((font . "FiraCode-10")))
+  (set-frame-font "FiraCode-10")
+  (set-face-attribute 'default nil :height 100 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
 #+BEGIN_SRC emacs-lisp
@@ -136,6 +136,11 @@ I generally use use-package
 #+END_SRC
 *** Visual stuff
 I'm not sure about solaire
+**** Solaire
+#+BEGIN_SRC emacs-lisp
+  (use-package solaire-mode
+    :hook (after-init . solaire-global-mode))
+#+END_SRC
 **** Tree-sitter
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
@@ -158,6 +163,7 @@ I'm not sure about solaire
 **** Doom-themes
 #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
+    :after (solaire-mode)
     :config
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
@@ -168,16 +174,17 @@ I'm not sure about solaire
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
     :hook (after-init . doom-modeline-mode)
+    :hook (doom-modeline-mode . column-number-mode)
     :init
-    (setq doom-modeline-icon t)
-    (setq doom-modeline-project-detection 'project)
-    (setq doom-modeline-modal-icon t)
-    (setq doom-modeline-major-mode-icon t)
-    (setq doom-modeline-major-mode-color-icon t)
-    (setq doom-modeline-buffer-state-icon t)
-    (setq doom-modeline-buffer-modification-icon t)
-    (setq doom-modeline-env-version t)
-    (setq doom-modeline-lsp t))
+    (setq doom-modeline-icon t
+          doom-modeline-project-detection 'project
+          doom-modeline-modal-icon t
+          doom-modeline-major-mode-icon t
+          doom-modeline-major-mode-color-icon t
+          doom-modeline-buffer-state-icon t
+          doom-modeline-buffer-modification-icon t
+          doom-modeline-env-version t
+          doom-modeline-lsp t))
 #+END_SRC
 **** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -442,8 +449,14 @@ I've fallen into the heresy.
     ;; (defalias 'evil-search-forward 'swiper-isearch)
     (ivy-mode t)
     (counsel-mode t)
-    (setq ivy-display-style 'fancy)
-    (setq ivy-format-function 'ivy-format-function-line))
+    (setq projectile-completion-system 'ivy
+          ivy-magic-slash-non-match-action nil
+          ivy-use-virtual-buffers nil
+          ivy-virtual-abbreviate 'full
+          ivy-display-style 'fancy
+          ivy-on-del-error-function #'ignore
+          ivy-format-function 'ivy-format-function-line
+          ivy-sort-max-size 7500))
 
   (use-package ivy-hydra)
 #+END_SRC
@@ -660,9 +673,19 @@ I've fallen into the heresy.
 *** Dired
 **** Settings
 #+BEGIN_SRC emacs-lisp
-  (require 'dired)
-  (setq dired-listing-switches "-alh")
-  (setq dired-dwim-target t)
+(require 'dired)
+(setq dired-listing-switches "-alh"
+      dired-auto-revert-buffer t  ; don't prompt to revert; just do it
+      dired-dwim-target t  ; suggest a target for moving/copying intelligently
+      dired-hide-details-hide-symlink-targets nil
+      ;; Always copy/delete recursively
+      dired-recursive-copies 'always
+      dired-recursive-deletes 'top)
+#+END_SRC
+**** Diredfl
+#+BEGIN_SRC emacs-lisp
+(use-package diredfl
+  :hook (dired-mode . diredfl-mode))
 #+END_SRC
 **** Dired-hacks
 #+BEGIN_SRC emacs-lisp
@@ -695,11 +718,23 @@ I've fallen into the heresy.
     (advice-add 'company-complete-common :after (lambda ()
                                                   (when (equal my-company-point (point))
                                                     (yas-expand))))
-    (setq company-idle-delay 0)
-    (setq company-show-numbers t)
-    (setq company-minimum-prefix-length 1)
-    (setq company-selection-wrap-around t)
-    :hook (prog-mode . company-mode))
+
+
+    (setq company-idle-delay 0
+          company-show-numbers t
+          company-minimum-prefix-length 2
+          company-selection-wrap-around t
+          company-tooltip-limit 14
+          company-tooltip-align-annotations t
+          company-global-modes '(not erc-mode message-mode help-mode gud-mode)
+          company-require-match 'never
+          ;; Buffer-local backends will be computed when loading a major mode, so
+          ;; only specify a global default here.
+          company-backends '(company-capf)
+
+          company-auto-complete nil
+          company-auto-complete-chars nil)
+    (global-company-mode t))
 #+END_SRC
 *** TabNine
 #+BEGIN_SRC emacs-lisp
@@ -963,6 +998,11 @@ Open *.h as c++-mode
 **** C#
 #+BEGIN_SRC emacs-lisp
   (use-package csharp-mode)
+#+END_SRC
+**** Makefile
+#+BEGIN_SRC emacs-lisp
+  (use-package makefile-executor
+    :hook (makefile-mode . makefile-executor-mode))
 #+END_SRC
 **** Cmake
 #+BEGIN_SRC emacs-lisp
