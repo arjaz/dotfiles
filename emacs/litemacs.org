@@ -51,9 +51,9 @@ Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some alia
 I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
 Now I think between Monoid and Input
 #+Begin_src emacs-lisp
-  (setq default-frame-alist '((font . "FiraCode-10")))
-  (set-frame-font "FiraCode-10")
-  (set-face-attribute 'default nil :height 100 :weight 'normal)
+  (setq default-frame-alist '((font . "FiraCode-11")))
+  (set-frame-font "FiraCode-11")
+  (set-face-attribute 'default nil :height 110 :weight 'normal)
 #+END_SRC
 * Useful modes and hooks
 #+BEGIN_SRC emacs-lisp
@@ -165,9 +165,12 @@ I'm not sure about solaire
   (use-package doom-themes
     :after (solaire-mode)
     :config
+    (add-hook 'solaire-mode-hook (lambda ()
+                                   (interactive)
+                                   (load-theme 'doom-nord t)))
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
-    (load-theme 'doom-nord t)
+    ;; (load-theme 'doom-nord t)
     (doom-themes-org-config))
 #+END_SRC
 **** Doom-modeline
@@ -193,18 +196,23 @@ I'm not sure about solaire
 #+END_SRC
 **** Highlight-indent-guides
 #+BEGIN_SRC emacs-lisp
-  (use-package highlight-indent-guides
-    :hook (prog-mode . highlight-indent-guides-mode)
-    :config
-    (setq highlight-indent-guides-method 'character
-          highlight-indent-guides-responsive 'stack))
+  ;; (use-package highlight-indent-guides
+  ;;   :hook (prog-mode . highlight-indent-guides-mode)
+  ;;   :config
+  ;;   (setq highlight-indent-guides-method 'character
+  ;;         highlight-indent-guides-responsive 'stack))
 #+END_SRC
 **** All-the-icons
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons)
 
   (use-package all-the-icons-dired
-   :hook (dired-mode . all-the-icons-dired-mode))
+    :config
+    (add-hook 'dired-mode-hook
+              (lambda ()
+                (interactive)
+                (unless (file-remote-p default-directory)
+                  (all-the-icons-dired-mode)))))
 #+END_SRC
 **** Hl-todo
 #+BEGIN_SRC emacs-lisp
@@ -886,6 +894,10 @@ Open *.h as c++-mode
     (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper"))
 #+END_SRC
 **** Python
+#+BEGIN_SRC emacs-lisp
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "console --simple-prompt")
+#+END_SRC
 ***** Python-X
 #+BEGIN_SRC emacs-lisp
   (use-package python-x
