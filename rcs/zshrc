@@ -1,16 +1,29 @@
 export ZSH=~/.oh-my-zsh
 
-# ZSH theme
-ZSH_THEME="typewritten"
-TYPEWRITTEN_SYMBOL="λ"
+# Vi mode
+# bindkey -v
 
 export UPDATE_ZSH_DAYS=13
+
+# ZSH theme
+ZSH_THEME="typewritten"
+# TYPEWRITTEN_RIGHT_PROMPT_PREFIX='${MODE_INDICATOR_PROMPT} '
+TYPEWRITTEN_SYMBOL="λ"
+
 plugins=(
   git
   zsh-autosuggestions
+  # zsh-vim-mode
 )
 
 source $ZSH/oh-my-zsh.sh
+
+# MODE_INDICATOR_VIINS='%F{2}I'
+# MODE_INDICATOR_VICMD='%F{1}N'
+# MODE_INDICATOR_REPLACE='%F{3}R'
+# MODE_INDICATOR_SEARCH='%F{5}S'
+# MODE_INDICATOR_VISUAL='%F{6}V'
+# MODE_INDICATOR_VLINE='%F{6}L'
 
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
@@ -29,6 +42,7 @@ alias btw=neofetch
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
-export PATH="$HIME/.cabal/bin:$PATH"
+export PATH="$HOME/.dotfiles/scripts:$PATH"
+export PATH="$HOME/.cabal/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"

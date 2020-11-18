@@ -1,59 +1,75 @@
 #+STARTUP: showeverything
 
 * Startup optimization
-I'm not really sure how to improve that, but I don't care since switching to emacs-daemon
+I think it's managed by GHCM now
 #+BEGIN_SRC emacs-lisp
   (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
         gc-cons-percentage 0.6)
 
   (add-hook 'emacs-startup-hook
             (lambda ()
-              (setq gc-cons-threshold 268435456 ; 256mb
+              (setq gc-cons-threshold 536870912 ; 512mb
                     gc-cons-percentage 0.1)))
 #+END_SRC
+* Long lines stuff
+#+BEGIN_SRC emacs-lisp
+  (setq bidi-paragraph-direction 'left-to-right
+        bidi-inhibit-bpa t)
+#+END_SRC
+* Disable visual stuff
+We don't really need this
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  ;; FIXME: there is a bug when using daemon
+  (scroll-bar-mode -1)
+  (add-hook 'after-init-hook '(lambda () (scroll-bar-mode -1)))
+
+  (setq x-gtk-use-system-tooltips nil
+        use-dialog-box nil)
+#+END_SRC
 * QoL features
-Here I disable some useless stuff like menu-bar, scroll-bar, etc, make some aliases and small adjustments.
+Some symlinks, backups and stuff like that
 #+BEGIN_SRC emacs-lisp
   ;; Disable startup message and gtk pop-ups
-  (setq inhibit-startup-message t
-        x-gtk-use-system-tooltips nil
-        use-dialog-box nil)
-  ;; Disable menu-bar
-  (menu-bar-mode -1)
-  ;; Disable scroll-bar
-  (scroll-bar-mode -1)
-  ;; Disable tool-bar
-  (tool-bar-mode -1)
-  ;; Disable tooltip
-  (tooltip-mode -1)
+  (setq inhibit-startup-message t)
 
   ;; Symlinks
-  (setq vc-follow-symlinks t)
-  (setq find-file-visit-truename t)
+  (setq vc-follow-symlinks t
+        find-file-visit-truename t)
 
   ;; Don't create backup files
-  (setq make-backup-files nil)
-  (setq backup-directory-alist '(("." . "~/.config/emacs/saves")))
+  (setq make-backup-files nil
+        backup-directory-alist '(("." . "~/.config/emacs/saves")))
+
+  (setq temporary-file-directory "~/.config/emacs/tmp/")
 
   ;; Automaticalyy revert changes
   (global-auto-revert-mode t)
 
-  ;; That's for tramp
-  (setq tramp-default-method "ssh")
-
   ;; Disable auto-saves
   (setq auto-save-default nil)
 
+  ;; Disable lock files
+  (setq create-lockfiles nil)
+
   ;; We don't want to type yes and no all the time so, do y and n
-  (defalias 'yes-or-no-p 'y-or-n-p)
+  (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 * Faces
-I'm not sure what font to use. I used to love FiraCode, but I don't really know anymore.
-Now I think between Monoid and Input
-#+Begin_src emacs-lisp
-  (setq default-frame-alist '((font . "FiraCode-11")))
-  (set-frame-font "FiraCode-11")
-  (set-face-attribute 'default nil :height 110 :weight 'normal)
+#+BEGIN_SRC emacs-lisp
+  (setq default-frame-alist '((font . "FiraCode")))
+  (set-frame-font "FiraCode")
+  (set-face-attribute 'default nil :height 110)
+#+END_SRC
+* Save history
+#+BEGIN_SRC emacs-lisp
+  (setq savehist-file "~/.config/emacs/savehist")
+  (savehist-mode t)
+  (setq history-length t
+        history-delete-duplicates t
+        savehist-save-minibuffer-history t)
 #+END_SRC
 * Useful modes and hooks
 #+BEGIN_SRC emacs-lisp
@@ -73,18 +89,21 @@ Now I think between Monoid and Input
   (global-hl-line-mode t)
 
   ;; Relative line numbers
-  (global-display-line-numbers-mode t)
+  ;; (global-display-line-numbers-mode t)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'text-mode-hook 'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook 'display-line-numbers-mode)
+  (add-hook 'eshell-mode-hook 'display-line-numbers-mode)
 
-  (electric-pair-mode t)
+  ;; Don't bother to close the parens
+  (add-hook 'prog-mode-hook 'electric-pair-local-mode)
 #+END_SRC
-** Flymake
+* Flymake
 #+BEGIN_SRC emacs-lisp
   ;; Move flymake garbage
   (setq flymake-run-in-place nil)
-  (setq temporary-file-directory "~/.config/emacs/tmp/")
 #+END_SRC
-* Misc
-** Indentation
+* Indentation
 #+BEGIN_SRC emacs-lisp
   (setq-default indent-tabs-mode nil
                 tab-width 4)
@@ -92,7 +111,7 @@ Now I think between Monoid and Input
         c-basic-offset 4)
   (setq js-indent-level 2)
 #+END_SRC
-** Other stuff
+* Other stuff
 #+BEGIN_SRC emacs-lisp
   ;; Clean buffers
   (setq clean-buffer-list-delay-general 1)
@@ -100,82 +119,118 @@ Now I think between Monoid and Input
   (require 'ibuf-ext)
   (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
-  ;; Zathura for pdf
-  (setq TeX-view-program-list '(("zathura" "zathura --page=%(outpage) %o")))
-  (setq TeX-view-program-selection '((output-pdf "Zathura")))
-
   ;; Relative line numbers
   (setq display-line-numbers-type 'relative)
 
   ;; Smooth scrolling
   (setq scroll-conservatively 101) ;; move minimum when cursor exits view, instead of recentering
-
-  (global-set-key (kbd "<f5>") 'recompile)
 #+END_SRC
-* Packages
-I generally use use-package
-** init
+* Straight
 #+BEGIN_SRC emacs-lisp
-  (package-initialize)
+  (setq straight-use-package-by-default t)
+  (setq straight-check-for-modifications '(watch-files find-when-checking))
 
-  (require 'package)
-  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+  (defvar bootstrap-version)
 
-  (setq package-enable-at-startup nil)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+END_SRC
-** use-package
+* Use-package
 #+BEGIN_SRC emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-
-  (require 'use-package-ensure)
-  (setq use-package-always-ensure t)
+  (straight-use-package 'use-package)
 #+END_SRC
-*** Visual stuff
+* Visual stuff
 I'm not sure about solaire
-**** Solaire
+** Solaire
 #+BEGIN_SRC emacs-lisp
   (use-package solaire-mode
     :hook (after-init . solaire-global-mode))
 #+END_SRC
-**** Tree-sitter
+** Tree-sitter
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'package-archives '("ublt" . "https://elpa.ubolonton.org/packages/"))
-
   (use-package tree-sitter
-    :config
-    (global-tree-sitter-mode)
-    :hook (tree-sitter-after-on . tree-sitter-hl-mode))
+   :straight (tree-sitter :host github
+                          :repo "ubolonton/emacs-tree-sitter"
+                          :files ("lisp/*.el"))
+   :hook (tree-sitter-after-on . tree-sitter-hl-mode)
+   :config
+   (global-tree-sitter-mode))
 
-  (use-package tree-sitter-langs)
+  (use-package tree-sitter-langs
+   :straight (tree-sitter-langs :host github
+                                :repo "ubolonton/emacs-tree-sitter"
+                                :files ("langs/*.el" "langs/queries")))
 #+END_SRC
-**** Ligatures
+** Ligatures
+There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+BEGIN_SRC emacs-lisp
+  ;; (use-package ligature
+  ;;   :straight (ligature :type git
+  ;;                       :host github
+  ;;                       :repo "mickeynp/ligature.el"
+  ;;                       :files ("*.el"))
+  ;;   :config
+  ;;   ;; (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+  ;;   ;;                                      ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+  ;;   ;;                                      "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+  ;;   ;;                                      "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+  ;;   ;;                                      "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+  ;;   ;;                                      "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+  ;;   ;;                                      "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+  ;;   ;;                                      "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+  ;;   ;;                                      ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+  ;;   ;;                                      "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+  ;;   ;;                                      "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+  ;;   ;;                                      "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+  ;;   ;;                                      "\\" "://"))
+  ;;   (ligature-set-ligatures
+  ;;      'prog-mode
+  ;;      '("<--" "<---" "<<-" "<-" "<->" "->" "->>" "-->" "--->"
+  ;;        "<!--" "-<<" "-<" "-<-" "->-" ">-" ">>-" "<-->" "<--->"
+  ;;        "<---->" "<==" "<===" "<<=" "<=" "<=>" "=>" "=>>" "==>"
+  ;;        "===>" "<!---" "=<<" "=<" "=<=" "=>=" ">=" ">>=" "<==>"
+  ;;        "<===>" "<====>" "<-------" "------->" "<======>" "<~~"
+  ;;        "<~" "~>" "~~>" "\/" "/\\" "==" "!=" "/=" "~=" "<>"
+  ;;        "===" "!==" "=/=" "=!=" ":=" ":-" ":+" "<*" "<*>" "*>"
+  ;;        "<|" "<|>" "|>" "+:" "-:" "=:" "::" ":::" "<." "<.>"
+  ;;        ".>" "(*" "*)" ":>" "++" "+++" "|-" "-|"))
+  ;;   (global-ligature-mode t))
+
   (use-package fira-code-mode
-    :custom (fira-code-mode-disabled-ligatures '("[]" "x"))
     :config
-    (setq fira-code-mode-enable-hex-literal nil)
+    (setq fira-code-mode-disabled-ligatures '("[]" "x"))
     (global-fira-code-mode))
 #+END_SRC
-**** Doom-themes
+** Doom-themes
 #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
     :after (solaire-mode)
+    :init
+    (defvar arjaz/loaded-theme nil)
+    :hook (server-after-make-frame . (lambda ()
+                                       (interactive)
+                                       (unless arjaz/loaded-theme
+                                         (setq arjaz/loaded-theme t)
+                                         (load-theme 'doom-nord t))))
     :config
-    (add-hook 'solaire-mode-hook (lambda ()
-                                   (interactive)
-                                   (load-theme 'doom-nord t)))
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
-    ;; (load-theme 'doom-nord t)
+    (load-theme 'doom-nord t)
     (doom-themes-org-config))
 #+END_SRC
-**** Doom-modeline
+** Doom-modeline
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
+    ;; I guess it's what I use with the daemon
     :hook (after-init . doom-modeline-mode)
     :hook (doom-modeline-mode . column-number-mode)
     :init
@@ -184,37 +239,35 @@ I'm not sure about solaire
           doom-modeline-modal-icon t
           doom-modeline-major-mode-icon t
           doom-modeline-major-mode-color-icon t
+          doom-modeline-vcs-max-length 12
           doom-modeline-buffer-state-icon t
           doom-modeline-buffer-modification-icon t
           doom-modeline-env-version t
           doom-modeline-lsp t))
+    ;; And that's used without a daemon
+    ;; (doom-modeline-mode 1))
 #+END_SRC
-**** Rainbow-delimiters
+** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
-**** Highlight-indent-guides
+** All-the-icons
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package highlight-indent-guides
-  ;;   :hook (prog-mode . highlight-indent-guides-mode)
-  ;;   :config
-  ;;   (setq highlight-indent-guides-method 'character
-  ;;         highlight-indent-guides-responsive 'stack))
-#+END_SRC
-**** All-the-icons
-#+BEGIN_SRC emacs-lisp
-  (use-package all-the-icons)
+  (use-package all-the-icons
+    :config
+    (add-to-list 'all-the-icons-icon-alist
+                 '("\\.tsx$" all-the-icons-fileicon "typescript" :height 1.0 :v-adjust -0.1 :face all-the-icons-blue-alt)))
+
 
   (use-package all-the-icons-dired
     :config
-    (add-hook 'dired-mode-hook
-              (lambda ()
-                (interactive)
-                (unless (file-remote-p default-directory)
-                  (all-the-icons-dired-mode)))))
+    :hook (dired-mode . (lambda ()
+                         (interactive)
+                         (unless (file-remote-p default-directory)
+                           (all-the-icons-dired-mode t)))))
 #+END_SRC
-**** Hl-todo
+** Hl-todo
 #+BEGIN_SRC emacs-lisp
   (use-package hl-todo
     :config
@@ -241,7 +294,7 @@ I'm not sure about solaire
             ;; For warning about a problematic or misguiding code
             ("XXX" font-lock-constant-face bold))))
 #+END_SRC
-**** Git-gutter
+** Git-gutter
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter
     :config
@@ -269,276 +322,117 @@ I'm not sure about solaire
       [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
       nil nil 'center))
 #+END_SRC
-*** Ws-butler
+* GCMH
 #+BEGIN_SRC emacs-lisp
-  (use-package ws-butler
+  (use-package gcmh
     :config
-    (ws-butler-global-mode t))
+    (setq gcmh-high-cons-threshold (/ 1073741824 2))
+    (gcmh-mode 1))
 #+END_SRC
-*** Dashboard
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-startup-banner 3)
-    (setq dashboard-set-navigator t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-items '((recents  . 5)
-                            (bookmarks . 5)
-                            (projects . 5)
-                            (agenda . 5)))
-    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-#+END_SRC
-*** Smart-tabs
-I've fallen into the heresy.
-#+BEGIN_SRC emacs-lisp
-  (use-package smart-tabs-mode
-    :hook (c-mode . (lambda ()
-                      (setq intent-tabs-mode t)))
-    :hook (c++-mode . (lambda ()
-                      (setq intent-tabs-mode t)))
-    :config
-    (smart-tabs-insinuate 'c 'c++ 'javascript))
-#+END_SRC
-*** Smartparens
-#+BEGIN_SRC emacs-lisp
-  (use-package smartparens
-    :config
-    (setq smartparens-global-mode t)
-    (require 'smartparens-config))
-#+END_SRC
-*** Eshell
-#+BEGIN_SRC emacs-lisp
-  (setq eshell-prompt-regexp "^.* λ "
-        eshell-prompt-function #'+eshell/prompt)
-
-
-  (defun +eshell/prompt ()
-    (let ((base/dir (shrink-path-prompt default-directory)))
-          (concat (propertize (car base/dir)
-                              'face 'font-lock-comment-face)
-                  (propertize (cdr base/dir)
-                              'face 'font-lock-constant-face)
-                  (propertize (+eshell--current-git-branch)
-                              'face 'font-lock-function-name-face)
-                  (propertize " λ" 'face 'eshell-prompt-face)
-                  ;; needed for the input text to not have prompt face
-                  (propertize " " 'face 'default))))
-
-  (defun +eshell--current-git-branch ()
-      (let ((branch (car (cl-loop for match in (split-string (shell-command-to-string "git branch") "\n")
-                               when (string-match "^\*" match)
-                               collect match))))
-        (if (not (eq branch nil))
-            (concat " [" (substring branch 2) "]")
-          "")))
-
-  (defun eshell-clear-buffer ()
-    "Clear terminal"
-    (interactive)
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (eshell-send-input)))
-  (add-hook 'eshell-mode-hook
-            '(lambda()
-               (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
-
-  (use-package eshell-toggle
-    :custom
-    (eshell-toggle-size-fraction 4))
-
-  (use-package eshell-did-you-mean
-    :config
-    (eshell-did-you-mean-setup))
-
-  (use-package esh-help
-    :config
-    (setup-esh-help-eldoc))
-
-  (use-package shrink-path)
-
-  (use-package bash-completion)
-    ;; :config
-    ;; (bash-completion-setup))
-
-  (use-package fish-completion
-    :config
-    (global-fish-completion-mode)
-    (setq fish-completion-fallback-on-bash-p t))
-#+END_SRC
-*** Mu4e
-#+BEGIN_SRC emacs-lisp
-  (require 'mu4e)
-
-  ;; default
-  (setq mu4e-maildir "~/Maildir")
-  (setq mu4e-drafts-folder "/[Gmail].Drafts")
-  (setq mu4e-sent-folder "/[Gmail].Sent Mail")
-  (setq mu4e-trash-folder "/[Gmail].Trash")
-
-  ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
-  (setq mu4e-sent-messages-behavior 'delete)
-
-  ;; allow for updating mail in the main view:
-  (setq mu4e-get-mail-command "offlineimap")
-
-  ;; something about ourselves
-  (setq user-mail-address "art6661322@gmail.com"
-        user-full-name  "Eugene Rossokha")
-
-  (setq mu4e-view-show-images t
-        mu4e-view-image-max-width 800)
-
-  ;; (require 'smptpmail)
-
-  ;; (setq message-send-mail-function 'smtpmail-send-it
-  ;;       smtpmail-stream-type 'starttls
-  ;;       smtpmail-default-smtp-server "smtp.gmail.com"
-  ;;       smtpmail-smtp-server "smtp.gmail.com"
-  ;;       smtpmail-smtp-service 587)
-
-  ;; don't keep message buffers around
-  (setq message-kill-buffer-on-exit t)
-#+END_SRC
-*** Elfeed
-#+BEGIN_SRC emacs-lisp
-  (defun elfeed-v-mpv (url)
-    "Watch a video from URL in MPV"
-    (start-process "mpv" nil "mpv" url))
-
-  (defun elfeed-view-mpv (&optional use-generic-p)
-    "YouTube-feed link"
-    (interactive "P")
-    (let ((entries (elfeed-search-selected)))
-      (cl-loop for entry in entries
-               do (elfeed-untag entry 'unread)
-               when (elfeed-entry-link entry)
-               do (elfeed-v-mpv it))
-      (mapc #'elfeed-search-update-entry entries)
-      (unless (use-region-p) (forward-line))))
-
-  (use-package elfeed
-    :bind ("C-c C-v" . elfeed-view-mpv)
-    :config
-    (setq elfeed-feeds
-          '("https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA"
-            "https://www.youtube.com/feeds/videos.xml?channel_id=UCZAENaOaceQUMd84GDc26EA"
-            "https://www.youtube.com/feeds/videos.xml?channel_id=UCVls1GmFKf6WlTraIb_IaJg"
-            "https://lukesmith.xyz/rss.xml"
-            "https://videos.lukesmith.xyz/feeds/videos.xml?videoChannelId=2"
-            "https://bay12games.com/dwarves/b12_call.rss")))
-#+END_SRC
-*** Magit
-#+BEGIN_SRC emacs-lisp
-  (use-package magit)
-
-  (use-package magit-todos
-    :hook (prog-mode . magit-todos-mode))
-#+END_SRC
-*** TODO Forge
-*** Projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :config
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-    (projectile-mode t))
-#+END_SRC
-*** Ivy, Swiper and Counsel
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :bind (("C-x C-f" . counsel-find-file)
-           ("M-x" . counsel-M-x)
-           :map ivy-mode-map
-           ("C-j" . ivy-next-line)
-           ("C-k" . ivy-previous-line))
-    :after (evil)
-    :config
-    ;; (defalias 'evil-search-forward 'swiper-isearch)
-    (ivy-mode t)
-    (counsel-mode t)
-    (setq projectile-completion-system 'ivy
-          ivy-magic-slash-non-match-action nil
-          ivy-use-virtual-buffers nil
-          ivy-virtual-abbreviate 'full
-          ivy-display-style 'fancy
-          ivy-on-del-error-function #'ignore
-          ivy-format-function 'ivy-format-function-line
-          ivy-sort-max-size 7500))
-
-  (use-package ivy-hydra)
-#+END_SRC
-*** Org
-#+BEGIN_SRC emacs-lisp
-  (use-package org
-    :bind (("C-c a" . org-agenda)
-           ("C-c c" . org-capture))
-    :config
-    ;; enable python for in-buffer evaluation
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)))
-
-    ;; all python code be safe
-    (defun my-org-confirm-babel-evaluate (lang body)
-      (not (string= lang "python")))
-    (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
-
-    (setq org-directory "~/.org/")
-    (setq org-default-notes-file (concat org-directory "notes.org"))
-    (setq org-hide-leading-stars t)
-    (setq org-startup-folded t)
-    (setq org-startup-indented t)
-    (setq org-agenda-files (list org-default-notes-file)))
-
-  ;; TODO: agenda, capture templates
-  (setq org-capture-templates
-        '(("t" "Tasks" entry (file+headline org-default-notes-file "Tasks")
-           "* TODO %?\n%u\n" :prepend t)
-          ("l" "Look later" entry (file+headline org-default-notes-file "Look later")
-           "* TODO %?")
-          ("s" "Skills" entry (file+headline org-default-notes-file "Skills")
-           "* TODO %?")
-          ("g" "Gifts" entry (file+headline org-default-notes-file "Gifts")
-           "* TODO %?")
-          ))
-
-  (use-package org-bullets
-    :after org
-    :hook (org-mode . org-bullets-mode))
-#+END_SRC
-*** Iedit
-#+BEGIN_SRC emacs-lisp
-  (use-package iedit)
-#+END_SRC
-*** Evil
+* Evil
+** Evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :hook (after-change-major-mode . (lambda () (modify-syntax-entry ?_ "w")))
+    :bind (:map evil-normal-state-map
+                ("C-u" . (lambda ()
+                           (interactive)
+                           (evil-scroll-up nil)))
+                ("C-d" . (lambda ()
+                           (interactive)
+                           (evil-scroll-down nil))))
     :init
-    (setq evil-want-keybinding nil)
-    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil
+          evil-want-integration t)
     :config
-    (define-key evil-normal-state-map (kbd "C-u") (lambda()
-                                                    (interactive)
-                                                    (evil-scroll-up nil)))
-    (define-key evil-normal-state-map (kbd "C-d") (lambda()
-                                                    (interactive)
-                                                    (evil-scroll-down nil)))
     (evil-mode t)
     (setq evil-split-window-below t
           evil-vsplit-window-right t))
-
+#+END_SRC
+** Evil numbers
+#+BEGIN_SRC emacs-lisp
   (use-package evil-numbers
-    :after evil
+    :bind (:map evil-normal-state-map
+                ("C-c j" . evil-numbers/inc-at-pt)
+                ("C-c k" . evil-numbers/dec-at-pt)))
+#+END_SRC
+** Leader
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-leader
     :config
-    (define-key evil-normal-state-map (kbd "C-c j") 'evil-numbers/inc-at-pt)
-    (define-key evil-normal-state-map (kbd "C-c k") 'evil-numbers/dec-at-pt))
+    (setq evil-leader/in-all-states 1)
+    (evil-leader/set-leader "<SPC>")
+    (global-evil-leader-mode)
+    (evil-leader/set-key
+      ;; Windows
+      "w b" 'evil-window-bottom-right
+      "w t" 'evil-window-top-left
+      "w h" 'evil-window-left
+      "w j" 'evil-window-down
+      "w k" 'evil-window-up
+      "w l" 'evil-window-right
+      "w o" 'delete-other-windows
+      "v" 'evil-window-vsplit
+      "h" 'evil-window-split
+      "q" 'evil-quit
 
+      ;; Spawning stuff
+      "n t" 'terminal-here-launch
+      "n m" 'mu4e
+      "n v" 'vterm
+      "n r" 'counsel-tramp
+
+      ;; Lsp
+      "l l" 'lsp
+      "l e" 'lsp-ui-flycheck-list
+      "l c" 'lsp-treemacs-call-hierarchy
+      "l n" 'lsp-rename
+      "l s" 'lsp-describe-thing-at-point
+      "l f" 'lsp-format-buffer
+      "l d" 'lsp-find-definition
+      "l t" 'lsp-find-type-definition
+      "l r" 'lsp-find-references
+      "l i" 'lsp-find-implementation
+      "l a" 'lsp-execute-code-action
+      "l m" 'lsp-ui-imenu
+
+      "k" 'kill-current-buffer
+
+      "f" 'format-all-buffer
+
+      ;; Magit bindings
+      "m s" 'magit-status
+      "m m" 'magit-status
+      "m b" 'magit-blame
+      "m c" 'magit-clone
+
+      ;; Eshell
+      "t" 'eshell-toggle
+      "e" 'eshell
+
+      ;; Search
+      "s" 'swiper-isearch
+      "a" 'counsel-projectile-ag
+
+      ;; Projectile
+      "p p" 'counsel-projectile-switch-project
+      "p c" 'projectile-compile-project
+      "p d" 'projectile-dired
+      "j" 'projectile-find-file-other-window
+      "<SPC>" 'counsel-projectile-find-file
+
+      ;; Moving
+      "r" 'counsel-buffer-or-recentf
+      "b" 'ivy-switch-buffer
+      "o" 'counsel-find-file
+      "g" 'counsel-bookmark
+      "d" 'dired-sidebar-toggle-with-current-directory))
+#+END_SRC
+** Small evill stuff
+#+BEGIN_SRC emacs-lisp
   (use-package evil-indent-plus)
 
   (use-package evil-surround
-    :after evil
     :config
     (global-evil-surround-mode t))
 
@@ -563,71 +457,12 @@ I've fallen into the heresy.
     (define-key evil-normal-state-map "K" 'evil-jump-out-args))
 
   (use-package evil-commentary
-    :after evil
     :config
     (evil-commentary-mode))
 
-  (use-package evil-leader
-    :after evil
-    :config
-    (setq evil-leader/in-all-states 1)
-    ;; (global-unset-key "<SPC>")
-    (evil-leader/set-leader "<SPC>")
-    (global-evil-leader-mode)
-    (evil-leader/set-key
-      ; Windows
-      "w h" 'evil-window-left
-      "w j" 'evil-window-down
-      "w k" 'evil-window-up
-      "w l" 'evil-window-right
-      "w o" 'delete-other-windows
-      "v" 'evil-window-vsplit
-      "h" 'evil-window-split
-      "q" 'evil-quit
-
-      ; Terminal
-      "n t" 'terminal-here-launch
-      "n f" 'elfeed
-      "n m" 'mu4e
-
-      ; Lsp
-      "l l" 'lsp
-      "l c" 'lsp-treemacs-call-hierarchy
-      "l n" 'lsp-rename
-      "l s" 'lsp-describe-thing-at-point
-      "l f" 'lsp-format-buffer
-      "l d" 'lsp-find-definition
-      "l t" 'lsp-find-type-definition
-      "l r" 'lsp-find-references
-      "l i" 'lsp-find-implementation
-      "l a" 'lsp-execute-code-action
-      "l m" 'lsp-ui-imenu
-
-      "x" 'counsel-M-x
-
-      ; Magit bindings
-      "m m" 'magit-status
-      "m b" 'magit-blame
-
-      ; Eshell
-      "t" 'eshell-toggle
-      "e" 'eshell
-
-      ; Search
-      "s" 'swiper-isearch
-      "a" 'counsel-ag
-
-      ; Moving
-      "b" 'ivy-switch-buffer
-      "o" 'counsel-find-file
-      "<SPC>" 'counsel-projectile-find-file
-      "j" 'counsel-file-jump
-      "g" 'counsel-bookmark
-      "p" 'counsel-projectile-switch-project
-      "d" 'dired-sidebar-toggle-with-current-directory))
-
   (use-package evil-iedit-state
     :after (iedit evil)
+    :hook (iedit-mode . evil-iedit-state)
     :config
     (defalias 'iedit-cleanup 'iedit-lib-cleanup))
 
@@ -646,87 +481,412 @@ I've fallen into the heresy.
     (setq evil-magit-want-vertical-movement t))
 
   (use-package evil-collection
-    :after evil
+    :after (evil vterm)
     :config
     (evil-collection-init))
+
+  (use-package evil-matchit
+    :config
+    (global-evil-matchit-mode t))
+
+  (use-package evil-org
+    :after org
+    :hook (org-mode . evil-org-mode)
+    :hook (evil-org-mode . (lambda ()
+                             (evil-org-set-key-theme)))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys))
 #+END_SRC
-*** Parinfer
+* Undo-fu
 #+BEGIN_SRC emacs-lisp
-  (use-package parinfer
-    :ensure t
-    :bind
-    (("C-," . parinfer-toggle-mode))
-    :init
-    (progn
-      (setq parinfer-extensions
-            '(defaults        ; should be included.
-               pretty-parens  ; different paren styles for different modes.
-               evil           ; If you use Evil.
-               smart-tab))    ; C-b & C-f jump positions and smart shift with tab & S-tab.
-      (add-hook 'clojure-mode-hook #'parinfer-mode)
-      (add-hook 'hy-mode-hook #'parinfer-mode)
-      (add-hook 'racket-mode-hook #'parinfer-mode)
-      (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
-      (add-hook 'common-lisp-mode-hook #'parinfer-mode)
-      (add-hook 'scheme-mode-hook #'parinfer-mode)
-      (add-hook 'lisp-mode-hook #'parinfer-mode)))
+  (use-package undo-fu
+    :after evil
+    :config
+    (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+    (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
 #+END_SRC
-*** Key-chord
+* Hungry delete
+#+BEGIN_SRC emacs-lisp
+     ;; (use-package hungry-delete
+     ;;   :hook (prog-mode . hungry-delete-mode))
+#+END_SRC
+* Ws-butler
+#+BEGIN_SRC emacs-lisp
+  (use-package ws-butler
+    :config
+    (ws-butler-global-mode t))
+#+END_SRC
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq show-week-agenda-p t
+          dashboard-set-heading-icons t
+          dashboard-startup-banner 3
+          dashboard-set-navigator t
+          dashboard-set-file-icons t
+          dashboard-items '((recents  . 5)
+                            (bookmarks . 5)
+                            (projects . 5)
+                            (agenda . 5)))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+#+END_SRC
+* Smartparens
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+    :hook (prog-mode . smartparens-mode)
+    :config
+    (require 'smartparens-config))
+#+END_SRC
+* Eshell
+#+BEGIN_SRC emacs-lisp
+  (setq eshell-prompt-regexp "^.* λ "
+        eshell-prompt-function #'+eshell/prompt)
+
+  (defun +eshell/prompt ()
+    (let ((base/dir (shrink-path-prompt default-directory)))
+      (concat (propertize (car base/dir)
+                          'face 'font-lock-comment-face)
+              (propertize (cdr base/dir)
+                          'face 'font-lock-constant-face)
+              (propertize (+eshell--current-git-branch)
+                          'face 'font-lock-function-name-face)
+              (propertize " λ" 'face 'eshell-prompt-face)
+              ;; needed for the input text to not have prompt face
+              (propertize " " 'face 'default))))
+
+  ;; for completeness sake
+  (defun +eshell--current-git-branch ()
+    (let ((branch (car (loop for match in (split-string (shell-command-to-string "git branch") "\n")
+                             when (string-match "^\*" match)
+                             collect match))))
+      (if (not (eq branch nil))
+          (concat " [" (substring branch 2) "]")
+        "")))
+
+  (defun eshell-clear-buffer ()
+    "Clear terminal"
+    (interactive)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eshell-send-input)))
+  (add-hook 'eshell-mode-hook
+            '(lambda()
+               (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+
+  (use-package eshell-toggle
+    :custom
+    (eshell-toggle-size-fraction 3)
+    (eshell-toggle-use-projectile-root t))
+
+  (use-package esh-help
+    :config
+    (setup-esh-help-eldoc))
+
+  (use-package shrink-path)
+
+  (use-package bash-completion)
+
+  (use-package fish-completion
+    :after bash-completion
+    :config
+    (global-fish-completion-mode)
+    (setq fish-completion-fallback-on-bash-p t))
+#+END_SRC
+* Vterm
+#+BEGIN_SRC emacs-lisp
+(use-package vterm)
+#+END_SRC
+* Mu4e
+#+BEGIN_SRC emacs-lisp
+  (use-package mu4e
+    :config
+    (setq mu4e-maildir "~/Maildir"
+          mu4e-drafts-folder "/[Gmail].Drafts"
+          mu4e-sent-folder "/[Gmail].Sent Mail"
+          mu4e-trash-folder "/[Gmail].Trash"
+          smtpmail-local-domain "gmail.com"
+          smtpmail-default-smtp-server "smpt.gmail.com"
+          smtpmail-smtp-server "smpt.gmail.com"
+          smtpmail-smtp-service 587)
+
+    (setq mu4e-maildir-shortcuts
+          '(("/INBOX"               . ?i)
+            ("/[Gmail].Sent Mail"   . ?s)))
+
+    ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
+    (setq mu4e-sent-messages-behavior 'delete)
+
+    ;; allow for updating mail in the main view:
+    (setq mu4e-get-mail-command "offlineimap")
+
+    ;; something about ourselves
+    (setq user-mail-address "art6661322@gmail.com"
+          user-full-name "Eugene Rossokha")
+
+    (setq mu4e-view-show-images t
+          mu4e-view-image-max-width 800)
+
+    ;; don't keep message buffers around
+    (setq message-kill-buffer-on-exit t))
+#+END_SRC
+* Format-all
+#+BEGIN_SRC emacs-lisp
+  (use-package format-all)
+#+END_SRC
+* ERC
+#+BEGIN_SRC emacs-lisp
+  (use-package erc
+    :custom
+    (erc-fill-function 'erc-fill-static)
+    (erc-fill-static-center 22)
+    (erc-lurker-threshold-time 43200)
+    (erc-prompt-for-nickserv-password nil)
+    (erc-server-reconnect-attempts 5)
+    (erc-server-reconnect-timeout 3)
+    :config
+    (add-to-list 'erc-modules 'notifications)
+    (add-to-list 'erc-modules 'spelling)
+    (erc-services-mode 1)
+    (erc-update-modules)
+    (setq auth-sources '("~/.authinfo.gpg"
+                         "~/.authinfo"
+                         "~/.netrc")))
+#+END_SRC
+* Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit)
+
+  (use-package magit-todos
+    :hook (prog-mode . magit-todos-mode))
+#+END_SRC
+* TODO Forge
+* Projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :config
+    (setq projectile-project-search-path '("~/code/"))
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (projectile-mode t))
+#+END_SRC
+* FLX
+#+BEGIN_SRC emacs-lisp
+     (use-package flx)
+#+END_SRC
+* Ivy, Swiper and Counsel
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :after evil
+    :straight (ivy :type git
+                   :flavor melpa
+                   :files (:defaults (:exclude "swiper.el" "counsel.el" "ivy-hydra.el") "doc/ivy-help.org" "ivy-pkg.el")
+                   :host github
+                   :repo "abo-abo/swiper")
+    :bind (:map ivy-mode-map
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line))
+    :config
+    (setq projectile-completion-system 'ivy
+          ivy-magic-slash-non-match-action nil
+          ivy-use-virtual-buffers nil
+          ivy-virtual-abbreviate 'full
+          ivy-display-style 'fancy
+          ivy-on-del-error-function 'ignore
+          ivy-format-function 'ivy-format-function-line
+          ivy-sort-max-size 7500)
+          ;; ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+    (ivy-mode))
+
+  (use-package swiper
+    :after evil
+    :straight (swiper :type git
+                      :flavor melpa
+                      :files ("swiper.el" "swiper-pkg.el")
+                      :host github
+                      :repo "abo-abo/swiper"))
+
+  (use-package counsel
+    :after evil
+    :straight (counsel :type git
+                       :flavor melpa
+                       :files ("counsel.el" "counsel-pkg.el")
+                       :host github
+                       :repo "abo-abo/swiper")
+    :bind (("C-x C-f" . counsel-find-file)
+           ("M-x" . counsel-M-x))
+    :config
+    (counsel-mode))
+
+  (use-package ivy-hydra
+    :after evil
+    :straight (ivy-hydra :type git
+                         :flavor melpa
+                         :files ("ivy-hydra.el")
+                         :host github
+                         :repo "abo-abo/swiper"))
+
+  (use-package counsel-projectile
+    :after (counsel projectile)
+    :config
+    (counsel-projectile-mode t))
+#+END_SRC
+* Tramp
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel-tramp
+    :config
+    (add-to-list 'tramp-remote-path '"~/.local/bin/")
+    (setq remote-file-name-inhibit-cache nil
+          vc-ignore-dir-regexp
+          (format "%s\\|%s"
+                  vc-ignore-dir-regexp
+                  tramp-file-name-regexp)
+          tramp-default-method "ssh"
+          make-backup-files nil
+          create-lockfiles nil)
+    :hook (counsel-tramp-pre-command . (lambda ()
+                                         (projectile-mode 0)))
+    :hook (counsel-tramp-quit . (lambda ()
+                                  (projectile-mode 1))))
+#+END_SRC
+* Imenu-list
+#+BEGIN_SRC emacs-lisp
+  (use-package imenu-list)
+#+END_SRC
+* TODO org-sidebar
+* Org
+#+BEGIN_SRC emacs-lisp
+  (use-package org-mode
+    :straight (org :type built-in)
+    :bind (("C-c a" . org-agenda)
+           ("C-c c" . org-capture)))
+
+  (setq org-confirm-babel-evaluate nil)
+   ;; enable python for in-buffer evaluation
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)))
+
+   ;; all python code be safe
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "python")))
+  (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+
+  (setq org-directory "~/.org/"
+        org-default-notes-file (concat org-directory "notes.org")
+        org-hide-leading-stars t
+        org-startup-folded t
+        org-startup-indented t
+        org-agenda-files (list org-default-notes-file))
+
+  (setq org-capture-templates
+        '(("t" "Tasks" entry (file+headline org-default-notes-file "Tasks")
+           "* TODO %?\n%u\n" :prepend t
+           ("l" "Look later" entry (file+headline org-default-notes-file "Look later"))
+           "* TODO %?"
+           ("s" "Skills" entry (file+headline org-default-notes-file "Skills"))
+           "* TODO %?"
+           ("g" "Gifts" entry (file+headline org-default-notes-file "Gifts"))
+           "* TODO %?")))
+
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode))
+#+END_SRC
+* Iedit
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit)
+#+END_SRC
+* Parinfer
+#+BEGIN_SRC emacs-lisp
+  (use-package parinfer-rust-mode
+    :hook (clojure-mode . parinfer-rust-mode)
+    :hook (hy-mode . parinfer-rust-mode)
+    :hook (emacs-lisp-mode . parinfer-rust-mode)
+    :hook (common-lisp-mode . parinfer-rust-mode)
+    :hook (scheme-mode . parinfer-rust-mode)
+    :hook (lisp-mode . parinfer-rust-mode)
+    :hook (racket-mode . parinfer-rust-mode)
+    :hook (parinfer-rust-mode . (lambda ()
+                                  (interactive)
+                                  (electric-pair-local-mode -1)
+                                  (rainbow-delimiters-mode -1)))
+    :init
+    (setq parinfer-rust-auto-download t
+          parinfer-rust-check-troublesome-modes nil))
+#+END_SRC
+* Smart-tabs
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-tabs-mode
+    :hook (c-mode-common . (lambda ()
+                             (setq indent-tabs-mode t)))
+    :config
+    (smart-tabs-insinuate 'c 'c++))
+#+END_SRC
+* Key-chord
 #+BEGIN_SRC emacs-lisp
   (use-package key-chord
     :config
     (key-chord-mode t)
     (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 #+END_SRC
-*** Dired
-**** Settings
+* Dired
+** Settings
 #+BEGIN_SRC emacs-lisp
-(require 'dired)
-(setq dired-listing-switches "-alh"
-      dired-auto-revert-buffer t  ; don't prompt to revert; just do it
-      dired-dwim-target t  ; suggest a target for moving/copying intelligently
-      dired-hide-details-hide-symlink-targets nil
-      ;; Always copy/delete recursively
-      dired-recursive-copies 'always
-      dired-recursive-deletes 'top)
+  (setq dired-listing-switches "-alhg"
+        dired-auto-revert-buffer t  ; don't prompt to revert; just do it
+        dired-dwim-target t  ; suggest a target for moving/copying intelligently
+        dired-hide-details-hide-symlink-targets nil
+        ;; Always copy/delete recursively
+        dired-recursive-copies 'always
+        dired-recursive-deletes 'top)
 #+END_SRC
-**** Diredfl
+** Diredfl
 #+BEGIN_SRC emacs-lisp
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 #+END_SRC
-**** Dired-hacks
+** Dired-hacks
 #+BEGIN_SRC emacs-lisp
-  (use-package dired-hacks-utils)
-  (use-package dired-narrow
+  (defun arjaz/dired-subtree-toggle ()
+    (interactive)
+    (dired-subtree-toggle)
+    (when all-the-icons-dired-mode
+      (revert-buffer)))
+
+  (use-package dired-hacks-utils
     :bind ((:map dired-mode-map
-                ("C-c C-/" . dired-narrow-fuzzy))))
+                 ("C-c C-d" . dired-create-directory)
+                 ("C-c C-f" . dired-create-empty-file)
+                 ("C-c C-/" . dired-narrow-fuzzy)
+                 ("C-c /" . dired-narrow-fuzzy)
+                 ("<tab>" . arjaz/dired-subtree-toggle))))
 #+END_SRC
-**** Dired-sidebar
+** Dired-sidebar
 #+BEGIN_SRC emacs-lisp
   (use-package dired-sidebar
     :config
     (add-to-list 'dired-sidebar-display-alist '(side . right)))
 #+END_SRC
-*** Terminal-here
+* Terminal-here
 #+BEGIN_SRC emacs-lisp
   (use-package terminal-here
-    :bind (("M-RET" . terminal-here-launch))
+    :bind ("M-RET" . terminal-here-launch)
     :config
-    (setq terminal-here-terminal-command (list "st" "--")))
+    (setq terminal-here-terminal-command '("st" "--")))
 #+END_SRC
-*** Company
+* Company
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :bind (:map company-active-map
-                ("<tab>" . company-select-next)
                 ("<return>" . company-complete))
+    :hook (prog-mode . company-mode)
     :config
     (advice-add 'company-complete-common :before (lambda () (setq my-company-point (point))))
     (advice-add 'company-complete-common :after (lambda ()
                                                   (when (equal my-company-point (point))
                                                     (yas-expand))))
-
 
     (setq company-idle-delay 0
           company-show-numbers t
@@ -741,82 +901,66 @@ I've fallen into the heresy.
           company-backends '(company-capf)
 
           company-auto-complete nil
-          company-auto-complete-chars nil)
-    (global-company-mode t))
+          company-auto-complete-chars nil))
+
+  ;; (use-package company-box
+  ;;   :hook (company-mode . company-box-mode))
 #+END_SRC
-*** TabNine
+* TabNine
 #+BEGIN_SRC emacs-lisp
   (use-package company-tabnine
     :config
-    (add-to-list 'company-backends #'company-tabnine))
+    (add-to-list 'company-backends 'company-tabnine))
 #+END_SRC
-*** Yasnippet
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :config
-    (yas-global-mode t))
-
-  (use-package yasnippet-snippets)
-#+END_SRC
-*** Flycheck
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :init (global-flycheck-mode)
-    :config
-    (setq flycheck-indication-mode 'right-fringe)
-    (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
-      [16 48 112 240 112 48 16] nil nil 'center)
-    :bind ("C-c C-e" . flycheck-next-error))
-
-  (use-package flycheck-pos-tip
-    :config
-    (setq flycheck-pos-tip-timeout 0)
-    (flycheck-pos-tip-mode))
-
-  (use-package flycheck-haskell
-    :hook (haskell-mode . flycheck-haskell-setup))
-
-  ;; (use-package flycheck-clang-tidy
-  ;;   :after flycheck
-  ;;   :hook (flycheck-mode . flycheck-clang-tidy-setup))
-
-  (use-package flycheck-kotlin)
-
-  (use-package flycheck-rust
-    :hook (flycheck-mode . flycheck-rust-setup))
-#+END_SRC
-*** TODO Dap
-#+BEGIN_SRC emacs-lisp
-  (use-package dap-mode
-    :config
-    (setq dap-mode t
-          dap-ui-mode t)
-    (require 'dap-python))
-#+END_SRC
-*** Dumb Jump
+* Dumb Jump
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
     :config
-    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+    (add-hook 'xref-backend-functions 'dumb-jump-xref-activate)
     (setq dumb-jump-default-project "~/code"))
 #+END_SRC
-*** LSP
+* Zoom
+#+BEGIN_SRC emacs-lisp
+  (defun arjaz/fix-imenu-list-size ()
+    (with-selected-window (get-buffer-window "*Ilist*")
+      (setq window-size-fixed t)
+      (window-resize (selected-window) (- 30 (window-total-width)) t t)))
+
+  (use-package zoom
+    :after (dired-sidebar)
+    ;; That stuff isn't sustainable for all mods I want it in
+    ;; LSP-ui-imenu is broken beyond repair and that hook breaks counsel-M-x as well
+    ;; :hook (imenu-list-update . arjaz/fix-imenu-list-size)
+    :config
+    (zoom-mode t)
+    (setq zoom-size '(0.618 . 0.618)
+          zoom-ignored-major-modes '(lsp-ui-imenu-mode imenu-list-major-mode)
+          ;; TODO: what's that here
+          ;; zoom-ignore-predicates '(lambda ()
+          ;;                           (equal which-key-buffer-name
+          ;;                                  (buffer-file-name (current-buffer))))
+          dired-sidebar-toggle-hidden-commands nil))
+#+END_SRC
+* LSP
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
-    :hook (python-mode . lsp)
-    :hook (elm-mode . lsp)
-    :hook (c++-mode . lsp)
     :config
-    (add-to-list 'lsp-clients-clangd-args "--clang-tidy")
-    (setq lsp-semantic-highlighting t)
-    (setq lsp-enable-symbol-highlighting nil)
-    (setq lsp-prefer-capf t)
-    (setq lsp-idle-delay 0.750)
-    :init
-    (setq read-process-output-max (* 1024 1024)))
+    ;; (if lsp-clients-clangd-args
+    ;;     (add-to-list lsp-clients-clangd-args '("--clang-tidy"))
+    ;;     (setq lsp-clients-clangd-args '("--clang-tidy")))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-tramp-connection "~/.local/bin/pyls")
+                      :major-modes '(python-mode)
+                      :remote? t
+                      :server-id 'pyls-remote))
+    (setq lsp-semantic-highlighting t
+          lsp-enable-symbol-highlighting nil
+          lsp-prefer-capf t
+          lsp-complition-provider :capf
+          lsp-idle-delay 0.750
+          read-process-output-max (* 1024 1024)))
 
-  (use-package lsp-ivy
-    :commands lsp-ivy-workspace-symbol)
+  ;; (use-package lsp-ivy)
 
   (use-package lsp-ui
     :config
@@ -824,176 +968,128 @@ I've fallen into the heresy.
           lsp-ui-sideline-show-diagnostics t
           lsp-ui-sideline-show-hover t))
 #+END_SRC
-*** Docker
+* Dap
 #+BEGIN_SRC emacs-lisp
-  (use-package docker
-    :bind ("C-c d" . docker))
+  (use-package dap-mode)
 #+END_SRC
-*** Languages
-**** C++
-Open *.h as c++-mode
+* Languages
+** C++
+Open *.h and *.cppm as c++-mode, add a binding
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.cppm\\'" . c++-mode))
 #+END_SRC
-# ***** Irony
-# #+BEGIN_SRC emacs-lisp
-#         ;; (use-package irony
-#         ;;   :hook (c++-mode . irony-mode)
-#         ;;   :hook (c-mode . irony-mode)
-#         ;;   :hook (irony-mode . irony-cdb-autosetup-compile-options))
-
-#         ;; (use-package company-irony
-#         ;;   :after irony-mode
-#         ;;   :after company
-#         ;;   :config
-#         ;;   (add-to-list 'company-backends 'company-irony))
-
-#         ;; (use-package flycheck-irony
-#         ;;   :after irony-mode
-#         ;;   :after flycheck
-#         ;;   :hook (flycheck-mode . flycheck-irony-setup))
-# #+END_SRC
-**** Haskell
-***** Ormolu
+** Haskell
+*** Ormolu
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package ormolu
-  ;;   :hook (haskell-mode . ormolu-format-on-save-mode))
+  (use-package ormolu
+    :hook (haskell-mode . ormolu-format-on-save-mode))
 #+END_SRC
-***** Hindent
-#+BEGIN_SRC emacs-lisp
-  (use-package hindent
-    :init
-    (setq hindent-reformat-buffer-on-save t))
-#+END_SRC
-***** Haskell-mode
+*** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
     :hook (haskell-mode . haskell-indentation-mode)
     :hook (haskell-mode . interactive-haskell-mode)
-    :hook (haskell-mode . hindent-mode)
     ;; :hook (haskell-mode . haskell-decl-scan-mode)
     ;; :hook (haskell-mode . haskell-doc-mode)
-    :bind (:map haskell-mode-map ("C-c C-c" . haskell-process-load-file))
+    :bind (:map haskell-mode-map
+           ("C-c C-p" . haskell-compile))
     :config
-    (flymake-mode 0)
     (setq haskell-compile-cabal-build-command "stack build"))
 #+END_SRC
-***** Shakespeare-mode
+*** Shakespeare-mode
 #+BEGIN_SRC emacs-lisp
   (use-package shakespeare-mode)
 #+END_SRC
-***** Hlint-refactor
+*** Hlint-refactor
 #+BEGIN_SRC emacs-lisp
   (use-package hlint-refactor
     :hook (haskell-mode . hlint-refactor-mode))
 #+END_SRC
-***** Lsp
+*** Lsp
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-haskell
-    :config
-    (setq lsp-haskell-process-path-hie "haskell-language-server-wrapper"))
+    :after lsp-mode)
 #+END_SRC
-**** Python
-#+BEGIN_SRC emacs-lisp
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "console --simple-prompt")
-#+END_SRC
-***** Python-X
+** Python
+*** Python-X
 #+BEGIN_SRC emacs-lisp
   (use-package python-x
     :config
     (python-x-setup))
 #+END_SRC
-***** TODO Jedi
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package company-jedi
-  ;;   :hook (python-mode . (lambda () (add-to-list 'company-backends 'company-jedi))))
-#+END_SRC
-***** Cython
+*** Cython
 #+BEGIN_SRC emacs-lisp
   (use-package cython-mode)
 #+END_SRC
-***** TODO Elpy
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package elpy
-  ;;   :init
-  ;;   (elpy-enable)
-  ;;   (setq elpy-rpc-backend "jedi")
-  ;;   :config
-  ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
-#+END_SRC
-***** Yapfify
+*** Yapfify
 #+BEGIN_SRC emacs-lisp
   (use-package yapfify
     :hook (python-mode . yapf-mode))
 #+END_SRC
-***** Venv
+*** Venv
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv)
 
   (use-package auto-virtualenv
     :hook (python-mode . auto-virtualenv-set-virtualenv))
 #+END_SRC
-**** JavaScript
-***** Rjsx-mode
+** JavaScript
+*** Web-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :mode "\\.tsx?$"
+    :hook (web-mode . (lambda ()
+                        (setq web-mode-markup-indent-offset 2
+                              web-mode-css-indent-offset 2
+                              web-mode-code-indent-offset 2))))
+
+#+END_SRC
+*** Rjsx-mode
 #+BEGIN_SRC emacs-lisp
   (use-package rjsx-mode
     :mode "\\.jsx?$")
 #+END_SRC
-***** Prettier-js
+*** Prettier-js
 #+BEGIN_SRC emacs-lisp
   (use-package prettier-js
     :hook (js-mode . prettier-js-mode)
+    :hook (typescript-mode . prettier-js-mode)
+    :hook (web-mode . prettier-js-mode)
     :hook (rjsx-mode . prettier-js-mode))
 #+END_SRC
-***** TODO Tide
-**** TypeScript
+*** TODO Tide
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package tide)
+#+END_SRC
+** TypeScript
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode)
 #+END_SRC
-**** PureScript
+** Hy
 #+BEGIN_SRC emacs-lisp
-  (use-package purescript-mode
-    :hook (purescript-mode . purescript-indentation-mode))
+  (use-package hy-mode
+    :config
+    (setq hy-jedhy--enable? nil))
 #+END_SRC
-**** Hy
-#+BEGIN_SRC emacs-lisp
-  (use-package hy-mode)
-#+END_SRC
-**** Clojure
+** Clojure
 #+BEGIN_SRC emacs-lisp
   (use-package clojure-mode)
-
   (use-package clojure-mode-extra-font-locking)
-
   (use-package cider)
+  (use-package cider-eval-sexp-fu)
 #+END_SRC
-**** Racket
-#+BEGIN_SRC emacs-lisp
-  (use-package racket-mode)
-#+END_SRC
-**** Elm
+** Elm
 #+BEGIN_SRC emacs-lisp
   (use-package elm-mode
     :after company
     :hook (elm-mode . elm-format-on-save-mode))
-    ;; (add-to-list 'company-backends 'company-elm))
 
   (use-package flycheck-elm
-    :after (flycheck)
+    :after flycheck
     :hook (flycheck-mode . flycheck-elm-setup))
 #+END_SRC
-**** Scala
-#+BEGIN_SRC emacs-lisp
-  (use-package scala-mode
-    :interpreter
-    ("scala" . scala-mode))
-#+END_SRC
-**** Kotlin
-#+BEGIN_SRC emacs-lisp
-  (use-package kotlin-mode)
-#+END_SRC
-**** Rust
+** Rust
 #+BEGIN_SRC emacs-lisp
   (use-package rust-mode
     :bind (:map rust-mode-map
@@ -1007,106 +1103,82 @@ Open *.h as c++-mode
     :after rust-mode
     :hook (flycheck-mode . flycheck-rust-setup))
 #+END_SRC
-**** C#
+** Racket
 #+BEGIN_SRC emacs-lisp
-  (use-package csharp-mode)
+  (use-package racket-mode
+    :bind (:map racket-mode-map
+                ("C-c C-c" . racket-run)
+                ("C-c C-r" . racket-send-region)))
 #+END_SRC
-**** Makefile
+** Makefile
 #+BEGIN_SRC emacs-lisp
   (use-package makefile-executor
     :hook (makefile-mode . makefile-executor-mode))
 #+END_SRC
-**** Cmake
+** Cmake
 #+BEGIN_SRC emacs-lisp
   (use-package cmake-mode)
-
   (use-package cmake-font-lock)
 #+END_SRC
-**** Jinja2
+** Jinja2
 #+BEGIN_SRC emacs-lisp
   (use-package jinja2-mode)
 #+END_SRC
-**** Markdown
+** Markdown
 #+BEGIN_SRC emacs-lisp
   (use-package markdown-mode)
 #+END_SRC
-**** Mermaid
-#+BEGIN_SRC emacs-lisp
-  (use-package mermaid-mode)
-#+END_SRC
-**** PlantUML
-#+BEGIN_SRC emacs-lisp
-  (use-package plantuml-mode
-    :config
-    (add-to-list
-     'org-src-lang-modes '("plantuml" . plantuml))
-    (setq plantuml-executable-path "/bin/plantuml")
-    (setq plantuml-default-exec-mode 'executable))
-#+END_SRC
-**** Yaml
+** Yaml
 #+BEGIN_SRC emacs-lisp
   (use-package yaml-mode)
 #+END_SRC
-**** BNF
+** BNF
 #+BEGIN_SRC emacs-lisp
   (use-package bnf-mode)
 #+END_SRC
-**** Dockerfile
+** Dockerfile
 #+BEGIN_SRC emacs-lisp
   (use-package dockerfile-mode)
 #+END_SRC
-**** HTML
+** HTML
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode
+    :hook (mhtml-mode . emmet-mode)
+    :hook (html-mode . emmet-mode)
     :hook (jinja2-mode . emmet-mode))
 #+END_SRC
-**** LaTeX
+** Pdf
 #+BEGIN_SRC emacs-lisp
-  (use-package tex
-    :ensure auctex
+  ;; Zathura for pdf
+  (setq TeX-view-program-list '(("zathura" "zathura --page=%(outpage) %o")))
+  (setq TeX-view-program-selection '((output-pdf "Zathura")))
+
+  (use-package pdf-tools
+    :config
+    (pdf-loader-install))
+#+END_SRC
+** LaTeX
+#+BEGIN_SRC emacs-lisp
+  (use-package tex-site
+    :straight auctex
     :bind ("M-q" . align-current)
     :hook (LaTeX-mode . LaTeX-math-mode)
     :hook (LaTeX-mode . flyspell-mode)
     :hook (LaTeX-mode . turn-on-reftex)
     :config
-    (flycheck-mode 0)
-    (setq TeX-PDF-mode t)
-    (setq TeX-auto-save t)
-    (setq TeX-parse-self t)
-    (setq reftex-plug-into-AUCTeX t))
+    (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer)
+    (setq TeX-PDF-mode t
+          TeX-auto-save t
+          TeX-parse-self t
+          reftex-plug-into-AUCTeX t))
 #+END_SRC
-**** Ledger
+* Cd-compile
 #+BEGIN_SRC emacs-lisp
-  (use-package ledger-mode)
+     (use-package cd-compile)
 #+END_SRC
-*** Which key
+* Which key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :config
     (which-key-mode))
-#+END_SRC
-*** Auto-package-update
-#+BEGIN_SRC emacs-lisp
-  (use-package auto-package-update
-    :config
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
-    (auto-package-update-maybe))
-#+END_SRC
-*** Cross-packages
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel-projectile
-    :after (ivy projectile)
-    :config
-    (counsel-projectile-mode t))
-
-  (use-package evil-org
-    :after org
-    :hook (org-mode . evil-org-mode)
-    :config
-    (add-hook 'evil-org-mode-hook
-              (lambda ()
-                (evil-org-set-key-theme)))
-    (require 'evil-org-agenda)
-    (evil-org-agenda-set-keys))
 #+END_SRC

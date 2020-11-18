@@ -111,4 +111,4 @@ let g:rainbow_active=1
 nmap <leader>a :Ag<CR>
 
 " Nerdtree
-nmap <C-o> :NERDTree<CR>
+nmap <leader>o :NERDTree<CR>
