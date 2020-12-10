@@ -15,6 +15,7 @@ Plug 'mileszs/ack.vim'
 Plug 'cohama/lexima.vim'
 
 " Visual
+Plug 'thaerkh/vim-indentguides'
 Plug 'itchyny/lightline.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'romainl/vim-cool'

@@ -63,6 +63,12 @@ Some symlinks, backups and stuff like that
   (set-frame-font "FiraCode")
   (set-face-attribute 'default nil :height 110)
 #+END_SRC
+* Window divider
+#+begin_src emacs-lisp
+  ;; (setq window-divider-default-right-width 24)
+  ;; (setq window-divider-default-places 'right-only)
+  ;; (window-divider-mode t)
+#+end_src
 * Save history
 #+BEGIN_SRC emacs-lisp
   (setq savehist-file "~/.config/emacs/savehist")
@@ -77,7 +83,10 @@ Some symlinks, backups and stuff like that
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   ;; Folding
-  (add-hook 'prog-mode-hook 'hs-minor-mode)
+  ;; (add-hook 'prog-mode-hook 'hs-minor-mode)
+
+  (setq fill-column 80)
+  (global-display-fill-column-indicator-mode t)
 
   ;; Non-blinking cursor
   (blink-cursor-mode 0)
@@ -207,7 +216,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 
   (use-package fira-code-mode
     :config
-    (setq fira-code-mode-disabled-ligatures '("[]" "x"))
+    (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
     (global-fira-code-mode))
 #+END_SRC
 ** Doom-themes
@@ -402,6 +411,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
       "l i" 'lsp-find-implementation
       "l a" 'lsp-execute-code-action
       "l m" 'lsp-ui-imenu
+      "l g" 'lsp-avy-lens
 
       "k" 'kill-current-buffer
 
@@ -410,7 +420,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
       ;; Magit bindings
       "m s" 'magit-status
       "m m" 'magit-status
-      "m b" 'magit-blame
+      "m b" 'magit-branch
       "m c" 'magit-clone
 
       ;; Eshell
@@ -513,6 +523,11 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
     (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
 #+END_SRC
+* Aggressive indent
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package aggressive-indent
+  ;;   :hook (prog-mode . aggressive-indent-mode))
+#+END_SRC
 * Hungry delete
 #+BEGIN_SRC emacs-lisp
      ;; (use-package hungry-delete
@@ -566,9 +581,9 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 
   ;; for completeness sake
   (defun +eshell--current-git-branch ()
-    (let ((branch (car (loop for match in (split-string (shell-command-to-string "git branch") "\n")
-                             when (string-match "^\*" match)
-                             collect match))))
+    (let ((branch (car (cl-loop for match in (split-string (shell-command-to-string "git branch") "\n")
+                                when (string-match "^\*" match)
+                                collect match))))
       (if (not (eq branch nil))
           (concat " [" (substring branch 2) "]")
         "")))
@@ -588,11 +603,11 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (eshell-toggle-size-fraction 3)
     (eshell-toggle-use-projectile-root t))
 
-  (use-package esh-help
-    :config
-    (setup-esh-help-eldoc))
-
   (use-package shrink-path)
+
+  ;; FIXME: That doesn't work for some reason
+  ;; (use-package esh-autosuggest
+  ;;   :hook (eshell-mode . esh-autosuggest-mode))
 
   (use-package bash-completion)
 
@@ -664,10 +679,10 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+END_SRC
 * Magit
 #+BEGIN_SRC emacs-lisp
-  (use-package magit)
+  ;; (use-package magit)
 
-  (use-package magit-todos
-    :hook (prog-mode . magit-todos-mode))
+  ;; (use-package magit-todos
+  ;;   :hook (prog-mode . magit-todos-mode))
 #+END_SRC
 * TODO Forge
 * Projectile
@@ -757,6 +772,10 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :hook (counsel-tramp-quit . (lambda ()
                                   (projectile-mode 1))))
 #+END_SRC
+* Direnv
+#+begin_src emacs-lisp
+  (use-package direnv)
+#+end_src
 * Imenu-list
 #+BEGIN_SRC emacs-lisp
   (use-package imenu-list)
@@ -789,12 +808,12 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 
   (setq org-capture-templates
         '(("t" "Tasks" entry (file+headline org-default-notes-file "Tasks")
-           "* TODO %?\n%u\n" :prepend t
-           ("l" "Look later" entry (file+headline org-default-notes-file "Look later"))
-           "* TODO %?"
-           ("s" "Skills" entry (file+headline org-default-notes-file "Skills"))
-           "* TODO %?"
-           ("g" "Gifts" entry (file+headline org-default-notes-file "Gifts"))
+           "* TODO %?\n%u\n" :prepend t)
+          ("l" "Look later" entry (file+headline org-default-notes-file "Look later")
+           "* TODO %?")
+          ("s" "Skills" entry (file+headline org-default-notes-file "Skills")
+           "* TODO %?")
+          ("g" "Gifts" entry (file+headline org-default-notes-file "Gifts")
            "* TODO %?")))
 
   (use-package org-bullets
@@ -821,7 +840,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                                   (rainbow-delimiters-mode -1)))
     :init
     (setq parinfer-rust-auto-download t
-          parinfer-rust-check-troublesome-modes nil))
+          parinfer-rust-troublesome-modes nil))
 #+END_SRC
 * Smart-tabs
 #+BEGIN_SRC emacs-lisp
@@ -862,13 +881,15 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (when all-the-icons-dired-mode
       (revert-buffer)))
 
-  (use-package dired-hacks-utils
+  (use-package dired-hacks
     :bind ((:map dired-mode-map
                  ("C-c C-d" . dired-create-directory)
                  ("C-c C-f" . dired-create-empty-file)
                  ("C-c C-/" . dired-narrow-fuzzy)
                  ("C-c /" . dired-narrow-fuzzy)
-                 ("<tab>" . arjaz/dired-subtree-toggle))))
+                 ("<tab>" . arjaz/dired-subtree-toggle)))
+    :config
+    (dired-async-mode t))
 #+END_SRC
 ** Dired-sidebar
 #+BEGIN_SRC emacs-lisp
@@ -881,7 +902,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package terminal-here
     :bind ("M-RET" . terminal-here-launch)
     :config
-    (setq terminal-here-terminal-command '("st" "--")))
+    (setq terminal-here-terminal-command '("alacritty" "--")))
 #+END_SRC
 * Snippets
 #+BEGIN_SRC emacs-lisp
@@ -924,6 +945,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 * TabNine
 #+BEGIN_SRC emacs-lisp
   (use-package company-tabnine
+    :after (company)
     :config
     (add-to-list 'company-backends 'company-tabnine))
 #+END_SRC
@@ -949,12 +971,17 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :config
     (zoom-mode t)
     (setq zoom-size '(0.618 . 0.618)
-          zoom-ignored-major-modes '(lsp-ui-imenu-mode imenu-list-major-mode)
+          ;; zoom-ignored-major-modes '(lsp-ui-imenu-mode imenu-list-major-mode)
           ;; TODO: what's that here
           ;; zoom-ignore-predicates '(lambda ()
           ;;                           (equal which-key-buffer-name
           ;;                                  (buffer-file-name (current-buffer))))
-          dired-sidebar-toggle-hidden-commands nil))
+          dired-sidebar-toggle-hidden-commands nil)
+    (defun undo-local-track-mouse(&optional ignored)
+      (kill-local-variable 'track-mouse))
+
+    (advice-add 'zoom--get-frame-snapshot :before 'undo-local-track-mouse)
+    (advice-add 'zoom--handler :before 'undo-local-track-mouse))
 #+END_SRC
 * Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -978,6 +1005,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     ;; (if lsp-clients-clangd-args
     ;;     (add-to-list lsp-clients-clangd-args '("--clang-tidy"))
     ;;     (setq lsp-clients-clangd-args '("--clang-tidy")))
+    (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t)))
     (lsp-register-client
      (make-lsp-client :new-connection (lsp-tramp-connection "~/.local/bin/pyls")
                       :major-modes '(python-mode)
@@ -985,12 +1013,13 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                       :server-id 'pyls-remote))
     (setq lsp-semantic-highlighting t
           lsp-enable-symbol-highlighting nil
+          lsp-lens-enable t
           lsp-prefer-capf t
           lsp-complition-provider :capf
           lsp-idle-delay 0.750
           read-process-output-max (* 1024 1024)))
 
-  ;; (use-package lsp-ivy)
+  (use-package lsp-ivy)
 
   (use-package lsp-ui
     :config
@@ -1012,9 +1041,14 @@ Open *.h and *.cppm as c++-mode, add a binding
 ** Haskell
 *** Ormolu
 #+BEGIN_SRC emacs-lisp
-  (use-package ormolu
-    :hook (haskell-mode . ormolu-format-on-save-mode))
+  ;; (use-package ormolu
+  ;;   :hook (haskell-mode . ormolu-format-on-save-mode))
 #+END_SRC
+*** Hindent
+#+begin_src emacs-lisp
+  ;; (use-package hindent
+  ;;   :hook (haskell-mode . hindent-mode))
+#+end_src
 *** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
@@ -1032,6 +1066,7 @@ Open *.h and *.cppm as c++-mode, add a binding
   (use-package shakespeare-mode)
 #+END_SRC
 *** Hlint-refactor
+That should be managed by haskell-language-server
 #+BEGIN_SRC emacs-lisp
   (use-package hlint-refactor
     :hook (haskell-mode . hlint-refactor-mode))
@@ -1042,6 +1077,10 @@ Open *.h and *.cppm as c++-mode, add a binding
     :after lsp-mode)
 #+END_SRC
 ** Python
+#+BEGIN_SRC emacs-lisp
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt --pprint")
+#+END_SRC
 *** Python-X
 #+BEGIN_SRC emacs-lisp
   (use-package python-x
@@ -1064,6 +1103,12 @@ Open *.h and *.cppm as c++-mode, add a binding
   (use-package auto-virtualenv
     :hook (python-mode . auto-virtualenv-set-virtualenv))
 #+END_SRC
+*** Ein
+#+begin_src emacs-lisp
+  ;; (use-package ein
+  ;;   :config
+  ;;   (setq ein:output-area-inlined-images t))
+#+end_src
 ** JavaScript
 *** Web-mode
 #+BEGIN_SRC emacs-lisp
@@ -1128,10 +1173,10 @@ Open *.h and *.cppm as c++-mode, add a binding
     :config
     (setq rust-format-on-save t))
 
-  (use-package flycheck-rust
-    :after flycheck
-    :after rust-mode
-    :hook (flycheck-mode . flycheck-rust-setup))
+  ;; (use-package flycheck-rust
+  ;;   :after flycheck
+  ;;   :after rust-mode
+  ;;   :hook (flycheck-mode . flycheck-rust-setup))
 #+END_SRC
 ** Racket
 #+BEGIN_SRC emacs-lisp
@@ -1202,6 +1247,14 @@ Open *.h and *.cppm as c++-mode, add a binding
           TeX-parse-self t
           reftex-plug-into-AUCTeX t))
 #+END_SRC
+* Folds
+#+begin_src emacs-lisp
+  (use-package vimish-fold)
+
+  (use-package evil-vimish-fold
+    :config
+    (global-evil-vimish-fold-mode t))
+#+end_src
 * Cd-compile
 #+BEGIN_SRC emacs-lisp
      (use-package cd-compile)
@@ -1212,3 +1265,29 @@ Open *.h and *.cppm as c++-mode, add a binding
     :config
     (which-key-mode))
 #+END_SRC
+* EAF
+#+begin_src emacs-lisp
+  ;; (use-package eaf
+  ;;   :straight nil
+  ;;   :load-path "~/Programs/emacs-application-framework"
+  ;;   :config
+  ;;   (require 'eaf-evil)
+  ;;   (setq eaf-evil-leader-keymap spacemacs-cmds)
+  ;;   (setq eaf-evil-leader-key "SPC")
+  ;;   (setq eaf-find-alternate-file-in-dired t))
+  ;;   ;; (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  ;;   ;; (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  ;;   ;; (eaf-bind-key take_photo "p" eaf-camera-keybinding))
+#+end_src
+* Nano
+Looks nice, I need to check that out
+There are surely some tweakings to be done
+#+begin_src emacs-lisp
+  ;; (use-package nano
+  ;;   :straight nil
+  ;;   :load-path "~/Programs/nano-emacs/"
+  ;;   :config
+  ;;   (require 'nano-theme-dark)
+  ;;   (require 'nano-layout)
+  ;;   (require 'nano-modeline))
+#+end_src

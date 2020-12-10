@@ -18,6 +18,7 @@ import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
 import XMonad.Layout.Reflect
+import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
 import XMonad.Layout.ZoomRow
 import qualified XMonad.StackSet as W
@@ -50,7 +51,7 @@ myConfig output =
     }
     `additionalKeys` myAdditionalKeys
 
-term = "st"
+term = "alacritty"
 
 fg0 = "#d8dee9"
 
@@ -136,8 +137,10 @@ myAdditionalKeys =
          )
        ]
     ++ [((mask, xK_a), scratchPad)]
+    ++ [((mask .|. shiftMask, xK_h), sendMessage MirrorShrink)]
+    ++ [((mask .|. shiftMask, xK_l), sendMessage MirrorExpand)]
   where
-    scratchPad = scratchpadSpawnActionTerminal "urxvt"
+    scratchPad = scratchpadSpawnActionTerminal "alacritty"
 
 myManageHook =
   composeAll
@@ -158,12 +161,17 @@ myManageHook =
     l = 1 - w -- distance from the left edge
 
 myLayoutHook =
-  avoidStruts . smartBorders . smartSpacing gapSize $
-    mkToggle (NOBORDERS ?? FULL ?? EOT) $ tiled ||| big ||| circled
+  tiled ||| big ||| circled
   where
-    tiled = Tall nmaster delta ratio
-    big = named "One Big" $ OneBig (4 / 5) (4 / 5)
-    circled = Circle
+    tiled =
+      named "Main" $
+        avoidStruts . smartBorders . smartSpacing gapSize $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ ResizableTall nmaster delta ratio []
+    big =
+      named "Console" $
+        avoidStruts . smartBorders . smartSpacing gapSize $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ OneBig (4 / 5) (4 / 5)
+    circled =
+      named "Fancy" $
+        avoidStruts . withBorder myBorderWidth $ mkToggle (NOBORDERS ?? FULL ?? EOT) $ Circle
     gapSize = 4
     nmaster = 1
     delta = 3 / 100

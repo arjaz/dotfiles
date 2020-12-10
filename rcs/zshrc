@@ -6,9 +6,9 @@ export ZSH=~/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 
 # ZSH theme
-ZSH_THEME="typewritten"
+# ZSH_THEME="typewritten"
 # TYPEWRITTEN_RIGHT_PROMPT_PREFIX='${MODE_INDICATOR_PROMPT} '
-TYPEWRITTEN_SYMBOL="λ"
+# TYPEWRITTEN_SYMBOL="λ"
 
 plugins=(
   git
@@ -39,6 +39,7 @@ alias view='nvim -R'
 alias :q=exit
 alias p=python
 alias btw=neofetch
+alias wrk='TERM=xterm-256color ssh 10.3.2.57'
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
@@ -46,3 +47,7 @@ export PATH="$HOME/.dotfiles/scripts:$PATH"
 export PATH="$HOME/.cabal/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+
+# Theme
+eval "$(starship init zsh)"
+eval "$(direnv hook zsh)"
