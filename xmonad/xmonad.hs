@@ -128,10 +128,10 @@ myAdditionalKeys =
     ++ [((mask, xK_Right), spawn "pactl -- set-sink-volume 0 +5%")]
     ++ [((0, xK_Print), spawn $ "escrotum " ++ shotsFolder)]
     ++ [((controlMask, xK_Print), spawn $ "escrotum -s " ++ shotsFolder)]
-    ++ [((0, xF86XK_MonBrightnessDown), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
-    ++ [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
-    ++ [((mask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
-    ++ [((mask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
+    -- ++ [((0, xF86XK_MonBrightnessDown), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
+    -- ++ [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
+    -- ++ [((mask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
+    -- ++ [((mask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
     ++ [ ( (mask, xK_Escape),
            spawn "betterlockscreen -l blur -t 'Eendracht Maakt Magt'"
          )
@@ -178,9 +178,11 @@ myLayoutHook =
     ratio = 1 / 2
 
 myStartupHook = do
-  spawnOnce
-    "setxkbmap -option grp:alt_shift_toggle us,ru,ua -option compose:ralt"
   spawnOnce "~/.fehbg --restore"
-  spawnOnce "DRI_PRIME=0 picom --config ~/.picom.conf"
+  spawnOnce "picom --config ~/.picom.conf"
   spawnOnce "redshift-gtk"
   spawnOnce "emacs --daemon"
+  spawnOnce
+    "setxkbmap -option grp:alt_shift_toggle us,ru,ua -option compose:ralt"
+  spawnOnce
+    "setxkbmap -option 'ctrl:nocaps'"

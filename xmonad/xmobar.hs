@@ -1,5 +1,5 @@
 Config
-  { font = "xft:Input Mono-10"
+  { font = "xft:Roboto Mono-12"
   , borderColor = "#2e3440"
   , border = NoBorder
   , bgColor = "#2e3440"
@@ -10,58 +10,15 @@ Config
   , persistent = True
   , commands =
       [ Run Memory ["-t", "<available>M"] 10
-      , Run Swap ["-t", "<free>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
       , Run Date "%d/%m/%Y, %a, %I:%M%P" "date" 10
       , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 1
-      , Run
-          CoreTemp
-          [ "--template"
-          , "<core0>°C"
-          , "--Low"
-          , "70" -- units: °C
-          , "--High"
-          , "80" -- units: °C
-          , "--low"
-          , "#a3be8c"
-          , "--normal"
-          , "#ebcb8b"
-          , "--high"
-          , "#bf616a"
-          ]
-          50
-      , Run
-          Battery
-          [ "--template"
-          , "<acstatus>"
-          , "--Low"
-          , "10" -- units: %
-          , "--High"
-          , "80" -- units: %
-          , "--low"
-          , "#bf616a"
-          , "--normal"
-          , "#ebcb8b"
-          , "--high"
-          , "#a3be8c"
-          , "--" -- battery specific options
-                                       -- discharging status
-          , "-o"
-          , "<left>% (<timeleft>)"
-                                       -- AC "on" status
-          , "-O"
-          , "<left>% Charging"
-                                       -- charged status
-          , "-i"
-          , "Charged"
-          ]
-          50
-      , Run DiskU [("sda8", "<free>")] [] 20
+      , Run DiskU [("nvme0n1p2", "<free>")] [] 20
       , Run Kbd []
       , Run StdinReader
       ]
   , sepChar = "%"
   , alignSep = "}{"
   , template =
-      " %StdinReader% }{ %battery% | %memory% %swap% %disku% | %coretemp% | %default:Master% | %date% | %kbd% "
+      " %StdinReader% }{ %memory% %disku% | %default:Master% | %date% | %kbd% "
   }

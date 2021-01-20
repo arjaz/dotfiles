@@ -85,8 +85,10 @@ Some symlinks, backups and stuff like that
   ;; Folding
   ;; (add-hook 'prog-mode-hook 'hs-minor-mode)
 
-  (setq fill-column 80)
   (global-display-fill-column-indicator-mode t)
+  (add-hook 'prog-mode-hook '(lambda ()
+                               (interactive)
+                               (set-fill-column 80)))
 
   ;; Non-blinking cursor
   (blink-cursor-mode 0)
@@ -216,8 +218,8 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 
   (use-package fira-code-mode
     :config
-    (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
-    (global-fira-code-mode))
+    (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!==")))
+    ;; (global-fira-code-mode))
 #+END_SRC
 ** Doom-themes
 #+BEGIN_SRC emacs-lisp
@@ -338,6 +340,15 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
       [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
       nil nil 'center))
 #+END_SRC
+** Good scroll
+#+begin_src emacs-lisp
+  (use-package good-scroll
+    :straight (good-scroll :host github
+                           :repo "io12/good-scroll.el"
+                           :files ("*.el"))
+    :config
+    (good-scroll-mode t))
+#+end_src
 * GCMH
 #+BEGIN_SRC emacs-lisp
   (use-package gcmh
@@ -492,11 +503,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :config
     (setq evil-goggles-duration 0.025))
 
-  (use-package evil-magit
-    :after (evil magit)
-    :config
-    (setq evil-magit-want-vertical-movement t))
-
   (use-package evil-collection
     :after (evil vterm)
     :config
@@ -555,6 +561,13 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                             (agenda . 5)))
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 #+END_SRC
+* Eyebrowse
+#+begin_src emacs-lisp
+  ;;(use-package eyebrowse
+  ;;  :config
+  ;;  (eyebrowse-mode t)
+  ;;  (eyebrowse-setup-opinionated-keys))
+#+end_src
 * Smartparens
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
@@ -564,30 +577,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+END_SRC
 * Eshell
 #+BEGIN_SRC emacs-lisp
-  (setq eshell-prompt-regexp "^.* λ "
-        eshell-prompt-function #'+eshell/prompt)
-
-  (defun +eshell/prompt ()
-    (let ((base/dir (shrink-path-prompt default-directory)))
-      (concat (propertize (car base/dir)
-                          'face 'font-lock-comment-face)
-              (propertize (cdr base/dir)
-                          'face 'font-lock-constant-face)
-              (propertize (+eshell--current-git-branch)
-                          'face 'font-lock-function-name-face)
-              (propertize " λ" 'face 'eshell-prompt-face)
-              ;; needed for the input text to not have prompt face
-              (propertize " " 'face 'default))))
-
-  ;; for completeness sake
-  (defun +eshell--current-git-branch ()
-    (let ((branch (car (cl-loop for match in (split-string (shell-command-to-string "git branch") "\n")
-                                when (string-match "^\*" match)
-                                collect match))))
-      (if (not (eq branch nil))
-          (concat " [" (substring branch 2) "]")
-        "")))
-
   (defun eshell-clear-buffer ()
     "Clear terminal"
     (interactive)
@@ -616,6 +605,11 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :config
     (global-fish-completion-mode)
     (setq fish-completion-fallback-on-bash-p t))
+
+  (use-package eshell-prompt-extras
+    :config
+    (setq eshell-prompt-function 'epe-theme-lambda
+          eshell-highlight-prompt nil))
 #+END_SRC
 * Vterm
 #+BEGIN_SRC emacs-lisp
@@ -679,23 +673,23 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+END_SRC
 * Magit
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package magit)
+  (use-package magit)
 
-  ;; (use-package magit-todos
-  ;;   :hook (prog-mode . magit-todos-mode))
+  (use-package magit-todos
+    :hook (prog-mode . magit-todos-mode))
 #+END_SRC
 * TODO Forge
 * Projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :config
-    (setq projectile-project-search-path '("~/code/"))
+    (setq projectile-project-search-path '("~/Code/"))
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (projectile-mode t))
 #+END_SRC
 * FLX
 #+BEGIN_SRC emacs-lisp
-     (use-package flx)
+  ;; (use-package flx)
 #+END_SRC
 * Ivy, Swiper and Counsel
 #+BEGIN_SRC emacs-lisp
@@ -727,7 +721,10 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                       :flavor melpa
                       :files ("swiper.el" "swiper-pkg.el")
                       :host github
-                      :repo "abo-abo/swiper"))
+                      :repo "abo-abo/swiper")
+    :config
+    (define-key evil-normal-state-map (kbd "/") 'swiper)
+    (define-key evil-normal-state-map (kbd "?") 'swiper-backward))
 
   (use-package counsel
     :after evil
@@ -754,11 +751,19 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :config
     (counsel-projectile-mode t))
 #+END_SRC
+#+begin_src emacs-lisp
+  (use-package prescient
+    :after counsel)
+
+  (use-package ivy-prescient
+    :after counsel
+    :config
+    (ivy-prescient-mode t))
+#+end_src
 * Tramp
 #+BEGIN_SRC emacs-lisp
   (use-package counsel-tramp
     :config
-    (add-to-list 'tramp-remote-path '"~/.local/bin/")
     (setq remote-file-name-inhibit-cache nil
           vc-ignore-dir-regexp
           (format "%s\\|%s"
@@ -954,7 +959,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package dumb-jump
     :config
     (add-hook 'xref-backend-functions 'dumb-jump-xref-activate)
-    (setq dumb-jump-default-project "~/code"))
+    (setq dumb-jump-default-project "~/Code"))
 #+END_SRC
 * Zoom
 #+BEGIN_SRC emacs-lisp
@@ -970,7 +975,8 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     ;; :hook (imenu-list-update . arjaz/fix-imenu-list-size)
     :config
     (zoom-mode t)
-    (setq zoom-size '(0.618 . 0.618)
+    ;; (setq zoom-size '(0.618 . 0.618)
+    (setq zoom-size '(0.66 . 0.66)
           ;; zoom-ignored-major-modes '(lsp-ui-imenu-mode imenu-list-major-mode)
           ;; TODO: what's that here
           ;; zoom-ignore-predicates '(lambda ()
@@ -1007,7 +1013,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     ;;     (setq lsp-clients-clangd-args '("--clang-tidy")))
     (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t)))
     (lsp-register-client
-     (make-lsp-client :new-connection (lsp-tramp-connection "~/.local/bin/pyls")
+     (make-lsp-client :new-connection (lsp-tramp-connection "pyls")
                       :major-modes '(python-mode)
                       :remote? t
                       :server-id 'pyls-remote))
@@ -1037,6 +1043,10 @@ Open *.h and *.cppm as c++-mode, add a binding
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
   (add-to-list 'auto-mode-alist '("\\.cppm\\'" . c++-mode))
+  (add-hook 'c++-mode-hook '(lambda ()
+                              (interactive)
+                              (electric-pair-local-mode 0)
+                              (set-fill-column 100)))
 #+END_SRC
 ** Haskell
 *** Ormolu
@@ -1078,8 +1088,8 @@ That should be managed by haskell-language-server
 #+END_SRC
 ** Python
 #+BEGIN_SRC emacs-lisp
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt --pprint")
+  ;; (setq python-shell-interpreter "ipython"
+  ;;       python-shell-interpreter-args "-i --simple-prompt --pprint")
 #+END_SRC
 *** Python-X
 #+BEGIN_SRC emacs-lisp
@@ -1248,12 +1258,13 @@ That should be managed by haskell-language-server
           reftex-plug-into-AUCTeX t))
 #+END_SRC
 * Folds
+I've not invested enough time here
 #+begin_src emacs-lisp
-  (use-package vimish-fold)
-
-  (use-package evil-vimish-fold
-    :config
-    (global-evil-vimish-fold-mode t))
+  ;; (use-package vimish-fold)
+;;
+  ;; (use-package evil-vimish-fold
+    ;; :config
+    ;; (global-evil-vimish-fold-mode t))
 #+end_src
 * Cd-compile
 #+BEGIN_SRC emacs-lisp
@@ -1269,10 +1280,14 @@ That should be managed by haskell-language-server
 #+begin_src emacs-lisp
   ;; (use-package eaf
   ;;   :straight nil
-  ;;   :load-path "~/Programs/emacs-application-framework"
+  ;;   :load-path "/usr/share/emacs/site-lisp/eaf"
   ;;   :config
   ;;   (require 'eaf-evil)
+  ;;   (eaf-setq eaf-browser-dark-mode "true")
   ;;   (setq eaf-evil-leader-keymap spacemacs-cmds)
+  ;;   (setq eaf-browser-continue-where-left-off t)
+  ;;   (eaf-setq eaf-browser-enable-adblocker "true")
+  ;;   (setq eaf-browser-default-search-engine "duckduckgo")
   ;;   (setq eaf-evil-leader-key "SPC")
   ;;   (setq eaf-find-alternate-file-in-dired t))
   ;;   ;; (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)

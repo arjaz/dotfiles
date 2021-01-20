@@ -1,5 +1,5 @@
 #!/bin/bash
-PROTON_VERSION="5.0"
+PROTON_VERSION="5.13"
 PROTON_DIR=$HOME/.steam/steam/steamapps/common/Proton\ $PROTON_VERSION
 RUNNING="$1"
 
@@ -22,8 +22,8 @@ export MOUNT_PATH="/media/d4/01D434E8CBD0E8F0"
 PROTON_USE_WINED3D11=1 \
 #PROTON_NO_D3D11=0 \
 PROTON_NO_ESYNC=1 \
-$HOME/.steam/steam/steamapps/common/Proton\ 3.7/proton \
-run $RUNNING \
-&> /dev/null
+$HOME/.steam/steam/steamapps/common/Proton\ $PROTON_VERSION/proton \
+run $RUNNING
+
 
 exit 0
