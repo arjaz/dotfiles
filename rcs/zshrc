@@ -1,29 +1,15 @@
 export ZSH=~/.oh-my-zsh
 
-# Vi mode
-# bindkey -v
-
 export UPDATE_ZSH_DAYS=13
-
-# ZSH theme
-# ZSH_THEME="typewritten"
-# TYPEWRITTEN_RIGHT_PROMPT_PREFIX='${MODE_INDICATOR_PROMPT} '
-# TYPEWRITTEN_SYMBOL="λ"
 
 plugins=(
   git
   zsh-autosuggestions
+  fast-syntax-highlighting
   # zsh-vim-mode
 )
 
 source $ZSH/oh-my-zsh.sh
-
-# MODE_INDICATOR_VIINS='%F{2}I'
-# MODE_INDICATOR_VICMD='%F{1}N'
-# MODE_INDICATOR_REPLACE='%F{3}R'
-# MODE_INDICATOR_SEARCH='%F{5}S'
-# MODE_INDICATOR_VISUAL='%F{6}V'
-# MODE_INDICATOR_VLINE='%F{6}L'
 
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
@@ -36,10 +22,20 @@ alias em='emacsclient --alternate-editor="" -c . &; disown; exit'
 alias vim=nvim
 alias v=nvim
 alias view='nvim -R'
-alias :q=exit
+
 alias p=python
+alias ip='ipython -i --pprint'
+
 alias btw=neofetch
-alias wrk='TERM=xterm-256color ssh 10.3.2.57'
+alias :q=exit
+alias wrk='TERM=xterm-24bit ssh 10.3.2.57'
+
+alias l='exa -lah'
+alias la='exa -lah'
+alias ll='exa -lh'
+alias ls=exa
+
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
@@ -47,6 +43,7 @@ export PATH="$HOME/.dotfiles/scripts:$PATH"
 export PATH="$HOME/.cabal/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/racket/7.9/bin:$PATH"
 
 # Theme
 eval "$(starship init zsh)"

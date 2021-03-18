@@ -22,9 +22,7 @@ We don't really need this
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (tooltip-mode -1)
-  ;; FIXME: there is a bug when using daemon
   (scroll-bar-mode -1)
-  (add-hook 'after-init-hook '(lambda () (scroll-bar-mode -1)))
 
   (setq x-gtk-use-system-tooltips nil
         use-dialog-box nil)
@@ -40,7 +38,12 @@ Some symlinks, backups and stuff like that
         find-file-visit-truename t)
 
   ;; Don't create backup files
-  (setq make-backup-files nil
+  (setq backup-by-copying t
+        delete-old-versions t
+        version-control t
+        kept-new-versions 6
+        kept-old-versions 2
+        make-backup-files nil
         backup-directory-alist '(("." . "~/.config/emacs/saves")))
 
   (setq temporary-file-directory "~/.config/emacs/tmp/")
@@ -59,36 +62,33 @@ Some symlinks, backups and stuff like that
 #+END_SRC
 * Faces
 #+BEGIN_SRC emacs-lisp
-  (setq default-frame-alist '((font . "FiraCode")))
-  (set-frame-font "FiraCode")
+  (add-to-list 'default-frame-alist '(font . "Iosevka"))
   (set-face-attribute 'default nil :height 110)
+  (set-frame-font "Iosevka")
 #+END_SRC
 * Window divider
 #+begin_src emacs-lisp
-  ;; (setq window-divider-default-right-width 24)
-  ;; (setq window-divider-default-places 'right-only)
-  ;; (window-divider-mode t)
+  (setq window-divider-default-places 'bottom-only)
+  (window-divider-mode t)
 #+end_src
 * Save history
 #+BEGIN_SRC emacs-lisp
-  (setq savehist-file "~/.config/emacs/savehist")
-  (savehist-mode t)
-  (setq history-length t
+  (setq savehist-file "~/.config/emacs/savehist"
+        history-length t
         history-delete-duplicates t
         savehist-save-minibuffer-history t)
+  (savehist-mode t)
 #+END_SRC
 * Useful modes and hooks
 #+BEGIN_SRC emacs-lisp
   ;; Remove trailing whitespaces
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-  ;; Folding
-  ;; (add-hook 'prog-mode-hook 'hs-minor-mode)
-
   (global-display-fill-column-indicator-mode t)
-  (add-hook 'prog-mode-hook '(lambda ()
-                               (interactive)
-                               (set-fill-column 80)))
+  (setq-default fill-column 80)
+  ;; (add-hook 'prog-mode-hook '(lambda ()
+  ;;                              (interactive)
+  ;;                              (set-fill-column 80)))
 
   ;; Non-blinking cursor
   (blink-cursor-mode 0)
@@ -100,7 +100,6 @@ Some symlinks, backups and stuff like that
   (global-hl-line-mode t)
 
   ;; Relative line numbers
-  ;; (global-display-line-numbers-mode t)
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'text-mode-hook 'display-line-numbers-mode)
   (add-hook 'conf-mode-hook 'display-line-numbers-mode)
@@ -169,57 +168,24 @@ I'm not sure about solaire
 ** Tree-sitter
 #+BEGIN_SRC emacs-lisp
   (use-package tree-sitter
-   :straight (tree-sitter :host github
-                          :repo "ubolonton/emacs-tree-sitter"
-                          :files ("lisp/*.el"))
+   ;; :straight (tree-sitter :host github
+   ;;                        :repo "ubolonton/emacs-tree-sitter"
+   ;;                        :files ("lisp/*.el"))
    :hook (tree-sitter-after-on . tree-sitter-hl-mode)
    :config
    (global-tree-sitter-mode))
 
-  (use-package tree-sitter-langs
-   :straight (tree-sitter-langs :host github
-                                :repo "ubolonton/emacs-tree-sitter"
-                                :files ("langs/*.el" "langs/queries")))
+  (use-package tree-sitter-langs)
+   ;; :straight (tree-sitter-langs :host github
+   ;;                              :repo "ubolonton/emacs-tree-sitter"
+   ;;                              :files ("langs/*.el" "langs/queries")))
 #+END_SRC
 ** Ligatures
-There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package ligature
-  ;;   :straight (ligature :type git
-  ;;                       :host github
-  ;;                       :repo "mickeynp/ligature.el"
-  ;;                       :files ("*.el"))
+  ;; (use-package fira-code-mode
   ;;   :config
-  ;;   ;; (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-  ;;   ;;                                      ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-  ;;   ;;                                      "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-  ;;   ;;                                      "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-  ;;   ;;                                      "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-  ;;   ;;                                      "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-  ;;   ;;                                      "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-  ;;   ;;                                      "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-  ;;   ;;                                      ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-  ;;   ;;                                      "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-  ;;   ;;                                      "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-  ;;   ;;                                      "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-  ;;   ;;                                      "\\" "://"))
-  ;;   (ligature-set-ligatures
-  ;;      'prog-mode
-  ;;      '("<--" "<---" "<<-" "<-" "<->" "->" "->>" "-->" "--->"
-  ;;        "<!--" "-<<" "-<" "-<-" "->-" ">-" ">>-" "<-->" "<--->"
-  ;;        "<---->" "<==" "<===" "<<=" "<=" "<=>" "=>" "=>>" "==>"
-  ;;        "===>" "<!---" "=<<" "=<" "=<=" "=>=" ">=" ">>=" "<==>"
-  ;;        "<===>" "<====>" "<-------" "------->" "<======>" "<~~"
-  ;;        "<~" "~>" "~~>" "\/" "/\\" "==" "!=" "/=" "~=" "<>"
-  ;;        "===" "!==" "=/=" "=!=" ":=" ":-" ":+" "<*" "<*>" "*>"
-  ;;        "<|" "<|>" "|>" "+:" "-:" "=:" "::" ":::" "<." "<.>"
-  ;;        ".>" "(*" "*)" ":>" "++" "+++" "|-" "-|"))
-  ;;   (global-ligature-mode t))
-
-  (use-package fira-code-mode
-    :config
-    (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!==")))
-    ;; (global-fira-code-mode))
+  ;;   (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
+  ;;   (global-fira-code-mode))
 #+END_SRC
 ** Doom-themes
 #+BEGIN_SRC emacs-lisp
@@ -240,27 +206,34 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+END_SRC
 ** Doom-modeline
 #+BEGIN_SRC emacs-lisp
-  (use-package doom-modeline
-    ;; I guess it's what I use with the daemon
-    :hook (after-init . doom-modeline-mode)
-    :hook (doom-modeline-mode . column-number-mode)
-    :init
-    (setq doom-modeline-icon t
-          doom-modeline-project-detection 'project
-          doom-modeline-modal-icon t
-          doom-modeline-major-mode-icon t
-          doom-modeline-major-mode-color-icon t
-          doom-modeline-vcs-max-length 12
-          doom-modeline-buffer-state-icon t
-          doom-modeline-buffer-modification-icon t
-          doom-modeline-env-version t
-          doom-modeline-lsp t))
-    ;; And that's used without a daemon
-    ;; (doom-modeline-mode 1))
+  ;; (use-package doom-modeline
+  ;;   ;; I guess it's what I use with the daemon
+  ;;   :hook (after-init . doom-modeline-mode)
+  ;;   :hook (doom-modeline-mode . column-number-mode)
+  ;;   :init
+  ;;   (setq doom-modeline-icon t
+  ;;         doom-modeline-project-detection 'project
+  ;;         doom-modeline-modal-icon t
+  ;;         doom-modeline-major-mode-icon t
+  ;;         doom-modeline-major-mode-color-icon t
+  ;;         doom-modeline-vcs-max-length 12
+  ;;         doom-modeline-buffer-state-icon t
+  ;;         doom-modeline-buffer-modification-icon t
+  ;;         doom-modeline-env-version t
+  ;;         doom-modeline-lsp t))
+  ;;   ;; And that's used without a daemon
+  ;;   ;; (doom-modeline-mode 1))
 #+END_SRC
+** Feebleline
+#+begin_src emacs-lisp
+  (use-package feebleline
+    :config
+    (feebleline-mode))
+#+end_src
 ** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-delimiters
+    ;; TODO: remove that from lisps
     :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 ** Highlight indentation
@@ -275,8 +248,9 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package all-the-icons
     :config
     (add-to-list 'all-the-icons-icon-alist
-                 '("\\.tsx$" all-the-icons-fileicon "typescript" :height 1.0 :v-adjust -0.1 :face all-the-icons-blue-alt)))
-
+                 '("\\.tsx$" all-the-icons-fileicon "typescript" :height 1.0 :v-adjust -0.1 :face all-the-icons-blue-alt))
+    (add-to-list 'all-the-icons-icon-alist
+                 '("\\.hy" all-the-icons-fileicon "scheme" :height 1.2 :face all-the-icons-red)))
 
   (use-package all-the-icons-dired
     :config
@@ -340,15 +314,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
       [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
       nil nil 'center))
 #+END_SRC
-** Good scroll
-#+begin_src emacs-lisp
-  (use-package good-scroll
-    :straight (good-scroll :host github
-                           :repo "io12/good-scroll.el"
-                           :files ("*.el"))
-    :config
-    (good-scroll-mode t))
-#+end_src
 * GCMH
 #+BEGIN_SRC emacs-lisp
   (use-package gcmh
@@ -407,6 +372,9 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
       "n t" 'terminal-here-launch
       "n m" 'mu4e
       "n v" 'vterm
+      "n e" 'eshell-new
+      "n f" 'elfeed
+      "n g" 'elpher
       "n r" 'counsel-tramp
 
       ;; Lsp
@@ -440,7 +408,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 
       ;; Search
       "s" 'swiper-isearch
-      "a" 'counsel-projectile-ag
+      "a" 'counsel-projectile-rg
 
       ;; Projectile
       "p p" 'counsel-projectile-switch-project
@@ -520,6 +488,11 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :config
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys))
+
+  (use-package avy
+    :config
+    (define-key evil-normal-state-map "S" 'avy-goto-char-timer)
+    (define-key evil-motion-state-map "m" 'avy-goto-char-timer))
 #+END_SRC
 * Undo-fu
 #+BEGIN_SRC emacs-lisp
@@ -570,21 +543,33 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+end_src
 * Smartparens
 #+BEGIN_SRC emacs-lisp
-  (use-package smartparens
-    :hook (prog-mode . smartparens-mode)
-    :config
-    (require 'smartparens-config))
+  ;; (use-package smartparens
+  ;;   :hook (prog-mode . smartparens-mode)
+  ;;   :config
+  ;;   (require 'smartparens-config))
 #+END_SRC
+* Xterm-color
+#+begin_src emacs-lisp
+  (use-package xterm-color)
+#+end_src
 * Eshell
 #+BEGIN_SRC emacs-lisp
+  (setq eshell-history-size 1024)
+
+  (defun eshell-new ()
+    "Open a new eshell session"
+    (interactive)
+    (eshell 'N))
+
   (defun eshell-clear-buffer ()
     "Clear terminal"
     (interactive)
     (let ((inhibit-read-only t))
       (erase-buffer)
       (eshell-send-input)))
+
   (add-hook 'eshell-mode-hook
-            '(lambda()
+            '(lambda ()
                (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
 
   (use-package eshell-toggle
@@ -595,8 +580,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package shrink-path)
 
   ;; FIXME: That doesn't work for some reason
-  ;; (use-package esh-autosuggest
-  ;;   :hook (eshell-mode . esh-autosuggest-mode))
+  ;; (use-package esh-autosuggest)
 
   (use-package bash-completion)
 
@@ -609,7 +593,11 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package eshell-prompt-extras
     :config
     (setq eshell-prompt-function 'epe-theme-lambda
-          eshell-highlight-prompt nil))
+          eshell-highlight-prompt t))
+
+  (use-package eshell-syntax-highlighting
+    :config
+    (eshell-syntax-highlighting-global-mode t))
 #+END_SRC
 * Vterm
 #+BEGIN_SRC emacs-lisp
@@ -649,9 +637,28 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (setq message-kill-buffer-on-exit t))
 #+END_SRC
 * Format-all
+TODO: change for apheleia
 #+BEGIN_SRC emacs-lisp
   (use-package format-all)
 #+END_SRC
+* Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :config
+    (org-babel-load-file (expand-file-name "~/.dotfiles/emacs/elfeed.org")))
+
+  (use-package elfeed-dashboard
+    :config
+    (setq elfeed-dashboard-file "~/.org/elfeed-dashboard.org")
+    ;; update feed counts on elfeed-quit
+    (advice-add 'elfeed-search-quit-window :after 'elfeed-dashboard-update-links))
+#+end_src
+* Elpher
+#+begin_src emacs-lisp
+  (use-package elpher
+    :config
+    (setq elpher-gemini-link-string "> "))
+#+end_src
 * ERC
 #+BEGIN_SRC emacs-lisp
   (use-package erc
@@ -663,20 +670,28 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (erc-server-reconnect-attempts 5)
     (erc-server-reconnect-timeout 3)
     :config
-    (add-to-list 'erc-modules 'notifications)
-    (add-to-list 'erc-modules 'spelling)
     (erc-services-mode 1)
     (erc-update-modules)
     (setq auth-sources '("~/.authinfo.gpg"
                          "~/.authinfo"
                          "~/.netrc")))
 #+END_SRC
+* Git-commit
+#+begin_src emacs-lisp
+  (use-package git-commit
+    :config
+    (setq git-commit-fill-column 50
+          git-commit-style-convention-checks '(non-empty-second-line overlong-summary-line)))
+#+end_src
 * Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit)
 
   (use-package magit-todos
     :hook (prog-mode . magit-todos-mode))
+
+  (use-package magit-delta
+    :hook (magit-mode . magit-delta-mode))
 #+END_SRC
 * TODO Forge
 * Projectile
@@ -686,10 +701,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (setq projectile-project-search-path '("~/Code/"))
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (projectile-mode t))
-#+END_SRC
-* FLX
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package flx)
 #+END_SRC
 * Ivy, Swiper and Counsel
 #+BEGIN_SRC emacs-lisp
@@ -734,7 +745,8 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                        :host github
                        :repo "abo-abo/swiper")
     :bind (("C-x C-f" . counsel-find-file)
-           ("M-x" . counsel-M-x))
+           ("M-x" . counsel-M-x)
+           ("C-c i" . counsel-imenu))
     :config
     (counsel-mode))
 
@@ -746,11 +758,22 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                          :host github
                          :repo "abo-abo/swiper"))
 
+  (use-package ivy-posframe
+    :config
+    (ivy-posframe-mode t)
+    (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center))
+          ivy-posframe-parameters '((left-fringe 8)
+                                    (right-fringe 8)
+                                    (top-fringe 2)
+                                    (bottom-fringe 2))))
+
   (use-package counsel-projectile
     :after (counsel projectile)
     :config
+    (setq counsel-projectile-preview-buffers t)
     (counsel-projectile-mode t))
 #+END_SRC
+* Prescient
 #+begin_src emacs-lisp
   (use-package prescient
     :after counsel)
@@ -770,7 +793,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                   vc-ignore-dir-regexp
                   tramp-file-name-regexp)
           tramp-default-method "ssh"
-          make-backup-files nil
           create-lockfiles nil)
     :hook (counsel-tramp-pre-command . (lambda ()
                                          (projectile-mode 0)))
@@ -783,7 +805,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+end_src
 * Imenu-list
 #+BEGIN_SRC emacs-lisp
-  (use-package imenu-list)
+  ;; (use-package imenu-list)
 #+END_SRC
 * TODO org-sidebar
 * Org
@@ -793,13 +815,21 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :bind (("C-c a" . org-agenda)
            ("C-c c" . org-capture)))
 
+  (setq org-latex-pdf-process
+        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                              "bibtex %b"
+                              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+  (setq org-latex-logfiles-extensions (quote ("lof" "lot" "tex" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl" "pygtex" "pygstyle")))
+
   (setq org-confirm-babel-evaluate nil)
-   ;; enable python for in-buffer evaluation
+  ;; enable python for in-buffer evaluation
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t)))
 
-   ;; all python code be safe
+  ;; all python code be safe
   (defun my-org-confirm-babel-evaluate (lang body)
     (not (string= lang "python")))
   (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
@@ -824,7 +854,20 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
   (use-package org-bullets
     :after org
     :hook (org-mode . org-bullets-mode))
+
+  (use-package org-ref
+    :config
+    (setq org-ref-completion-library 'org-ref-ivy-cite)
+    (setq reftex-default-bibliography '("~/Documents/bibliography/references.bib")))
 #+END_SRC
+* Org mind map
+#+begin_src emacs-lisp
+  (use-package org-mind-map
+    :after (org-ox)
+    :config
+    (require 'org-ox)
+    (setq org-mind-map-engine "dot"))
+#+end_src
 * Iedit
 #+BEGIN_SRC emacs-lisp
   (use-package iedit)
@@ -839,10 +882,6 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     :hook (scheme-mode . parinfer-rust-mode)
     :hook (lisp-mode . parinfer-rust-mode)
     :hook (racket-mode . parinfer-rust-mode)
-    :hook (parinfer-rust-mode . (lambda ()
-                                  (interactive)
-                                  (electric-pair-local-mode -1)
-                                  (rainbow-delimiters-mode -1)))
     :init
     (setq parinfer-rust-auto-download t
           parinfer-rust-troublesome-modes nil))
@@ -872,6 +911,8 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
         ;; Always copy/delete recursively
         dired-recursive-copies 'always
         dired-recursive-deletes 'top)
+
+  (add-hook 'dired-mode-hook 'auto-revert-mode)
 #+END_SRC
 ** Diredfl
 #+BEGIN_SRC emacs-lisp
@@ -913,25 +954,27 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :config
-    (yas-global-mode t))
+    (yas-reload-all)
+    (yas-global-mode t)
+    (defvar my/company-point nil)
+    (advice-add 'company-complete-common :before (lambda () (setq my/company-point (point))))
+    (advice-add 'company-complete-common :after (lambda ()
+                                                  (when (equal my/company-point (point))
+                                                   (yas-expand)))))
 
   (use-package yasnippet-snippets)
 #+END_SRC
 * Company
 #+BEGIN_SRC emacs-lisp
   (use-package company
-    :bind (:map company-active-map
-                ("<return>" . company-complete))
     :hook (prog-mode . company-mode)
     :config
-    (advice-add 'company-complete-common :before (lambda () (setq my-company-point (point))))
-    (advice-add 'company-complete-common :after (lambda ()
-                                                  (when (equal my-company-point (point))
-                                                    (yas-expand))))
-
+    (company-tng-configure-default)
     (setq company-idle-delay 0
           company-show-numbers t
-          company-minimum-prefix-length 2
+          company-eclim-auto-save nil
+          company-dabbrev-downcase nil
+          company-minimum-prefix-length 1
           company-selection-wrap-around t
           company-tooltip-limit 14
           company-tooltip-align-annotations t
@@ -944,16 +987,26 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
           company-auto-complete nil
           company-auto-complete-chars nil))
 
-  ;; (use-package company-box
-  ;;   :hook (company-mode . company-box-mode))
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
 #+END_SRC
+* Company flx
+#+begin_src emacs-lisp
+  (use-package company-flx
+    :config
+    (company-flx-mode t))
+#+end_src
 * TabNine
 #+BEGIN_SRC emacs-lisp
-  (use-package company-tabnine
-    :after (company)
-    :config
-    (add-to-list 'company-backends 'company-tabnine))
+  ;; (use-package company-tabnine
+  ;;   :after (company)
+  ;;   :config
+  ;;   (add-to-list 'company-backends 'company-tabnine))
 #+END_SRC
+* Realgud
+#+begin_src emacs-lisp
+  (use-package realgud)
+#+end_src
 * Dumb Jump
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
@@ -961,6 +1014,7 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
     (add-hook 'xref-backend-functions 'dumb-jump-xref-activate)
     (setq dumb-jump-default-project "~/Code"))
 #+END_SRC
+* TODO Smart Jump
 * Zoom
 #+BEGIN_SRC emacs-lisp
   (defun arjaz/fix-imenu-list-size ()
@@ -1018,10 +1072,10 @@ There was some package ligatues.el, but it's not done yet, so I'll wait a bit
                       :remote? t
                       :server-id 'pyls-remote))
     (setq lsp-semantic-highlighting t
-          lsp-enable-symbol-highlighting nil
+          lsp-enable-symbol-highlighting t
           lsp-lens-enable t
           lsp-prefer-capf t
-          lsp-complition-provider :capf
+          lsp-completion-provider :capf
           lsp-idle-delay 0.750
           read-process-output-max (* 1024 1024)))
 
@@ -1067,7 +1121,10 @@ Open *.h and *.cppm as c++-mode, add a binding
     ;; :hook (haskell-mode . haskell-decl-scan-mode)
     ;; :hook (haskell-mode . haskell-doc-mode)
     :bind (:map haskell-mode-map
-           ("C-c C-p" . haskell-compile))
+           ("C-c c" . haskell-compile)
+           ("C-c C-p" . haskell-check))
+    ;; :bind (:map haskell-interactive-mode-map
+    ;;        ("C-l" . haskell-interactive-mode-clear))
     :config
     (setq haskell-compile-cabal-build-command "stack build"))
 #+END_SRC
@@ -1084,12 +1141,15 @@ That should be managed by haskell-language-server
 *** Lsp
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-haskell
-    :after lsp-mode)
+    :after lsp-mode
+    :config
+    (setq lsp-haskell-formatting-provider "ormolu")) ;; REVIEW: does it work?
 #+END_SRC
 ** Python
+TODO: check out comint-clear-buffer and bind it to the inferior mode map
 #+BEGIN_SRC emacs-lisp
-  ;; (setq python-shell-interpreter "ipython"
-  ;;       python-shell-interpreter-args "-i --simple-prompt --pprint")
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt --pprint")
 #+END_SRC
 *** Python-X
 #+BEGIN_SRC emacs-lisp
@@ -1103,9 +1163,45 @@ That should be managed by haskell-language-server
 #+END_SRC
 *** Yapfify
 #+BEGIN_SRC emacs-lisp
-  (use-package yapfify
-    :hook (python-mode . yapf-mode))
+  ;; (use-package yapfify
+  ;;   :hook (python-mode . yapf-mode))
 #+END_SRC
+*** Isort
+I don't like that before-save hook
+#+begin_src emacs-lisp
+  (use-package py-isort
+    :hook (before-save . py-isort-before-save)
+    :config
+    (setq py-isort-options '("-l=79" "-m=3" "--tc")))
+#+end_src
+*** Black
+#+begin_src emacs-lisp
+  ;; (use-package blacken
+  ;;   :hook (python-mode . blacken-mode)
+  ;;   :config
+  ;;   (setq blacken-line-length 79))
+
+  (use-package python-black
+    :hook (python-mode . python-black-on-save-mode)
+    :config
+    (setq python-black-extra-args '("-l 79")))
+#+end_src
+*** Pytest
+#+begin_src emacs-lisp
+  (use-package pytest
+    :bind (:map python-mode-map
+                ("C-c C-a" . pytest-all)
+                ("C-c r r" . pytest-run)
+                ("C-c r a" . pytest-again)))
+#+end_src
+*** Apheleia
+#+begin_src emacs-lisp
+  ;; (use-package apheleia
+  ;;   :config
+  ;;   (setf (alist-get 'black apheleia-formatters)
+  ;;         '("black" "-l 79"))
+  ;;   (apheleia-global-mode t))
+#+end_src
 *** Venv
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv)
@@ -1151,6 +1247,10 @@ That should be managed by haskell-language-server
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode)
 #+END_SRC
+** Purescript
+#+begin_src emacs-lisp
+  (use-package purescript-mode)
+#+end_src
 ** Hy
 #+BEGIN_SRC emacs-lisp
   (use-package hy-mode
@@ -1195,6 +1295,10 @@ That should be managed by haskell-language-server
                 ("C-c C-c" . racket-run)
                 ("C-c C-r" . racket-send-region)))
 #+END_SRC
+** Elixir
+#+begin_src emacs-lisp
+  (use-package elixir-mode)
+#+end_src
 ** Makefile
 #+BEGIN_SRC emacs-lisp
   (use-package makefile-executor
@@ -1213,6 +1317,10 @@ That should be managed by haskell-language-server
 #+BEGIN_SRC emacs-lisp
   (use-package markdown-mode)
 #+END_SRC
+** Mermaid
+#+begin_src emacs-lisp
+  (use-package mermaid-mode)
+#+end_src
 ** Yaml
 #+BEGIN_SRC emacs-lisp
   (use-package yaml-mode)
@@ -1240,7 +1348,7 @@ That should be managed by haskell-language-server
 
   (use-package pdf-tools
     :config
-    (pdf-loader-install))
+    (pdf-tools-install))
 #+END_SRC
 ** LaTeX
 #+BEGIN_SRC emacs-lisp
@@ -1260,21 +1368,36 @@ That should be managed by haskell-language-server
 * Folds
 I've not invested enough time here
 #+begin_src emacs-lisp
-  ;; (use-package vimish-fold)
-;;
-  ;; (use-package evil-vimish-fold
-    ;; :config
-    ;; (global-evil-vimish-fold-mode t))
+  (use-package vimish-fold)
+
+  (use-package evil-vimish-fold
+    :config
+    (global-evil-vimish-fold-mode t))
+#+end_src
+* Run-command
+Set this up
+#+begin_src emacs-lisp
+  (use-package run-command)
 #+end_src
 * Cd-compile
 #+BEGIN_SRC emacs-lisp
      (use-package cd-compile)
 #+END_SRC
+* EditorConfig
+#+begin_src emacs-lisp
+  (use-package editorconfig
+    :config
+    (editorconfig-mode t))
+#+end_src
 * Which key
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :config
-    (which-key-mode))
+    (which-key-mode t))
+
+  (use-package which-key-posframe
+    :config
+    (which-key-posframe-mode t))
 #+END_SRC
 * EAF
 #+begin_src emacs-lisp
@@ -1305,4 +1428,11 @@ There are surely some tweakings to be done
   ;;   (require 'nano-theme-dark)
   ;;   (require 'nano-layout)
   ;;   (require 'nano-modeline))
+#+end_src
+* Screenshot
+#+begin_src emacs-lisp
+  (use-package screenshot
+    :straight (screenshot :type git
+                          :repo "tecosaur/screenshot"
+                          :file ("*.el")))
 #+end_src

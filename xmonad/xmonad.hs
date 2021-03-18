@@ -24,7 +24,6 @@ import XMonad.Layout.ZoomRow
 import qualified XMonad.StackSet as W
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP)
 import XMonad.Util.Run
-import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
 
 main = do
@@ -32,24 +31,26 @@ main = do
   xmonad $ docks $ myConfig xmproc
 
 myConfig output =
-  desktopConfig
-    { terminal = term,
-      modMask = mask,
-      borderWidth = myBorderWidth,
-      normalBorderColor = bg0,
-      focusedBorderColor = bg1,
-      workspaces = myWorkspaces,
-      focusFollowsMouse = False,
-      manageHook = myManageHook,
-      layoutHook = myLayoutHook,
-      startupHook = myStartupHook <+> ewmhDesktopsStartup,
-      logHook = dynamicLogWithPP $ myPP output,
-      handleEventHook =
-        fullscreenEventHook
-          <+> ewmhDesktopsEventHook
-          <+> handleEventHook desktopConfig
-    }
-    `additionalKeys` myAdditionalKeys
+  ewmh $
+    desktopConfig
+      { terminal = term,
+        modMask = mask,
+        borderWidth = myBorderWidth,
+        normalBorderColor = bg0,
+        focusedBorderColor = bg1,
+        workspaces = myWorkspaces,
+        focusFollowsMouse = False,
+        manageHook = myManageHook,
+        layoutHook = myLayoutHook,
+        startupHook = myStartupHook <+> ewmhDesktopsStartup,
+        logHook = (dynamicLogWithPP $ myPP output) <+> ewmhDesktopsLogHook,
+        handleEventHook =
+          fullscreenEventHook
+            <+> ewmhDesktopsEventHook
+            <+> handleEventHook desktopConfig
+      }
+      `additionalKeys` myAdditionalKeys
+      `additionalKeysP` myAdditionalKeysP
 
 term = "alacritty"
 
@@ -94,53 +95,53 @@ dmenu_options =
     ++ bg0
     ++ "\""
 
-browser = "firefox"
+browser = "brave"
 
--- browser = "qutebrowser --enable-webengine-inspector"
+fileBrowser = "thunar"
 
-shotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
+screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
 
--- myAdditionalKeysP = [ ("M-d", spawn $ "dmenu_run -p Run:" ++ dmenu_options)
---                     , ("M-p", spawn $ "passmenu -p Pass:" ++ dmenu_options)
---                     , ("M-n", spawn $ "networkmanager_dmenu " ++ dmenu_options)
---                     , ("M")]
+myAdditionalKeysP =
+  [ -- Spawning programs
+    ("M-<Return>", spawn term),
+    ("M-w", spawn browser),
+    ("M-b", spawn fileBrowser),
+    ("M-<F2>", spawn "telegram-desktop"),
+    ( "M-<Escape>",
+      spawn "betterlockscreen -l dimblur -t 'Eendracht Maakt Magt'"
+    ),
+    -- emacs
+    ("M-e", spawn "emacsclient -c -a=''"),
+    ("M-o e", spawn "emacsclient -c -a='' --eval '(eshell)'"),
+    ("M-o v", spawn "emacsclient -c -a='' --eval '(vterm)'"),
+    ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'"),
+    ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'"),
+    ("M-o g", spawn "emacsclient -c -a='' --eval '(elpher)'"),
+    -- dmenu
+    ("M-d", spawn $ "dmenu_run -p Run: " ++ dmenu_options),
+    ("M-p", spawn $ "passmenu -p Pass: " ++ dmenu_options),
+    ("M-n", spawn $ "networkmanager_dmenu " ++ dmenu_options),
+    -- Audio controls
+    ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%"),
+    ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%"),
+    ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle"),
+    -- Screenshots
+    ("<Print> <Print>", spawn $ "escrotum " ++ screenshotsFolder),
+    ("<Print> p", spawn $ "escrotum -s " ++ screenshotsFolder),
+    -- Xmonad messages
+    ("M-m", windows W.swapMaster),
+    ("M-S-q", kill),
+    ("M-<Tab>", sendMessage NextLayout),
+    ("M-f", sendMessage (Toggle FULL) >> sendMessage ToggleStruts),
+    ("M-S-h", sendMessage MirrorShrink),
+    ("M-S-l", sendMessage MirrorExpand)
+  ]
+
 myAdditionalKeys =
-  [((mask, xK_d), spawn $ "dmenu_run -p Run: " ++ dmenu_options)]
-    ++ [((mask, xK_p), spawn $ "passmenu -p Pass: " ++ dmenu_options)]
-    ++ [((mask, xK_n), spawn $ "networkmanager_dmenu " ++ dmenu_options)]
-    ++ [((mask, key), (windows $ W.greedyView ws)) | (key, ws) <- myExtraWorkspaces]
+  [((mask, key), (windows $ W.greedyView ws)) | (key, ws) <- myExtraWorkspaces]
     ++ [ ((mask .|. shiftMask, key), (windows $ W.shift ws))
          | (key, ws) <- myExtraWorkspaces
        ]
-    ++ [((mask, xK_Tab), sendMessage NextLayout)]
-    ++ [((mask, xK_m), windows W.swapMaster)]
-    ++ [((mask, xK_Return), spawn term)]
-    ++ [((mask .|. shiftMask, xK_q), kill)]
-    ++ [((mask, xK_f), sendMessage (Toggle FULL) >> sendMessage ToggleStruts)]
-    ++ [((mask, xK_e), spawn "emacsclient -c --alternate-editor=\"\"")]
-    ++ [((mask, xK_w), spawn browser)]
-    ++ [((mask, xK_b), spawn "thunar")]
-    ++ [((mask, xK_F2), spawn "telegram-desktop")]
-    ++ [((0, xF86XK_AudioLowerVolume), spawn "pactl -- set-sink-volume 0 -5%")]
-    ++ [((0, xF86XK_AudioRaiseVolume), spawn "pactl -- set-sink-volume 0 +5%")]
-    ++ [((0, xF86XK_AudioMute), spawn "pactl set-sink-mute 0 toggle")]
-    ++ [((mask, xK_Left), spawn "pactl -- set-sink-volume 0 -5%")]
-    ++ [((mask, xK_Right), spawn "pactl -- set-sink-volume 0 +5%")]
-    ++ [((0, xK_Print), spawn $ "escrotum " ++ shotsFolder)]
-    ++ [((controlMask, xK_Print), spawn $ "escrotum -s " ++ shotsFolder)]
-    -- ++ [((0, xF86XK_MonBrightnessDown), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
-    -- ++ [((0, xF86XK_MonBrightnessUp), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
-    -- ++ [((mask, xK_Up), spawn "true $(pkexec /usr/bin/brillo -A 5)")]
-    -- ++ [((mask, xK_Down), spawn "true $(pkexec /usr/bin/brillo -U 5)")]
-    ++ [ ( (mask, xK_Escape),
-           spawn "betterlockscreen -l blur -t 'Eendracht Maakt Magt'"
-         )
-       ]
-    ++ [((mask, xK_a), scratchPad)]
-    ++ [((mask .|. shiftMask, xK_h), sendMessage MirrorShrink)]
-    ++ [((mask .|. shiftMask, xK_l), sendMessage MirrorExpand)]
-  where
-    scratchPad = scratchpadSpawnActionTerminal "alacritty"
 
 myManageHook =
   composeAll
@@ -149,16 +150,10 @@ myManageHook =
       return True --> doF W.swapDown,
       className =? "TelegramDesktop" --> moveTo "9",
       manageHook desktopConfig,
-      fullscreenManageHook,
-      scratchpadHook
+      fullscreenManageHook
     ]
   where
     moveTo = doF . W.shift
-    scratchpadHook = scratchpadManageHook (W.RationalRect l t w h)
-    h = 0.25 -- terminal height
-    w = 1 -- terminal width
-    t = 1 - h -- distance from the top edge
-    l = 1 - w -- distance from the left edge
 
 myLayoutHook =
   tiled ||| big ||| circled
@@ -180,7 +175,7 @@ myLayoutHook =
 myStartupHook = do
   spawnOnce "~/.fehbg --restore"
   spawnOnce "picom --config ~/.picom.conf"
-  spawnOnce "redshift-gtk"
+  spawnOnce "redshift -l 50.4461248:30.5214979"
   spawnOnce "emacs --daemon"
   spawnOnce
     "setxkbmap -option grp:alt_shift_toggle us,ru,ua -option compose:ralt"

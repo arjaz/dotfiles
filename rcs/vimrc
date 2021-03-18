@@ -108,8 +108,8 @@ let g:lightline = {
 " rainbows
 let g:rainbow_active=1
 
-" Ag
-nmap <leader>a :Ag<CR>
+" Rg
+nmap <leader>a :Rg<CR>
 
 " Nerdtree
 nmap <leader>o :NERDTree<CR>
