@@ -1,7 +1,6 @@
 * Dotfiles
 ** Emacs
-- [[./emacs/init.el]] is there to load the literal config
-- [[./emacs/litemacs.org]] contains all the config with short description
+- [[./emacs/init.el]] all the configs
 ** Xmonad
 - [[./xmonad/xmonad.hs]] -- all the configs
 - [[./xmonad/xmobar.hs]] -- configuration of the xmobar

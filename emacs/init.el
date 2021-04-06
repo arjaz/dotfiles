@@ -61,6 +61,7 @@
 (set-face-attribute 'default nil :height 110)
 (set-frame-font "Iosevka")
 
+(setq window-divider-default-bottom-width 1)
 (setq window-divider-default-places 'bottom-only)
 (window-divider-mode t)
 
@@ -71,7 +72,7 @@
 (savehist-mode t)
 
 ;; Remove trailing whitespaces
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (global-display-fill-column-indicator-mode t)
 (setq-default fill-column 80)
@@ -113,7 +114,8 @@
 (setq display-line-numbers-type 'relative)
 
 ;; Smooth scrolling
-(setq scroll-conservatively 101) ;; move minimum when cursor exits view, instead of recentering
+;; move minimum when cursor exits view, instead of recentering
+(setq scroll-conservatively 101)
 
 ;; Straight
 (setq straight-use-package-by-default t)
@@ -122,7 +124,8 @@
 (defvar bootstrap-version)
 
 (let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+       (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                         user-emacs-directory))
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
@@ -155,7 +158,6 @@
   :init
   (defvar arjaz/loaded-theme nil)
   :hook (server-after-make-frame . (lambda ()
-                                     (interactive)
                                      (unless arjaz/loaded-theme
                                        (setq arjaz/loaded-theme t)
                                        (load-theme 'doom-nord t))))
@@ -188,8 +190,14 @@
   (feebleline-mode))
 
 (use-package rainbow-delimiters
-  ;; TODO: remove that from lisps
-  :hook (prog-mode . rainbow-delimiters-mode))
+  :hook (prog-mode       . rainbow-delimiters-mode)
+  :hook (emacs-lisp-mode . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (clojure-mode    . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (hy-mode         . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (sly-mode        . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (lisp-mode       . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (scheme-mode     . (lambda () (rainbow-delimiters-mode -1)))
+  :hook (racket-mode     . (lambda () (rainbow-delimiters-mode -1))))
 
 (use-package highlight-indent-guides
   :hook (prog-mode . highlight-indent-guides-mode)
@@ -243,7 +251,6 @@
         git-gutter:ask-p nil))
 
 (use-package git-gutter-fringe
-  :diminish git-gutter-mode
   :after git-gutter
   :demand fringe-helper
   :config
@@ -266,6 +273,8 @@
   (setq gcmh-high-cons-threshold (/ 1073741824 2))
   (gcmh-mode 1))
 
+(setq evil-want-keybinding nil)
+
 (use-package evil
   :hook (after-change-major-mode . (lambda () (modify-syntax-entry ?_ "w")))
   :bind (:map evil-normal-state-map
@@ -276,16 +285,11 @@
                          (interactive)
                          (evil-scroll-down nil))))
   :init
-  (setq evil-want-keybinding nil
-        evil-want-integration t)
+  (setq evil-want-integration t)
   :config
   (evil-mode t)
   (setq evil-split-window-below t
         evil-vsplit-window-right t))
-
-;; (use-package evil-dvorak
-;;   :config
-;;   (global-evil-dvorak-mode t))
 
 (use-package evil-numbers
   :bind (:map evil-normal-state-map
@@ -336,7 +340,7 @@
 
     "k" 'kill-current-buffer
 
-    "f" 'format-all-buffer
+    "f" 'apheleia-format-buffer
 
     ;; Magit bindings
     "m s" 'magit-status
@@ -345,7 +349,6 @@
     "m c" 'magit-clone
 
     ;; Eshell
-    "t" 'eshell-toggle
     "e" 'eshell
 
     ;; Search
@@ -364,6 +367,7 @@
     "b" 'ivy-switch-buffer
     "o" 'counsel-find-file
     "g" 'counsel-bookmark
+    "t" 'counsel-evil-marks
     "d" 'dired-sidebar-toggle-with-current-directory))
 
 (use-package evil-indent-plus)
@@ -372,6 +376,7 @@
   :config
   (global-evil-surround-mode t))
 
+;; TODO: look at expand-region
 (use-package evil-embrace
   :config
   (setq evil-embrace-show-help-p nil)
@@ -407,8 +412,8 @@
   (global-evil-quickscope-mode t))
 
 (use-package evil-goggles
-  :hook (evil-mode . evil-goggles-mode)
   :config
+  (evil-goggles-mode t)
   (setq evil-goggles-duration 0.025))
 
 (use-package evil-collection
@@ -494,11 +499,6 @@
           '(lambda ()
              (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
 
-(use-package eshell-toggle
-  :custom
-  (eshell-toggle-size-fraction 3)
-  (eshell-toggle-use-projectile-root t))
-
 (use-package shrink-path)
 
 ;; FIXME: That doesn't work for some reason
@@ -524,54 +524,120 @@
 (use-package vterm)
 
 (use-package mu4e
+  :hook (mu4e-context-changed . (lambda ()
+                                  (interactive)
+                                  (when (s-contains? "*mu4e-main*" (buffer-name))
+                                    (revert-buffer))))
   :config
-  (setq mu4e-maildir "~/Maildir"
-        mu4e-drafts-folder "/[Gmail].Drafts"
-        mu4e-sent-folder "/[Gmail].Sent Mail"
-        mu4e-trash-folder "/[Gmail].Trash"
+  (setq mu4e-root-maildir "~/Maildir"
         smtpmail-local-domain "gmail.com"
         smtpmail-default-smtp-server "smpt.gmail.com"
         smtpmail-smtp-server "smpt.gmail.com"
-        smtpmail-smtp-service 587)
+        smtpmail-smtp-service 587
+        smtpmail-queue-mail nil
+        mu4e-attachment-dir "~/Downloads"
+        ;; don't save message to Sent Messages, IMAP takes care of this
+        mu4e-sent-messages-behavior 'delete
+        ;; allow for updating mail
+        mu4e-get-mail-command "mbsync -a"
+        ;; something about ourselves
+        mu4e-view-show-images t
+        mu4e-view-prefer-html t
+        mu4e-update-interval 180
+        mu4e-headers-auto-update t
+        mu4e-compose-signature-auto-include nil
+        mu4e-compose-format-flowed t
+        mu4e-view-image-max-width 800
+        mu4e-change-filenames-when-moving t
+        mu4e-compose-dont-reply-to-self t
+        ;; don't keep message buffers around
+        message-kill-buffer-on-exit t
+        org-mu4e-convert-to-html t
+        mu4e-confirm-quit nil
+        mu4e-context-policy 'pick-first
+        mu4e-compose-context-policy 'always-ask
+        mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "main"
+          :enter-func (lambda () (mu4e-message "Entering main context"))
+          :leave-func (lambda () (mu4e-message "Leaving main context"))
+          :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches
+                           msg '(:from :to :cc :bcc) "art6661322@gmail.com")))
+          :vars '((user-mail-address . "art6661322@gmail.com")
+                  (user-full-name . "Eugene Rossokha")
+                  (mu4e-sent-folder . "/art-gmail/[art].Sent Mail")
+                  (mu4e-drafts-folder . "/art-gmail/[art].drafts")
+                  (mu4e-trash-folder . "/art-gmail/[art].Bin")
+                  (smtpmail-queue-dir . "~/Maildir/art-gmail/queue/cur")
+                  (message-send-mail-function . smtpmail-send-it)
+                  (smtpmail-smtp-user . "art6661322")
+                  (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+                  (smtpmail-auth-credentials . "~/.authinfo.gpg")
+                  (smtpmail-default-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
+                  (smtpmail-debug-info . t)
+                  (smtpmail-debug-verbose . t)
+                  (mu4e-maildir-shortcuts . (("/art-gmail/INBOX"           . ?i)
+                                             ("/art-gmail/[art].Sent Mail" . ?s)
+                                             ("/art-gmail/[art].Bin"       . ?t)
+                                             ("/art-gmail/[art].All Mail"  . ?a)
+                                             ("/art-gmail/[art].Starred"   . ?r)
+                                             ("/art-gmail/[art].drafts"    . ?d)))))
+         (make-mu4e-context
+          :name "work"
+          :enter-func (lambda () (mu4e-message "Entering work context"))
+          :leave-func (lambda () (mu4e-message "Leaving work context"))
+          :match-func (lambda (msg)
+                        (when msg
+                          (mu4e-message-contact-field-matches
+                           msg '(:from :to :cc :bcc) "eugene.rossokha@vacuumlabs.com")))
+          :vars '((user-mail-address . "eugene.rossokha@vacuumlabs.com")
+                  (user-full-name . "Eugene Rossokha")
+                  (mu4e-sent-folder . "/vacuumlabs-gmail/[vacuumlabs].Sent Mail")
+                  (mu4e-drafts-folder . "/vacuumlabs-gmail/[vacuumlabs].drafts")
+                  (mu4e-trash-folder . "/vacuumlabs-gmail/[vacuumlabs].Bin")
+                  (smtpmail-queue-dir . "~/Maildir/vacuumlabs-gmail/queue/cur")
+                  (message-send-mail-function . smtpmail-send-it)
+                  (smtpmail-smtp-user . "eugene.rossokha")
+                  (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+                  (smtpmail-auth-credentials . "~/.authinfo.gpg")
+                  (smtpmail-default-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
+                  (smtpmail-debug-info . t)
+                  (smtpmail-debug-verbose . t)
+                  (mu4e-maildir-shortcuts . (("/vacuumlabs-gmail/INBOX"                  . ?i)
+                                             ("/vacuumlabs-gmail/[vacuumlabs].Sent Mail" . ?s)
+                                             ("/vacuumlabs-gmail/[vacuumlabs].Bin"       . ?t)
+                                             ("/vacuumlabs-gmail/[vacuumlabs].All Mail"  . ?a)
+                                             ("/vacuumlabs-gmail/[vacuumlabs].Starred"   . ?r)
+                                             ("/vacuumlabs-gmail/[vacuumlabs].drafts"    . ?d)))))))
+  (require 'smtpmail)
+  (require 'org-mu4e))
 
-  (setq mu4e-maildir-shortcuts
-        '(("/INBOX"               . ?i)
-          ("/[Gmail].Sent Mail"   . ?s)))
-
-  ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
-  (setq mu4e-sent-messages-behavior 'delete)
-
-  ;; allow for updating mail in the main view:
-  (setq mu4e-get-mail-command "offlineimap")
-
-  ;; something about ourselves
-  (setq user-mail-address "art6661322@gmail.com"
-        user-full-name "Eugene Rossokha")
-
-  (setq mu4e-view-show-images t
-        mu4e-view-image-max-width 800)
-
-  ;; don't keep message buffers around
-  (setq message-kill-buffer-on-exit t))
+(use-package org-mime)
 
 ;; TODO: change for apheleia
-(use-package format-all)
+;; (use-package format-all)
 
-;; (use-package apheleia
-;;   :config
-;;   (setf (alist-get 'black apheleia-formatters)
-;;         '("black" "-l 79"))
-;;   (apheleia-global-mode t))
+;; FIXME: it creates some tmp buffers and I lose the current one
+(use-package apheleia
+  :config
+  (setf (alist-get 'black apheleia-formatters)
+        '("black" "-l 79")))
+  ;; (apheleia-global-mode t))
 
 (use-package elfeed
   :config
   (load "~/.dotfiles/emacs/elfeed-local-feed.el"))
 
-(use-package elfeed-dashboard
-  :config
-  (setq elfeed-dashboard-file "~/.org/elfeed-dashboard.org")
-  ;; update feed counts on elfeed-quit
-  (advice-add 'elfeed-search-quit-window :after 'elfeed-dashboard-update-links))
+;; (use-package elfeed-goodies
+;;   :config
+;;   (elfeed-goodies/setup))
 
 (use-package elpher
   :config
@@ -666,16 +732,6 @@
                        :files ("ivy-hydra.el")
                        :host github
                        :repo "abo-abo/swiper"))
-
-;; (use-package ivy-posframe
-;;   :config
-;;   (ivy-posframe-mode t)
-;;   (setq ivy-posframe-display-functions-alist
-;;         '((t . ivy-posframe-display-at-window-center))
-;;         ivy-posframe-parameters '((left-fringe 8)
-;;                                   (right-fringe 8)
-;;                                   (top-fringe 2)
-;;                                   (bottom-fringe 2))))
 
 (use-package counsel-projectile
   :after (counsel projectile)
@@ -789,6 +845,7 @@
 
 (use-package key-chord
   :config
+  ;; TODO: That should be moved somewhere I think
   (key-chord-mode t)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 
@@ -836,12 +893,12 @@
   (yas-reload-all)
   (yas-global-mode t)
   (defvar my/company-point nil)
-  (advice-add 'company-complete-common :before (lambda () (setq my/company-point (point))))
-  (advice-add 'company-complete-common :after (lambda ()
-                                                (when (equal my/company-point (point))
-                                                  (yas-expand)))))
-
-(use-package yasnippet-snippets)
+  (advice-add 'company-complete-common :before
+              (lambda () (setq my/company-point (point))))
+  (advice-add 'company-complete-common :after
+              (lambda ()
+                (when (equal my/company-point (point))
+                  (yas-expand)))))
 
 (use-package company
   :hook (prog-mode . company-mode)
@@ -864,6 +921,11 @@
         company-auto-complete nil
         company-auto-complete-chars nil))
 
+(use-package yasnippet-snippets
+  :after company)
+  ;; :config
+  ;; (add-to-list 'company-backends 'company-yasnippet))
+
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
@@ -876,7 +938,7 @@
 ;;   :config
 ;;   (add-to-list 'company-backends 'company-tabnine))
 
-(use-package realgud)
+;; (use-package realgud)
 
 (use-package dumb-jump
   :config
@@ -938,7 +1000,6 @@
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.cppm\\'" . c++-mode))
 (add-hook 'c++-mode-hook '(lambda ()
-                            (interactive)
                             (electric-pair-local-mode 0)
                             (set-fill-column 100)))
 
@@ -994,6 +1055,14 @@
 (use-package auto-virtualenv
   :hook (python-mode . auto-virtualenv-set-virtualenv))
 
+(use-package highlight-defined
+  :hook (emacs-lisp-mode . highlight-defined-mode))
+
+(use-package eros
+  :hook (emacs-lisp-mode . eros-mode))
+
+(use-package sly)
+
 (use-package web-mode
   :mode "\\.tsx?$"
   :hook (web-mode . (lambda ()
@@ -1004,19 +1073,15 @@
 (use-package rjsx-mode
   :mode "\\.jsx?$")
 
-(use-package prettier-js
-  :hook (js-mode . prettier-js-mode)
-  :hook (typescript-mode . prettier-js-mode)
-  :hook (web-mode . prettier-js-mode)
-  :hook (rjsx-mode . prettier-js-mode))
-
 (use-package typescript-mode)
 
 (use-package purescript-mode)
 
 (use-package hy-mode
   :config
-  (setq hy-jedhy--enable? nil))
+  (setq hy-jedhy--enable? t
+        hy-shell--interpreter-args
+        '("--repl-output-fn" "hy.contrib.pprint.pprint")))
 
 (use-package clojure-mode)
 
@@ -1087,7 +1152,8 @@
   :hook (LaTeX-mode . flyspell-mode)
   :hook (LaTeX-mode . turn-on-reftex)
   :config
-  (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer)
+  (add-hook 'TeX-after-compilation-finished-functions
+            'TeX-revert-document-buffer)
   (setq TeX-PDF-mode t
         TeX-auto-save t
         TeX-parse-self t
@@ -1099,7 +1165,12 @@
   :config
   (global-evil-vimish-fold-mode t))
 
-(use-package run-command)
+(use-package run-command
+  :config
+  (defun run-command-recipes-example ()
+    '((:command-name "pytest"
+       :command-line "pytest")))
+  (setq run-command-recipes '(run-command-recipes-example)))
 
 (use-package cd-compile)
 
@@ -1110,10 +1181,6 @@
 (use-package which-key
   :config
   (which-key-mode t))
-
-;; (use-package which-key-posframe
-;;   :config
-;;   (which-key-posframe-mode t))
 
 ;; (use-package eaf
 ;;   :straight nil
@@ -1131,15 +1198,9 @@
 ;;   ;; (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
 ;;   ;; (eaf-bind-key take_photo "p" eaf-camera-keybinding))
 
-;; (use-package nano
-;;   :straight nil
-;;   :load-path "~/Programs/nano-emacs/"
-;;   :config
-;;   (require 'nano-theme-dark)
-;;   (require 'nano-layout)
-;;   (require 'nano-modeline))
-
 (use-package screenshot
+  :bind (:map evil-normal-state-map
+              ("M-p" . screenshot))
   :straight (screenshot :type git
                         :repo "tecosaur/screenshot"
                         :file ("*.el")))

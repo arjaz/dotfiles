@@ -28,7 +28,7 @@ alias ip='ipython -i --pprint'
 
 alias btw=neofetch
 alias :q=exit
-alias wrk='TERM=xterm-24bit ssh 10.3.2.57'
+alias code='cd ~/Code/'
 
 alias l='exa -lah'
 alias la='exa -lah'
@@ -44,6 +44,7 @@ export PATH="$HOME/.cabal/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/share/racket/7.9/bin:$PATH"
+export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
 
 # Theme
 eval "$(starship init zsh)"

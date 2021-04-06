@@ -117,6 +117,8 @@ myAdditionalKeysP =
     ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'"),
     ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'"),
     ("M-o g", spawn "emacsclient -c -a='' --eval '(elpher)'"),
+    ("M-o m", spawn "emacsclient -c -a='' --eval '(mu4e)'"),
+    ("M-o i", spawn "emacsclient -c -a='' --eval '(find-file \"~/.dotfiles/emacs/init.el\")'"),
     -- dmenu
     ("M-d", spawn $ "dmenu_run -p Run: " ++ dmenu_options),
     ("M-p", spawn $ "passmenu -p Pass: " ++ dmenu_options),
@@ -126,8 +128,8 @@ myAdditionalKeysP =
     ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%"),
     ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle"),
     -- Screenshots
-    ("<Print> <Print>", spawn $ "escrotum " ++ screenshotsFolder),
-    ("<Print> p", spawn $ "escrotum -s " ++ screenshotsFolder),
+    ("<Print> <Print>", spawn $ "escrotum -C " ++ screenshotsFolder),
+    ("<Print> p", spawn $ "escrotum -C -s " ++ screenshotsFolder),
     -- Xmonad messages
     ("M-m", windows W.swapMaster),
     ("M-S-q", kill),
