@@ -78,7 +78,7 @@ toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_o)
 
 mask = mod4Mask
 
-myBorderWidth = 2
+myBorderWidth = 1
 
 myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
 
