@@ -4,128 +4,16 @@
 ;;; That's my (Eugene's) local Emacs configuration
 
 ;;; Code:
-;; I think it's managed by GHCM now
-(setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
-      gc-cons-percentage 0.6)
-
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold 536870912 ; 512mb
-                  gc-cons-percentage 0.1)))
-
-;; Long lines stuff
-(setq bidi-paragraph-direction 'left-to-right
-      bidi-inhibit-bpa t)
-
-;; Disable visual clutter
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(tooltip-mode -1)
-(scroll-bar-mode -1)
-
-(setq x-gtk-use-system-tooltips nil
-      use-dialog-box nil)
-
-;; Disable startup message and gtk pop-ups
-(setq inhibit-startup-message t)
-
-;; Symlinks
-(setq vc-follow-symlinks t
-      find-file-visit-truename t)
-
-;; Don't create backup files
-(setq backup-by-copying t
-      delete-old-versions t
-      version-control t
-      kept-new-versions 6
-      kept-old-versions 2
-      make-backup-files nil
-      backup-directory-alist '(("." . "~/.config/emacs/saves")))
-
-(setq temporary-file-directory "~/.config/emacs/tmp/")
-
-;; Automaticaly revert changes
-(global-auto-revert-mode t)
-
-;; Disable auto-saves
-(setq auto-save-default nil)
-
-;; Disable lock files
-(setq create-lockfiles nil)
-
-;; We don't want to type yes and no all the time so, do y and n
-(fset 'yes-or-no-p 'y-or-n-p)
-
-;; Fonts
-(add-to-list 'default-frame-alist '(font . "Iosevka"))
-(set-face-attribute 'default nil :height 110)
-(set-frame-font "Iosevka")
-
-(setq window-divider-default-bottom-width 1)
-(setq window-divider-default-places 'bottom-only)
-(window-divider-mode t)
-
-(setq savehist-file "~/.config/emacs/savehist"
-      history-length t
-      history-delete-duplicates t
-      savehist-save-minibuffer-history t)
-(savehist-mode t)
-
-;; Remove trailing whitespaces
-;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-(global-display-fill-column-indicator-mode t)
-(setq-default fill-column 80)
-
-;; Non-blinking cursor
-(blink-cursor-mode 0)
-
-;; Highlight matching brace
-(show-paren-mode t)
-
-;; Highlight current line
-(global-hl-line-mode t)
-
-;; Relative line numbers
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'text-mode-hook 'display-line-numbers-mode)
-(add-hook 'conf-mode-hook 'display-line-numbers-mode)
-(add-hook 'eshell-mode-hook 'display-line-numbers-mode)
-
-;; Don't bother to close the parens
-(add-hook 'prog-mode-hook 'electric-pair-local-mode)
-
-;; Move flymake garbage
-(setq flymake-run-in-place nil)
-
-(setq-default indent-tabs-mode nil
-              tab-width 4)
-(setq c-default-style "k&r"
-      c-basic-offset 4)
-(setq js-indent-level 2)
-
-;; Clean buffers
-(setq clean-buffer-list-delay-general 1)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(require 'ibuf-ext)
-(add-to-list 'ibuffer-never-show-predicates "^\\*")
-
-;; Relative line numbers
-(setq display-line-numbers-type 'relative)
-
-;; Smooth scrolling
-;; move minimum when cursor exits view, instead of recentering
-(setq scroll-conservatively 101)
 
 ;; Straight
-(setq straight-use-package-by-default t)
-(setq straight-check-for-modifications '(watch-files find-when-checking))
+(setq straight-use-package-by-default t
+      straight-check-for-modifications '(watch-files find-when-checking))
 
 (defvar bootstrap-version)
 
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el"
-                         user-emacs-directory))
+(let ((bootstrap-file (expand-file-name
+                       "straight/repos/straight.el/bootstrap.el"
+                       user-emacs-directory))
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
@@ -136,7 +24,124 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+;; Use-package
 (straight-use-package 'use-package)
+
+;; Let's go
+
+;; TODO: split that into blocs
+(use-package emacs
+  :straight nil
+  :custom
+  ;; I think it's managed by GHCM now
+  (gc-cons-threshold most-positive-fixnum "2^61 bytes")
+  (gc-cons-percentage 0.6)
+  ;; Long lines stuff
+  (bidi-paragraph-direction 'left-to-right)
+  (bidi-inhibit-bpa t)
+  (x-gtk-use-system-tooltips nil)
+  (use-dialog-box nil)
+  (inhibit-startup-message t "disable startup message and gtk pop-ups")
+  (vc-follow-symlinks t)
+  (temporary-file-directory (concat user-emacs-directory "tmp"))
+  (auto-save-timeout 20 "number of seconds idle time before auto-save")
+  (auto-save-interval 200 "number of keystrokes between auto-saves")
+  (vc-make-backup-files t "make backups for version-controlled files as well")
+  (create-lockfiles nil)
+  ;; Move flymake garbage
+  (flymake-run-in-place nil)
+  (c-default-style "k&r")
+  (c-basic-offset 4)
+  (js-indent-level 2)
+  ;; Clean buffers
+  (clean-buffer-list-delay-general 1)
+  ;; Smooth scrolling
+  ;; move minimum when cursor exits view, instead of recentering
+  (scroll-conservatively 101)
+  (window-divider-default-bottom-width 1)
+  (window-divider-default-places 'bottom-only)
+  (savehist-file (concat user-emacs-directory "savehist"))
+  (history-length t)
+  (history-delete-duplicates t)
+  (savehist-save-minibuffer-history t)
+  :hook (emacs-startup . (lambda ()
+                           (setq gc-cons-threshold 536870912 ; 512mb
+                                 gc-cons-percentage 0.1)))
+  :config
+  ;; Disable visual clutter
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (scroll-bar-mode -1)
+  ;; Automaticaly revert changes
+  (global-auto-revert-mode t)
+  ;; We don't want to type yes and no all the time so, do y and n
+  (fset 'yes-or-no-p 'y-or-n-p)
+  ;; Fonts
+  (add-to-list 'default-frame-alist '(font . "Iosevka"))
+  (set-face-attribute 'default nil :height 110)
+  (set-frame-font "Iosevka")
+  (window-divider-mode t)
+  (savehist-mode t)
+  (global-display-fill-column-indicator-mode t)
+  (setq-default fill-column 80
+                indent-tabs-mode nil
+                tab-width 4)
+  ;; Non-blinking cursor
+  (blink-cursor-mode 0))
+
+(use-package display-line-numbers
+  :straight nil
+  :custom
+  (display-line-numbers-type 'relative "relative line numbers")
+  :hook ((prog-mode text-mode conf-mode eshell-mode) . display-line-numbers-mode))
+
+(use-package paren
+  :straight nil
+  :config
+  ;; Highlight matching brace
+  (show-paren-mode t))
+
+(use-package elec-pair
+  :straight nil
+  :hook
+  ;; Don't bother to close the parens
+  (prog-mode . electric-pair-local-mode))
+
+(use-package hl-line
+  :straight nil
+   :config
+  ;; Highlight current line
+  (global-hl-line-mode t))
+
+(use-package files
+  :straight nil
+  :custom
+  (find-file-visit-truename t)
+  (make-backup-files t "backup of a file the first time it is saved")
+  (backup-by-copying t "don't clobber symlinks")
+  (delete-old-versions t "delete excess backup files silently")
+  (version-control t "version numbers for backup files")
+  (kept-new-versions 6 "oldest versions to keep when a new numbered backup is made")
+  (kept-old-versions 2 "newest versions to keep when a new numbered backup is made")
+  (backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
+  (auto-save-default t "auto-save every buffer that visits a file"))
+
+
+(use-package gcmh
+  :custom
+  (gcmh-high-cons-threshold (/ 1073741824 2))
+  :config
+  (gcmh-mode 1))
+
+(use-package ibuffer
+  :straight nil
+  :bind ("C-x C-b" . ibuffer)
+  :custom
+  (add-to-list 'ibuffer-never-show-predicates "^\\*"))
+
+(use-package ibuf-ext
+  :straight nil)
 
 (use-package solaire-mode
   :hook (after-init . solaire-global-mode))
@@ -148,13 +153,18 @@
 
 (use-package tree-sitter-langs)
 
-;; (use-package fira-code-mode
-;;   :config
-;;   (setq fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
-;;   (global-fira-code-mode))
+(use-package fira-code-mode
+  :disabled
+  :custom
+  (fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
+  :config
+  (global-fira-code-mode))
 
 (use-package doom-themes
   :after (solaire-mode)
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
   :init
   (defvar arjaz/loaded-theme nil)
   :hook (server-after-make-frame . (lambda ()
@@ -162,49 +172,59 @@
                                        (setq arjaz/loaded-theme t)
                                        (load-theme 'doom-nord t))))
   :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
   (load-theme 'doom-nord t)
   (doom-themes-org-config))
 
-;; (use-package doom-modeline
-;;   ;; I guess it's what I use with the daemon
-;;   :hook (after-init . doom-modeline-mode)
-;;   :hook (doom-modeline-mode . column-number-mode)
-;;   :init
-;;   (setq doom-modeline-icon t
-;;         doom-modeline-project-detection 'project
-;;         doom-modeline-modal-icon t
-;;         doom-modeline-major-mode-icon t
-;;         doom-modeline-major-mode-color-icon t
-;;         doom-modeline-vcs-max-length 12
-;;         doom-modeline-buffer-state-icon t
-;;         doom-modeline-buffer-modification-icon t
-;;         doom-modeline-env-version t
-;;         doom-modeline-lsp t))
-;;   ;; And that's used without a daemon
-;;   ;; (doom-modeline-mode 1))
+(use-package doom-modeline
+  :disabled
+  ;; I guess it's what I use with the daemon
+  :hook ((after-init . doom-modeline-mode)
+         (doom-modeline-mode . column-number-mode))
+  :custom
+  (doom-modeline-icon t)
+  (doom-modeline-project-detection 'project)
+  (doom-modeline-modal-icon t)
+  (doom-modeline-major-mode-icon t)
+  (doom-modeline-major-mode-color-icon t)
+  (doom-modeline-vcs-max-length 12)
+  (doom-modeline-buffer-state-icon t)
+  (doom-modeline-buffer-modification-icon t)
+  (doom-modeline-env-version t)
+  (doom-modeline-lsp t))
+  ;; And that's used without a daemon
+  ;; (doom-modeline-mode 1))
 
+;; TODO: check out moodline
 (use-package feebleline
   :config
   (feebleline-mode))
 
 (use-package rainbow-delimiters
-  :hook (prog-mode       . rainbow-delimiters-mode)
-  :hook (emacs-lisp-mode . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (clojure-mode    . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (hy-mode         . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (sly-mode        . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (lisp-mode       . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (scheme-mode     . (lambda () (rainbow-delimiters-mode -1)))
-  :hook (racket-mode     . (lambda () (rainbow-delimiters-mode -1))))
+  :init
+  :hook ((prog-mode       . rainbow-delimiters-mode)
+         (emacs-lisp-mode . (lambda () (rainbow-delimiters-mode -1)))
+         (clojure-mode    . (lambda () (rainbow-delimiters-mode -1)))
+         (hy-mode         . (lambda () (rainbow-delimiters-mode -1)))
+         (sly-mode        . (lambda () (rainbow-delimiters-mode -1)))
+         (lisp-mode       . (lambda () (rainbow-delimiters-mode -1)))
+         (scheme-mode     . (lambda () (rainbow-delimiters-mode -1)))
+         (racket-mode     . (lambda () (rainbow-delimiters-mode -1)))))
 
 (use-package highlight-indent-guides
   :hook (prog-mode . highlight-indent-guides-mode)
+  :custom
+  (highlight-indent-guides-method 'bitmap)
+  (highlight-indent-guides-responsive 'top))
+
+(use-package highlight-numbers
+  :hook (prog-mode . highlight-numbers-mode))
+
+(use-package highlight-escape-sequences
   :config
-  (setq highlight-indent-guides-method 'bitmap))
+  (hes-mode))
 
 (use-package all-the-icons
+  :if (display-graphic-p)
   :config
   (add-to-list 'all-the-icons-icon-alist
                '("\\.tsx$" all-the-icons-fileicon "typescript" :height 1.0 :v-adjust -0.1 :face all-the-icons-blue-alt))
@@ -212,6 +232,7 @@
                '("\\.hy" all-the-icons-fileicon "scheme" :height 1.2 :face all-the-icons-red)))
 
 (use-package all-the-icons-dired
+  :if (display-graphic-p)
   :config
   :hook (dired-mode . (lambda ()
                         (interactive)
@@ -219,36 +240,39 @@
                           (all-the-icons-dired-mode t)))))
 
 (use-package hl-todo
+  :custom
+  (hl-todo-keyword-faces
+   `(;; For things that need to be done, just not today.
+     ("TODO" warning bold)
+     ;; For problems that will become bigger problems later if not
+     ;; fixed ASAP.
+     ("FIXME" error bold)
+     ;; For tidbits that are unconventional and not intended uses of the
+     ;; constituent parts, and may break in a future update.
+     ("HACK" font-lock-constant-face bold)
+     ;; For things that were done hastily and/or hasn't been thoroughly
+     ;; tested. It may not even be necessary!
+     ("REVIEW" font-lock-keyword-face bold)
+     ;; For especially important gotchas with a given implementation,
+     ;; directed at another user other than the author.
+     ("NOTE" success bold)
+     ;; For things that just gotta go and will soon be gone.
+     ("DEPRECATED" font-lock-doc-face bold)
+     ;; For a known bug that needs a workaround
+     ("BUG" error bold)
+     ;; For warning about a problematic or misguiding code
+     ("XXX" font-lock-constant-face bold)))
   :config
-  (global-hl-todo-mode t)
-  (setq hl-todo-keyword-faces
-        `(;; For things that need to be done, just not today.
-          ("TODO" warning bold)
-          ;; For problems that will become bigger problems later if not
-          ;; fixed ASAP.
-          ("FIXME" error bold)
-          ;; For tidbits that are unconventional and not intended uses of the
-          ;; constituent parts, and may break in a future update.
-          ("HACK" font-lock-constant-face bold)
-          ;; For things that were done hastily and/or hasn't been thoroughly
-          ;; tested. It may not even be necessary!
-          ("REVIEW" font-lock-keyword-face bold)
-          ;; For especially important gotchas with a given implementation,
-          ;; directed at another user other than the author.
-          ("NOTE" success bold)
-          ;; For things that just gotta go and will soon be gone.
-          ("DEPRECATED" font-lock-doc-face bold)
-          ;; For a known bug that needs a workaround
-          ("BUG" error bold)
-          ;; For warning about a problematic or misguiding code
-          ("XXX" font-lock-constant-face bold))))
+  (global-hl-todo-mode t))
 
 (use-package git-gutter
+  :custom
+  (git-gutter:window-width 2)
+  (git-gutter:update-interval 1)
+
+  (git-gutter:ask-p nil)
   :config
-  (global-git-gutter-mode t)
-  (setq git-gutter:window-width 2
-        git-gutter:update-interval 1
-        git-gutter:ask-p nil))
+  (global-git-gutter-mode t))
 
 (use-package git-gutter-fringe
   :after git-gutter
@@ -268,13 +292,6 @@
     [0 0 0 0 0 0 0 0 0 0 0 0 0 128 192 224 240 248]
     nil nil 'center))
 
-(use-package gcmh
-  :config
-  (setq gcmh-high-cons-threshold (/ 1073741824 2))
-  (gcmh-mode 1))
-
-(setq evil-want-keybinding nil)
-
 (use-package evil
   :hook (after-change-major-mode . (lambda () (modify-syntax-entry ?_ "w")))
   :bind (:map evil-normal-state-map
@@ -285,11 +302,13 @@
                          (interactive)
                          (evil-scroll-down nil))))
   :init
-  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil
+        evil-want-integration t)
+  :custom
+  (evil-split-window-below t)
+  (evil-vsplit-window-right t)
   :config
-  (evil-mode t)
-  (setq evil-split-window-below t
-        evil-vsplit-window-right t))
+  (evil-mode t))
 
 (use-package evil-numbers
   :bind (:map evil-normal-state-map
@@ -297,8 +316,9 @@
               ("C-c k" . evil-numbers/dec-at-pt)))
 
 (use-package evil-leader
+  :custom
+  (evil-leader/in-all-states 1)
   :config
-  (setq evil-leader/in-all-states 1)
   (evil-leader/set-leader "<SPC>")
   (global-evil-leader-mode)
   (evil-leader/set-key
@@ -345,7 +365,7 @@
     ;; Magit bindings
     "m s" 'magit-status
     "m m" 'magit-status
-    "m b" 'magit-branch
+    "m b" 'magit-blame
     "m c" 'magit-clone
 
     ;; Eshell
@@ -378,8 +398,9 @@
 
 ;; TODO: look at expand-region
 (use-package evil-embrace
+  :custom
+  (evil-embrace-show-help-p nil)
   :config
-  (setq evil-embrace-show-help-p nil)
   (evil-embrace-enable-evil-surround-integration))
 
 (use-package evil-args
@@ -412,9 +433,10 @@
   (global-evil-quickscope-mode t))
 
 (use-package evil-goggles
+  :custom
+  (evil-goggles-duration 0.025)
   :config
-  (evil-goggles-mode t)
-  (setq evil-goggles-duration 0.025))
+  (evil-goggles-mode t))
 
 (use-package evil-collection
   :after (evil vterm)
@@ -427,9 +449,8 @@
 
 (use-package evil-org
   :after org
-  :hook (org-mode . evil-org-mode)
-  :hook (evil-org-mode . (lambda ()
-                           (evil-org-set-key-theme)))
+  :hook ((org-mode . evil-org-mode)
+         (evil-org-mode . evil-org-set-key-theme))
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
@@ -445,77 +466,88 @@
   (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
 
-;; (use-package aggressive-indent
-;;   :hook (prog-mode . aggressive-indent-mode))
+(use-package aggressive-indent
+  :disabled
+  :hook (prog-mode . aggressive-indent-mode))
 
-;; (use-package hungry-delete
-;;   :hook (prog-mode . hungry-delete-mode))
+(use-package hungry-delete
+  :disabled
+  :hook (prog-mode . hungry-delete-mode))
 
 (use-package ws-butler
   :config
   (ws-butler-global-mode t))
 
 (use-package dashboard
+  :custom
+  (show-week-agenda-p t)
+  (dashboard-set-heading-icons t)
+  (dashboard-startup-banner 3)
+  (dashboard-set-navigator t)
+  (dashboard-set-file-icons t)
+  (dashboard-items '((recents  . 5)
+                     (bookmarks . 5)
+                     (projects . 5)
+                     (agenda . 5)))
+  (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   :config
-  (dashboard-setup-startup-hook)
-  (setq show-week-agenda-p t
-        dashboard-set-heading-icons t
-        dashboard-startup-banner 3
-        dashboard-set-navigator t
-        dashboard-set-file-icons t
-        dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)))
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+  (dashboard-setup-startup-hook))
 
-;;(use-package eyebrowse
-;;  :config
-;;  (eyebrowse-mode t)
-;;  (eyebrowse-setup-opinionated-keys))
+(use-package eyebrowse
+  :disabled
+  :config
+  (eyebrowse-mode t)
+  (eyebrowse-setup-opinionated-keys))
 
-;; (use-package smartparens
-;;   :hook (prog-mode . smartparens-mode)
-;;   :config
-;;   (require 'smartparens-config))
+(use-package olivetti
+  :custom
+  (olivetti-body-width 95))
+
+(use-package smartparens
+  :disabled
+  :hook (prog-mode . smartparens-mode)
+  :config
+  (require 'smartparens-config))
 
 (use-package xterm-color)
 
-(setq eshell-history-size 1024)
-
-(defun eshell-new ()
-  "Open a new eshell session."
-  (interactive)
-  (eshell 'N))
-
-(defun eshell-clear-buffer ()
-  "Clear terminal."
-  (interactive)
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (eshell-send-input)))
-
-(add-hook 'eshell-mode-hook
-          '(lambda ()
-             (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+(use-package esh-mode
+  :straight nil
+  :custom
+  (ehsell-history-size 1024)
+  :init
+  (defun eshell-new ()
+    "Open a new eshell session."
+    (interactive)
+    (eshell 'N))
+  (defun eshell-clear-buffer ()
+    "Clear terminal."
+    (interactive)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eshell-send-input)))
+  :bind (:map eshell-mode-map
+              ("C-l" . eshell-clear-buffer)))
 
 (use-package shrink-path)
 
 ;; FIXME: That doesn't work for some reason
-;; (use-package esh-autosuggest)
+(use-package esh-autosuggest
+  :disabled)
 
 (use-package bash-completion)
 
 (use-package fish-completion
   :after bash-completion
+  :custom
+  (fish-completion-fallback-on-bash-p t)
   :config
-  (global-fish-completion-mode)
-  (setq fish-completion-fallback-on-bash-p t))
+  (global-fish-completion-mode))
 
 (use-package eshell-prompt-extras
-  :config
-  (setq eshell-prompt-function 'epe-theme-lambda
-        eshell-highlight-prompt t))
+  :custom
+  (eshell-prompt-function 'epe-theme-lambda)
+  (eshell-highlight-prompt t))
 
 (use-package eshell-syntax-highlighting
   :config
@@ -524,10 +556,12 @@
 (use-package vterm)
 
 (use-package mu4e
-  :hook (mu4e-context-changed . (lambda ()
-                                  (interactive)
-                                  (when (s-contains? "*mu4e-main*" (buffer-name))
-                                    (revert-buffer))))
+  :init
+  (defun mu4e-revert-main ()
+    (interactive)
+    (when (s-contains? "*mu4e-main*" (buffer-name))
+      (revert-buffer)))
+  :hook (mu4e-context-changed . mu4e-revert-main)
   :config
   (setq mu4e-root-maildir "~/Maildir"
         smtpmail-local-domain "gmail.com"
@@ -622,7 +656,8 @@
 (use-package org-mime)
 
 ;; TODO: change for apheleia
-;; (use-package format-all)
+(use-package format-all
+  :disabled)
 
 ;; FIXME: it creates some tmp buffers and I lose the current one
 (use-package apheleia
@@ -635,13 +670,14 @@
   :config
   (load "~/.dotfiles/emacs/elfeed-local-feed.el"))
 
-;; (use-package elfeed-goodies
-;;   :config
-;;   (elfeed-goodies/setup))
+(use-package elfeed-goodies
+  :disabled
+  :config
+  (elfeed-goodies/setup))
 
 (use-package elpher
-  :config
-  (setq elpher-gemini-link-string "> "))
+  :custom
+  (elpher-gemini-link-string "> "))
 
 (use-package erc
   :custom
@@ -651,17 +687,24 @@
   (erc-prompt-for-nickserv-password nil)
   (erc-server-reconnect-attempts 5)
   (erc-server-reconnect-timeout 3)
+  (auth-sources '("~/.authinfo.gpg"
+                  "~/.authinfo"
+                  "~/.netrc"))
   :config
   (erc-services-mode 1)
-  (erc-update-modules)
-  (setq auth-sources '("~/.authinfo.gpg"
-                       "~/.authinfo"
-                       "~/.netrc")))
+  (erc-update-modules))
+
+(use-package telega
+  :custom
+  (telega-use-images t)
+  :bind-keymap
+  ("C-c t" . telega-prefix-map))
 
 (use-package git-commit
-  :config
-  (setq git-commit-fill-column 50
-        git-commit-style-convention-checks '(non-empty-second-line overlong-summary-line)))
+  :custom
+  (git-commit-fill-column 50)
+  (git-commit-style-convention-checks '(non-empty-second-line
+                                        overlong-summary-line)))
 
 (use-package magit)
 
@@ -672,8 +715,9 @@
   :hook (magit-mode . magit-delta-mode))
 
 (use-package projectile
+  :custom
+  (projectile-project-search-path '("~/Code/"))
   :config
-  (setq projectile-project-search-path '("~/Code/"))
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode t))
 
@@ -689,16 +733,17 @@
   :bind (:map ivy-mode-map
               ("C-j" . ivy-next-line)
               ("C-k" . ivy-previous-line))
-  :config
-  (setq projectile-completion-system 'ivy
-        ivy-magic-slash-non-match-action nil
-        ivy-use-virtual-buffers nil
-        ivy-virtual-abbreviate 'full
-        ivy-display-style 'fancy
-        ivy-on-del-error-function 'ignore
-        ivy-format-function 'ivy-format-function-line
-        ivy-sort-max-size 7500)
+  :custom
+  (projectile-completion-system 'ivy)
+  (ivy-magic-slash-non-match-action nil)
+  (ivy-use-virtual-buffers nil)
+  (ivy-virtual-abbreviate 'full)
+  (ivy-display-style 'fancy)
+  (ivy-on-del-error-function 'ignore)
+  (ivy-format-function 'ivy-format-function-line)
+  (ivy-sort-max-size 7500)
   ;; ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  :config
   (ivy-mode))
 
 (use-package swiper
@@ -723,7 +768,7 @@
          ("M-x" . counsel-M-x)
          ("C-c i" . counsel-imenu))
   :config
-  (counsel-mode))
+  (counsel-mode t))
 
 (use-package ivy-hydra
   :after evil
@@ -735,8 +780,9 @@
 
 (use-package counsel-projectile
   :after (counsel projectile)
+  :custom
+  (counsel-projectile-preview-buffers t)
   :config
-  (setq counsel-projectile-preview-buffers t)
   (counsel-projectile-mode t))
 
 (use-package prescient
@@ -748,22 +794,22 @@
   (ivy-prescient-mode t))
 
 (use-package counsel-tramp
-  :config
-  (setq remote-file-name-inhibit-cache nil
-        vc-ignore-dir-regexp
-        (format "%s\\|%s"
-                vc-ignore-dir-regexp
-                tramp-file-name-regexp)
-        tramp-default-method "ssh"
-        create-lockfiles nil)
-  :hook (counsel-tramp-pre-command . (lambda ()
-                                       (projectile-mode 0)))
-  :hook (counsel-tramp-quit . (lambda ()
-                                (projectile-mode 1))))
+  :custom
+  (remote-file-name-inhibit-cache nil)
+  (vc-ignore-dir-regexp (format "%s\\|%s"
+                                vc-ignore-dir-regexp
+                                tramp-file-name-regexp))
+  (tramp-default-method "ssh")
+  (create-lockfiles nil)
+  :hook ((counsel-tramp-pre-command . (lambda ()
+                                        (projectile-mode 0)))
+         (counsel-tramp-quit        . (lambda ()
+                                        (projectile-mode 1)))))
 
 (use-package direnv)
 
-;; (use-package imenu-list)
+(use-package imenu-list
+  :disabled)
 
 (use-package org
   :straight (org :type built-in)
@@ -813,29 +859,38 @@
   :hook (org-mode . org-bullets-mode))
 
 (use-package org-ref
-  :config
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
-  (setq reftex-default-bibliography '("~/Documents/bibliography/references.bib")))
+  :custom
+  (org-ref-completion-library 'org-ref-ivy-cite)
+  (reftex-default-bibliography '("~/Documents/bibliography/references.bib")))
 
 (use-package org-mind-map
   :after (org-ox)
+  :custom
+  (org-mind-map-engine "dot")
   :config
-  (require 'org-ox)
-  (setq org-mind-map-engine "dot"))
+  (require 'org-ox))
 
 (use-package iedit)
 
 (use-package parinfer-rust-mode
-  :hook (clojure-mode . parinfer-rust-mode)
-  :hook (hy-mode . parinfer-rust-mode)
-  :hook (emacs-lisp-mode . parinfer-rust-mode)
-  :hook (common-lisp-mode . parinfer-rust-mode)
-  :hook (scheme-mode . parinfer-rust-mode)
-  :hook (lisp-mode . parinfer-rust-mode)
-  :hook (racket-mode . parinfer-rust-mode)
-  :init
-  (setq parinfer-rust-auto-download t
-        parinfer-rust-troublesome-modes nil))
+  :hook ((clojure-mode . parinfer-rust-mode)
+         (hy-mode . parinfer-rust-mode)
+         (emacs-lisp-mode . parinfer-rust-mode)
+         (common-lisp-mode . parinfer-rust-mode)
+         (scheme-mode . parinfer-rust-mode)
+         (lisp-mode . parinfer-rust-mode)
+         (racket-mode . parinfer-rust-mode))
+  :custom
+  (parinfer-rust-auto-download t)
+  (parinfer-rust-troublesome-modes nil))
+
+;; TODO: check that out
+(use-package lispy
+  :disabled
+  :hook (parinfer-rust-mode . lispy-mode))
+(use-package evil-lispy
+  :disabled
+  :hook (lispy-mode . evil-lispy-mode))
 
 (use-package smart-tabs-mode
   :hook (c-mode-common . (lambda ()
@@ -843,33 +898,36 @@
   :config
   (smart-tabs-insinuate 'c 'c++))
 
+;; TODO: check use-package-chords
 (use-package key-chord
   :config
   ;; TODO: That should be moved somewhere I think
   (key-chord-mode t)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state))
 
-(setq dired-listing-switches "-alhg"
-      dired-auto-revert-buffer t  ; don't prompt to revert; just do it
-      dired-dwim-target t  ; suggest a target for moving/copying intelligently
-      dired-hide-details-hide-symlink-targets nil
-      ;; Always copy/delete recursively
-      dired-recursive-copies 'always
-      dired-recursive-deletes 'top)
-
-(add-hook 'dired-mode-hook 'auto-revert-mode)
+(use-package dired
+  :straight nil
+  :hook (dired-mode . auto-revert-mode)
+  :custom
+  (dired-listing-switches "-alhg")
+  (dired-auto-revert-buffer t "don't prompt to revert; just do it")
+  (dired-dwim-target t "suggest a target for moving/copying intelligently")
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-recursive-copies 'always "always copy/delete recursively")
+  (dired-recursive-deletes 'top))
 
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 
-(defun arjaz/dired-subtree-toggle ()
-  "Toggle subtree and update all-the-icons."
-  (interactive)
-  (dired-subtree-toggle)
-  (when all-the-icons-dired-mode
-    (revert-buffer)))
 
 (use-package dired-hacks
+  :init
+  (defun arjaz/dired-subtree-toggle ()
+    "Toggle subtree and update all-the-icons."
+    (interactive)
+    (dired-subtree-toggle)
+    (when all-the-icons-dired-mode
+      (revert-buffer)))
   :bind ((:map dired-mode-map
                ("C-c C-d" . dired-create-directory)
                ("C-c C-f" . dired-create-empty-file)
@@ -885,8 +943,8 @@
 
 (use-package terminal-here
   :bind ("M-RET" . terminal-here-launch)
-  :config
-  (setq terminal-here-terminal-command '("alacritty" "--")))
+  :custom
+  (terminal-here-terminal-command '("alacritty" "--")))
 
 (use-package yasnippet
   :config
@@ -902,24 +960,25 @@
 
 (use-package company
   :hook (prog-mode . company-mode)
-  :config
-  (company-tng-configure-default)
-  (setq company-idle-delay 0
-        company-show-numbers t
-        company-eclim-auto-save nil
-        company-dabbrev-downcase nil
-        company-minimum-prefix-length 1
-        company-selection-wrap-around t
-        company-tooltip-limit 14
-        company-tooltip-align-annotations t
-        company-global-modes '(not erc-mode message-mode help-mode gud-mode)
-        company-require-match 'never
-        ;; Buffer-local backends will be computed when loading a major mode, so
-        ;; only specify a global default here.
-        company-backends '(company-capf)
+  :custom
+  (company-idle-delay 0)
+  (company-show-numbers t)
+  (company-eclim-auto-save nil)
+  (company-dabbrev-downcase nil)
+  (company-minimum-prefix-length 1)
+  (company-selection-wrap-around t)
+  (company-tooltip-limit 14)
+  (company-tooltip-align-annotations t)
+  (company-global-modes '(not erc-mode message-mode help-mode gud-mode))
+  (company-require-match 'never)
+  ;; Buffer-local backends will be computed when loading a major mode, so
+  ;; only specify a global default here.
+  (company-backends '(company-capf))
 
-        company-auto-complete nil
-        company-auto-complete-chars nil))
+  (company-auto-complete nil)
+  (company-auto-complete-chars nil)
+  :config
+  (company-tng-configure-default))
 
 (use-package yasnippet-snippets
   :after company)
@@ -933,12 +992,14 @@
   :config
   (company-flx-mode t))
 
-;; (use-package company-tabnine
-;;   :after (company)
-;;   :config
-;;   (add-to-list 'company-backends 'company-tabnine))
+(use-package company-tabnine
+  :disabled
+  :after (company)
+  :config
+  (add-to-list 'company-backends 'company-tabnine))
 
-;; (use-package realgud)
+(use-package realgud
+  :disabled)
 
 (use-package dumb-jump
   :config
@@ -947,53 +1008,55 @@
 
 (use-package zoom
   :after (dired-sidebar)
+  :custom
+  (zoom-size '(0.66 . 0.66))
+  (dired-sidebar-toggle-hidden-commands nil)
   :config
   (zoom-mode t)
-  (setq zoom-size '(0.66 . 0.66)
-        dired-sidebar-toggle-hidden-commands nil)
-
   (defun undo-local-track-mouse (&optional ignored)
     (kill-local-variable 'track-mouse))
-
   (advice-add 'zoom--get-frame-snapshot :before 'undo-local-track-mouse)
   (advice-add 'zoom--handler :before 'undo-local-track-mouse))
 
 (use-package flycheck
+  :custom
+  (flycheck-indication-mode 'right-fringe)
   :config
   (global-flycheck-mode t)
-  (setq flycheck-indication-mode 'right-fringe)
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [16 48 112 240 112 48 16] nil nil 'center)
   :bind ("C-c C-e" . flycheck-next-error))
 
 (use-package flycheck-pos-tip
+  :custom
+  (flycheck-pos-tip-timeout 0)
   :config
-  (setq flycheck-pos-tip-timeout 0)
   (flycheck-pos-tip-mode t))
 
 (use-package lsp-mode
+  :custom
+  (lsp-semantic-highlighting t)
+  (lsp-enable-symbol-highlighting t)
+  (lsp-lens-enable t)
+  (lsp-prefer-capf t)
+  (lsp-completion-provider :capf)
+  (lsp-idle-delay 0.750)
+  (read-process-output-max (* 1024 1024))
   :config
   (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t)))
   (lsp-register-client
    (make-lsp-client :new-connection (lsp-tramp-connection "pyls")
                     :major-modes '(python-mode)
                     :remote? t
-                    :server-id 'pyls-remote))
-  (setq lsp-semantic-highlighting t
-        lsp-enable-symbol-highlighting t
-        lsp-lens-enable t
-        lsp-prefer-capf t
-        lsp-completion-provider :capf
-        lsp-idle-delay 0.750
-        read-process-output-max (* 1024 1024)))
+                    :server-id 'pyls-remote)))
 
 (use-package lsp-ivy)
 
 (use-package lsp-ui
-  :config
-  (setq lsp-ui-doc-enable t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover t))
+  :custom
+  (lsp-ui-doc-enable t)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-hover t))
 
 (use-package dap-mode)
 
@@ -1004,13 +1067,13 @@
                             (set-fill-column 100)))
 
 (use-package haskell-mode
-  :hook (haskell-mode . haskell-indentation-mode)
-  :hook (haskell-mode . interactive-haskell-mode)
+  :hook ((haskell-mode . haskell-indentation-mode)
+         (haskell-mode . interactive-haskell-mode))
   :bind (:map haskell-mode-map
               ("C-c c" . haskell-compile)
               ("C-c C-p" . haskell-check))
-  :config
-  (setq haskell-compile-cabal-build-command "stack build"))
+  :custom
+  (haskell-compile-cabal-build-command "stack build"))
 
 (use-package shakespeare-mode)
 
@@ -1019,8 +1082,8 @@
 
 (use-package lsp-haskell
   :after lsp-mode
-  :config
-  (setq lsp-haskell-formatting-provider "ormolu")) ;; REVIEW: does it work?
+  :custom
+  (lsp-haskell-formatting-provider "ormolu")) ;; REVIEW: does it work?
 
 (use-package idris-mode)
 
@@ -1036,13 +1099,13 @@
 
 (use-package py-isort
   :hook (before-save . py-isort-before-save)
-  :config
-  (setq py-isort-options '("-l=79" "-m=3" "--tc")))
+  :custom
+  (py-isort-options '("-l=79" "-m=3" "--tc")))
 
 (use-package python-black
   :hook (python-mode . python-black-on-save-mode)
-  :config
-  (setq python-black-extra-args '("-l 79")))
+  :custom
+  (python-black-extra-args '("-l 79")))
 
 (use-package pytest
   :bind (:map python-mode-map
@@ -1078,16 +1141,28 @@
 (use-package purescript-mode)
 
 (use-package hy-mode
-  :config
-  (setq hy-jedhy--enable? t
-        hy-shell--interpreter-args
-        '("--repl-output-fn" "hy.contrib.pprint.pprint")))
+  :custom
+  (hy-jedhy--enable? t)
+  (hy-shell--interpreter-args '("--repl-output-fn" "hy.contrib.pprint.pprint")))
 
 (use-package clojure-mode)
 
+(use-package clj-refactor
+  :init
+  (defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1)
+    (cljr-add-keybindings-with-prefix "C-c m")
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+  :hook (clojure-mode . my-clojure-mode-hook))
+
 (use-package clojure-mode-extra-font-locking)
 
-(use-package cider)
+(use-package flycheck-clojure)
+
+(use-package cider
+  :bind (:map cider-repl-mode-map
+              ("C-l" . cider-repl-clear-buffer)))
 
 (use-package cider-eval-sexp-fu)
 
@@ -1103,8 +1178,8 @@
   :bind (:map rust-mode-map
               ("C-c C-p" . rust-run-clippy)
               ("C-c C-c" . rust-run))
-  :config
-  (setq rust-format-on-save t))
+  :custom
+  (rust-format-on-save t))
 
 (use-package racket-mode
   :bind (:map racket-mode-map
@@ -1133,13 +1208,9 @@
 (use-package dockerfile-mode)
 
 (use-package emmet-mode
-  :hook (mhtml-mode . emmet-mode)
-  :hook (html-mode . emmet-mode)
-  :hook (jinja2-mode . emmet-mode))
-
-;; Zathura for pdf
-(setq TeX-view-program-list '(("zathura" "zathura --page=%(outpage) %o")))
-(setq TeX-view-program-selection '((output-pdf "Zathura")))
+  :hook ((mhtml-mode . emmet-mode)
+         (html-mode . emmet-mode)
+         (jinja2-mode . emmet-mode)))
 
 (use-package pdf-tools
   :config
@@ -1148,16 +1219,19 @@
 (use-package tex-site
   :straight auctex
   :bind ("M-q" . align-current)
-  :hook (LaTeX-mode . LaTeX-math-mode)
-  :hook (LaTeX-mode . flyspell-mode)
-  :hook (LaTeX-mode . turn-on-reftex)
+  :hook ((LaTeX-mode . LaTeX-math-mode)
+         (LaTeX-mode . flyspell-mode)
+         (LaTeX-mode . turn-on-reftex))
+  :custom
+  (TeX-view-program-list '(("zathura" "zathura --page=%(outpage) %o")))
+  (TeX-view-program-selection '((output-pdf "Zathura")))
+  (TeX-PDF-mode t)
+  (TeX-auto-save t)
+  (TeX-parse-self t)
+  (reftex-plug-into-AUCTeX t)
   :config
   (add-hook 'TeX-after-compilation-finished-functions
-            'TeX-revert-document-buffer)
-  (setq TeX-PDF-mode t
-        TeX-auto-save t
-        TeX-parse-self t
-        reftex-plug-into-AUCTeX t))
+            'TeX-revert-document-buffer))
 
 (use-package vimish-fold)
 
@@ -1166,11 +1240,12 @@
   (global-evil-vimish-fold-mode t))
 
 (use-package run-command
-  :config
+  :init
   (defun run-command-recipes-example ()
     '((:command-name "pytest"
        :command-line "pytest")))
-  (setq run-command-recipes '(run-command-recipes-example)))
+  :custom
+  (run-command-recipes '(run-command-recipes-example)))
 
 (use-package cd-compile)
 
@@ -1182,21 +1257,23 @@
   :config
   (which-key-mode t))
 
-;; (use-package eaf
-;;   :straight nil
-;;   :load-path "/usr/share/emacs/site-lisp/eaf"
-;;   :config
-;;   (require 'eaf-evil)
-;;   (eaf-setq eaf-browser-dark-mode "true")
-;;   (setq eaf-evil-leader-keymap spacemacs-cmds)
-;;   (setq eaf-browser-continue-where-left-off t)
-;;   (eaf-setq eaf-browser-enable-adblocker "true")
-;;   (setq eaf-browser-default-search-engine "duckduckgo")
-;;   (setq eaf-evil-leader-key "SPC")
-;;   (setq eaf-find-alternate-file-in-dired t))
-;;   ;; (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-;;   ;; (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-;;   ;; (eaf-bind-key take_photo "p" eaf-camera-keybinding))
+(use-package eaf
+  :disabled
+  :straight nil
+  :load-path "/usr/share/emacs/site-lisp/eaf"
+  :custom
+  (eaf-evil-leader-keymap spacemacs-cmds)
+  (eaf-browser-continue-where-left-off t)
+  (eaf-browser-default-search-engine "duckduckgo")
+  (eaf-evil-leader-key "SPC")
+  (eaf-find-alternate-file-in-dired t)
+  :config
+  (require 'eaf-evil)
+  (eaf-setq eaf-browser-dark-mode "true")
+  (eaf-setq eaf-browser-enable-adblocker "true"))
+  ;; (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  ;; (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  ;; (eaf-bind-key take_photo "p" eaf-camera-keybinding))
 
 (use-package screenshot
   :bind (:map evil-normal-state-map
