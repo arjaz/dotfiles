@@ -48,11 +48,6 @@
   (auto-save-interval 200 "number of keystrokes between auto-saves")
   (vc-make-backup-files t "make backups for version-controlled files as well")
   (create-lockfiles nil)
-  ;; Move flymake garbage
-  (flymake-run-in-place nil)
-  (c-default-style "k&r")
-  (c-basic-offset 4)
-  (js-indent-level 2)
   ;; Clean buffers
   (clean-buffer-list-delay-general 1)
   ;; Smooth scrolling
@@ -68,13 +63,13 @@
                            (setq gc-cons-threshold 536870912 ; 512mb
                                  gc-cons-percentage 0.1)))
   :config
+  (unless (file-exists-p (concat user-emacs-directory "tmp"))
+    (make-directory (concat user-emacs-directory "tmp") t))
   ;; Disable visual clutter
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (tooltip-mode -1)
   (scroll-bar-mode -1)
-  ;; Automaticaly revert changes
-  (global-auto-revert-mode t)
   ;; We don't want to type yes and no all the time so, do y and n
   (fset 'yes-or-no-p 'y-or-n-p)
   ;; Fonts
@@ -90,6 +85,18 @@
   ;; Non-blinking cursor
   (blink-cursor-mode 0))
 
+(use-package autorevert
+  :straight nil
+  :config
+  ;; Automaticaly revert changes
+  (global-auto-revert-mode t))
+
+(use-package cc-vars
+  :straight nil
+  :custom
+  (c-default-style "k&r")
+  (c-basic-offset 4))
+
 (use-package display-line-numbers
   :straight nil
   :custom
@@ -98,25 +105,26 @@
 
 (use-package paren
   :straight nil
-  :config
+  :config)
   ;; Highlight matching brace
-  (show-paren-mode t))
+  ;; (show-paren-mode t))
 
-(use-package elec-pair
-  :straight nil
-  :hook
-  ;; Don't bother to close the parens
-  (prog-mode . electric-pair-local-mode))
+;; (use-package elec-pair
+;;   :straight nil
+;;   :hook
+;;   ;; Don't bother to close the parens
+;;   (prog-mode . electric-pair-local-mode))
 
 (use-package hl-line
   :straight nil
-   :config
+  :config
   ;; Highlight current line
   (global-hl-line-mode t))
 
 (use-package files
   :straight nil
   :custom
+  (confirm-kill-processes nil)
   (find-file-visit-truename t)
   (make-backup-files t "backup of a file the first time it is saved")
   (backup-by-copying t "don't clobber symlinks")
@@ -125,14 +133,21 @@
   (kept-new-versions 6 "oldest versions to keep when a new numbered backup is made")
   (kept-old-versions 2 "newest versions to keep when a new numbered backup is made")
   (backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
-  (auto-save-default t "auto-save every buffer that visits a file"))
-
+  (auto-save-default t "auto-save every buffer that visits a file")
+  :config
+  (unless (file-exists-p (concat user-emacs-directory "backups"))
+    (make-directory (concat user-emacs-directory "backups") t)))
 
 (use-package gcmh
+  :demand
   :custom
   (gcmh-high-cons-threshold (/ 1073741824 2))
   :config
   (gcmh-mode 1))
+
+(use-package so-long
+  :config
+  (global-so-long-mode))
 
 (use-package ibuffer
   :straight nil
@@ -142,6 +157,11 @@
 
 (use-package ibuf-ext
   :straight nil)
+
+(use-package helpful
+  :bind (("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)))
 
 (use-package solaire-mode
   :hook (after-init . solaire-global-mode))
@@ -194,13 +214,16 @@
   ;; And that's used without a daemon
   ;; (doom-modeline-mode 1))
 
-;; TODO: check out moodline
 (use-package feebleline
   :config
   (feebleline-mode))
 
+(use-package mood-line
+  :disabled
+  :config
+  (mood-line-mode))
+
 (use-package rainbow-delimiters
-  :init
   :hook ((prog-mode       . rainbow-delimiters-mode)
          (emacs-lisp-mode . (lambda () (rainbow-delimiters-mode -1)))
          (clojure-mode    . (lambda () (rainbow-delimiters-mode -1)))
@@ -210,11 +233,30 @@
          (scheme-mode     . (lambda () (rainbow-delimiters-mode -1)))
          (racket-mode     . (lambda () (rainbow-delimiters-mode -1)))))
 
+(use-package rainbow-identifiers
+  :disabled
+  :hook ((emacs-lisp-mode hy-mode clojure-mode) . rainbow-identifiers-mode))
+
+(use-package highlight-parentheses
+  :custom
+  ;; TODO: is there a way to query current theme colors?
+  (highlight-parentheses-colors '("#BF616A" "#D08770" "#EBCB8B" "#B48EAD"))
+  :hook ((emacs-lisp-mode hy-mode clojure-mode sly-mode lisp-mode scheme-mode racket-mode)
+         . highlight-parentheses-mode))
+
+(use-package prism
+  :disabled)
+
+(use-package rainbow-blocks
+  :disabled
+  :hook ((emacs-lisp-mode hy-mode clojure-mode) . rainbow-blocks-mode))
+
 (use-package highlight-indent-guides
   :hook (prog-mode . highlight-indent-guides-mode)
   :custom
   (highlight-indent-guides-method 'bitmap)
-  (highlight-indent-guides-responsive 'top))
+  (highlight-indent-guides-responsive 'top)
+  (highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line))
 
 (use-package highlight-numbers
   :hook (prog-mode . highlight-numbers-mode))
@@ -376,11 +418,8 @@
     "a" 'counsel-projectile-rg
 
     ;; Projectile
-    "p p" 'counsel-projectile-switch-project
-    "p c" 'projectile-compile-project
-    "p d" 'projectile-dired
     "j" 'projectile-find-file-other-window
-    "<SPC>" 'counsel-projectile-find-file
+    "<SPC>" 'counsel-projectile
 
     ;; Moving
     "r" 'counsel-buffer-or-recentf
@@ -504,10 +543,40 @@
   (olivetti-body-width 95))
 
 (use-package smartparens
-  :disabled
-  :hook (prog-mode . smartparens-mode)
+  :hook ((prog-mode . smartparens-mode)
+         (show-smartparens-mode . (lambda ()
+                                    (interactive)
+                                    (set-face-attribute
+                                      'sp-show-pair-match-content-face
+                                      nil
+                                      :background
+                                      (face-attribute 'sp-show-pair-match-face :background)))))
   :config
-  (require 'smartparens-config))
+  (require 'smartparens-config)
+  (show-smartparens-global-mode))
+
+;; TODO: scoped highlight
+;; https://github.com/Fuco1/smartparens/wiki/Show-smartparens-mode#customizing-the-looks
+;; https://www.reddit.com/r/emacs/comments/mpb830/scoped_indentation_highlighting/
+;; See show-paren-mode. You'll have to set show-paren-style to expression. Then
+;; M-x customize-face show-paren-match-expression to choose the underline as
+;; your face.
+;;
+;; Instead of underline, you might like some changed background colour, or a box
+;; around the area, or any other option Emacs face customisation enables.
+
+(use-package evil-cleverparens
+  :hook ((clojure-mode . evil-cleverparens-mode)
+         (hy-mode . evil-cleverparens-mode)
+         (emacs-lisp-mode . evil-cleverparens-mode)
+         (common-lisp-mode . evil-cleverparens-mode)
+         (scheme-mode . evil-cleverparens-mode)
+         (lisp-mode . evil-cleverparens-mode)
+         (racket-mode . evil-cleverparens-mode))
+  :custom
+  (evil-cleverparens-use-additional-bindings t)
+  :config
+  (require 'evil-cleverparens-text-objects))
 
 (use-package xterm-color)
 
@@ -556,6 +625,7 @@
 (use-package vterm)
 
 (use-package mu4e
+  :demand
   :init
   (defun mu4e-revert-main ()
     (interactive)
@@ -659,11 +729,14 @@
 (use-package format-all
   :disabled)
 
-;; FIXME: it creates some tmp buffers and I lose the current one
+;; FIXME: it creates some tmp buffers and I lose the current one for js
 (use-package apheleia
+  :hook (clojure-mode . apheleia-mode)
   :config
   (setf (alist-get 'black apheleia-formatters)
-        '("black" "-l 79")))
+        '("black" "-l 79"))
+  (add-to-list 'apheleia-formatters '(cljstyle . ("cljstyle" "pipe")))
+  (add-to-list 'apheleia-mode-alist '(clojure-mode . cljstyle)))
   ;; (apheleia-global-mode t))
 
 (use-package elfeed
@@ -694,12 +767,6 @@
   (erc-services-mode 1)
   (erc-update-modules))
 
-(use-package telega
-  :custom
-  (telega-use-images t)
-  :bind-keymap
-  ("C-c t" . telega-prefix-map))
-
 (use-package git-commit
   :custom
   (git-commit-fill-column 50)
@@ -708,17 +775,18 @@
 
 (use-package magit)
 
-(use-package magit-todos
-  :hook (prog-mode . magit-todos-mode))
+;; (use-package magit-todos
+;;   :hook (prog-mode . magit-todos-mode))
 
 (use-package magit-delta
   :hook (magit-mode . magit-delta-mode))
 
 (use-package projectile
+  :after (evil-leader)
   :custom
   (projectile-project-search-path '("~/Code/"))
   :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (evil-leader/set-key "p" projectile-command-map)
   (projectile-mode t))
 
 (use-package ivy
@@ -745,6 +813,14 @@
   ;; ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
   :config
   (ivy-mode))
+
+(use-package ivy-rich
+  :after (evil counsel swiper)
+  :custom
+  (ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-rich-mode)
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
 
 (use-package swiper
   :after evil
@@ -781,7 +857,7 @@
 (use-package counsel-projectile
   :after (counsel projectile)
   :custom
-  (counsel-projectile-preview-buffers t)
+  (counsel-projectile-preview-buffers nil)
   :config
   (counsel-projectile-mode t))
 
@@ -881,20 +957,12 @@
          (lisp-mode . parinfer-rust-mode)
          (racket-mode . parinfer-rust-mode))
   :custom
-  (parinfer-rust-auto-download t)
-  (parinfer-rust-troublesome-modes nil))
-
-;; TODO: check that out
-(use-package lispy
-  :disabled
-  :hook (parinfer-rust-mode . lispy-mode))
-(use-package evil-lispy
-  :disabled
-  :hook (lispy-mode . evil-lispy-mode))
+  (parinfer-rust-auto-download t))
+  ;; (parinfer-rust-troublesome-modes nil))
 
 (use-package smart-tabs-mode
   :hook (c-mode-common . (lambda ()
-                           (setq indent-tabs-mode t)))
+                           (setq-local indent-tabs-mode t)))
   :config
   (smart-tabs-insinuate 'c 'c++))
 
@@ -1008,13 +1076,20 @@
 
 (use-package zoom
   :after (dired-sidebar)
+  :init
+  (defun arjaz/zoom-default ()
+    (interactive)
+    (setq zoom-size '(0.66 . 0.66)))
+  (defun arjaz/zoom-term ()
+    (interactive)
+    (setq zoom-size '(0.66 . 0.8)))
+  (defun undo-local-track-mouse (&optional ignored)
+    (kill-local-variable 'track-mouse))
   :custom
-  (zoom-size '(0.66 . 0.66))
   (dired-sidebar-toggle-hidden-commands nil)
   :config
   (zoom-mode t)
-  (defun undo-local-track-mouse (&optional ignored)
-    (kill-local-variable 'track-mouse))
+  (arjaz/zoom-default)
   (advice-add 'zoom--get-frame-snapshot :before 'undo-local-track-mouse)
   (advice-add 'zoom--handler :before 'undo-local-track-mouse))
 
@@ -1092,6 +1167,8 @@
       python-shell-interpreter-args "-i --simple-prompt --pprint")
 
 (use-package python-x
+  :bind (:map inferior-python-mode-map
+              ("C-l" . comint-clear-buffer))
   :config
   (python-x-setup))
 
@@ -1108,10 +1185,17 @@
   (python-black-extra-args '("-l 79")))
 
 (use-package pytest
+  :disabled
   :bind (:map python-mode-map
               ("C-c C-a" . pytest-all)
               ("C-c r r" . pytest-run)
               ("C-c r a" . pytest-again)))
+
+(use-package python-pytest
+  :bind (:map python-mode-map
+         ("C-c C-a" . python-pytest)
+         :map hy-mode-map
+         ("C-c r" . python-pytest)))
 
 (use-package pyvenv)
 
@@ -1141,9 +1225,15 @@
 (use-package purescript-mode)
 
 (use-package hy-mode
+  :bind (:map inferior-hy-mode-map
+              ("C-l" . comint-clear-buffer))
   :custom
-  (hy-jedhy--enable? t)
-  (hy-shell--interpreter-args '("--repl-output-fn" "hy.contrib.pprint.pprint")))
+  (hy-jedhy--enable? nil)
+  (hy-shell--interpreter-args '("--repl-output-fn" "hy.contrib.hy-repr.hy-repr"))
+  :config
+  (add-to-list 'hy-indent--exactly "lfor")
+  (add-to-list 'hy-indent--exactly "sfor")
+  (add-to-list 'hy-indent--exactly "dfor"))
 
 (use-package clojure-mode)
 
@@ -1154,15 +1244,22 @@
     (yas-minor-mode 1)
     (cljr-add-keybindings-with-prefix "C-c m")
     (cljr-add-keybindings-with-prefix "C-c C-m"))
+  :custom
+  (cljr-warn-on-eval nil)
   :hook (clojure-mode . my-clojure-mode-hook))
 
 (use-package clojure-mode-extra-font-locking)
 
-(use-package flycheck-clojure)
+(use-package flycheck-clojure
+  :disabled)
+
+(use-package flycheck-clj-kondo)
 
 (use-package cider
   :bind (:map cider-repl-mode-map
-              ("C-l" . cider-repl-clear-buffer)))
+              ("C-l" . cider-repl-clear-buffer))
+  :config
+  (advice-add 'cider-find-var :before (lambda (&rest r) (evil-set-jump))))
 
 (use-package cider-eval-sexp-fu)
 
@@ -1256,6 +1353,10 @@
 (use-package which-key
   :config
   (which-key-mode t))
+
+(use-package restclient)
+
+(use-package company-restclient)
 
 (use-package eaf
   :disabled

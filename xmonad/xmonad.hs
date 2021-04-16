@@ -179,7 +179,3 @@ myStartupHook = do
   spawnOnce "picom --config ~/.picom.conf"
   spawnOnce "redshift -l 50.4461248:30.5214979"
   spawnOnce "emacs --daemon"
-  spawnOnce
-    "setxkbmap -option grp:alt_shift_toggle us,ru,ua -option compose:ralt"
-  spawnOnce
-    "setxkbmap -option 'ctrl:nocaps'"
