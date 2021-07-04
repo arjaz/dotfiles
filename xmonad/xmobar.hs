@@ -1,13 +1,20 @@
 Config
-  { font = "xft:Roboto Mono-12"
+  {
+    -- appearance
+    font = "xft:Iosevka-13"
   , borderColor = "#2e3440"
   , border = NoBorder
   , bgColor = "#2e3440"
   , fgColor = "#d8dee9"
+  , position = Top
+
+  --general behaviour
   , lowerOnStart = True
   , hideOnStart = False
   , allDesktops = True
+  , overrideRedirect = True
   , persistent = True
+
   , commands =
       [ Run Memory ["-t", "<available>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
@@ -17,6 +24,8 @@ Config
       , Run Kbd []
       , Run StdinReader
       ]
+
+  -- layout
   , sepChar = "%"
   , alignSep = "}{"
   , template =

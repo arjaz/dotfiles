@@ -1,3 +1,9 @@
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
+
 export ZSH=~/.oh-my-zsh
 
 export UPDATE_ZSH_DAYS=13
@@ -6,16 +12,10 @@ plugins=(
   git
   zsh-autosuggestions
   fast-syntax-highlighting
-  # zsh-vim-mode
+# zsh-vi-mode
 )
 
 source $ZSH/oh-my-zsh.sh
-
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
 
 # Aliases
 alias em='emacsclient --alternate-editor="" -c . &; disown; exit'
@@ -23,29 +23,42 @@ alias vim=nvim
 alias v=nvim
 alias view='nvim -R'
 
-alias p=python
-alias ip='ipython -i --pprint'
+alias dlmusic='youtube-dl -i --extract-audio --audio-format mp3 --audio-quality 0'
+
+alias py=python
+alias p='ipython -i --pprint'
 
 alias btw=neofetch
 alias :q=exit
 alias code='cd ~/Code/'
 
+alias i='cd'
+alias o='cd ..'
+alias a=exa
+alias aa='exa -lah'
+alias al='exa -lh'
 alias l='exa -lah'
 alias la='exa -lah'
 alias ll='exa -lh'
 alias ls=exa
+alias dvorak='setxkbmap -option grp:ctrl_alt_toggle dvorak,ru,ua -option compose:ralt'
+alias qwerty='setxkbmap -option grp:ctrl_alt_toggle us,ru,ua -option compose:ralt'
+alias nocaps='setxkbmap -option ctrl:nocaps'
 
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+export ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
 export PATH="$HOME/.dotfiles/scripts:$PATH"
 export PATH="$HOME/.cabal/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/share/racket/7.9/bin:$PATH"
 export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
 
 # Theme
-eval "$(starship init zsh)"
+[ $TERM != "dumb" ] && eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
