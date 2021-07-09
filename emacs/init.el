@@ -597,9 +597,7 @@
   (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
 
-(use-package aggressive-indent
-  :disabled
-  :hook (prog-mode-hook . aggressive-indent-mode))
+(use-package aggressive-indent)
 
 (use-package hungry-delete
   :disabled
@@ -944,6 +942,9 @@
   (selectrum-mode t))
 
 (use-package ctrlf
+  :custom
+  (ctrlf-default-search-style 'fuzzy)
+  (ctrlf-alternate-search-style 'regexp)
   :config
   (ctrlf-mode t)
   (push '("C-j" . ctrlf-next-match) ctrlf-minibuffer-bindings)
@@ -1260,6 +1261,8 @@
   (sly-complete-symbol-fuction 'sly-simple-completions)
   (inferior-lisp-program "sbcl"))
 
+(use-package sly-quicklisp)
+
 (use-package geiser)
 
 (use-package geiser-guile)
@@ -1312,6 +1315,8 @@
 (use-package cider-eval-sexp-fu)
 
 (use-package clj-refactor
+  :custom
+  (clj-warn-on-eval nil)
   :hook (clojure-mode-hook . (lambda ()
                                (interactive)
                                (clj-refactor-mode t)
@@ -1409,10 +1414,20 @@
                           :repo "ag91/code-compass"))
 
 (use-package telega
-  :disabled
-  :bind-keymap ("C-c t" . telega-prefix-map)
-  :bind (:map telega-msg-button-map
-              ("k" . evil-previous-line)))
+  :straight (telega :branch "master")
+  :custom
+  (telega-completing-read-function 'completing-read)
+  (telega-use-images t)
+  (telega-use-docker t)
+  (telega-root-default-view-function 'telega-view-compact)
+  (telega-chat-input-markups '("markdown1" nil "markdown2"))
+  :bind-keymap
+  ("C-c t" . telega-prefix-map)
+  :bind
+  (:map telega-msg-button-map
+        ("q" . kill-current-buffer)
+        ("k" . evil-previous-line)
+        ("l" . evil-forward-char)))
          ;; :map telega-chat-mode-map
          ;;      ("<evil-normal-state-map> q" . telega)))
 
@@ -1438,6 +1453,10 @@
                     :host github
                     :type git
                     :files ("*.el")))
+
+(use-package cyrillic-dvorak-im
+  :straight (cyrillic-dvorak-im :repo "xFA25E/cyrillic-dvorak-im"
+                                :host github))
 
 (use-package apply-to-region
   :straight (apply-to-region :repo "arjaz/apply-to-region.el"

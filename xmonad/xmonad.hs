@@ -95,7 +95,7 @@ dmenu_options =
     ++ bg0
     ++ "\""
 
-browser = "nyxt"
+browser = "brave"
 
 fileBrowser = "thunar"
 
@@ -118,6 +118,7 @@ myAdditionalKeysP =
   , ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'")
   , ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'")
   , ("M-o g", spawn "emacsclient -c -a='' --eval '(elpher)'")
+  , ("M-o t", spawn "emacsclient -c -a='' --eval '(telega)'")
   , ("M-o m", spawn "emacsclient -c -a='' --eval '(mu4e)'")
   , ( "M-o i"
     , spawn
