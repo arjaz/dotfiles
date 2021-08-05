@@ -102,7 +102,7 @@
   ;; Fonts
   (defvar arjaz/font "Iosevka")
   (add-to-list 'default-frame-alist `(font . ,arjaz/font))
-  (set-face-attribute 'default nil :height 150)
+  (set-face-attribute 'default nil :height 140)
   (set-frame-font arjaz/font))
 
 (use-package cus-edit
@@ -122,6 +122,15 @@
   :straight nil
   :custom
   (bookmark-fontify nil))
+
+(use-package sql
+  :demand
+  :bind
+  ("C-l" . comint-clear-buffer)
+  :config
+  ;; ugly
+  (setq sql-postgres-login-params
+        (append sql-postgres-login-params '(port))))
 
 (use-package cc-vars
   :straight nil
@@ -325,6 +334,7 @@
   (mood-line-mode t))
 
 (use-package rainbow-delimiters
+  :disabled
   :hook ((prog-mode-hook       . rainbow-delimiters-mode)
          (emacs-lisp-mode-hook . (lambda () (rainbow-delimiters-mode -1)))
          (clojure-mode-hook    . (lambda () (rainbow-delimiters-mode -1)))
@@ -358,7 +368,7 @@
                   '(yellow blue magenta green cyan))))
 
 (use-package highlight-indent-guides
-  :hook (prog-mode-hook . highlight-indent-guides-mode)
+  ;; :hook (prog-mode-hook . highlight-indent-guides-mode)
   :custom
   (highlight-indent-guides-method 'bitmap)
   (highlight-indent-guides-responsive 'top)
@@ -474,13 +484,13 @@
     "q" 'evil-quit
 
     ;; Spawning stuff
-    "n t" 'terminal-here-launch
     "n m" 'mu4e
     "n v" 'vterm
     "n e" 'eshell-new
     "n f" 'elfeed
     "n g" 'elpher
     "n o" 'olivetti-mode
+    "n a" 'app-launcher-run-app
 
     ;; Lsp
     "l l" 'lsp
@@ -525,6 +535,10 @@
     "d" 'treemacs))
 
 (use-package evil-indent-plus)
+
+(use-package evil-lion
+  :config
+  (evil-lion-mode t))
 
 (use-package evil-surround
   :config
@@ -585,6 +599,7 @@
               ("C-j" . avy-goto-word-1)
               ("C-k" . avy-goto-char-timer))
   :custom
+  (avy-background t)
   (avy-keys (list ?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)))
 
 (use-package evil-easymotion
@@ -634,18 +649,13 @@
 
 (use-package smartparens
   :hook ((prog-mode-hook . smartparens-mode)
-         (show-smartparens-mode-hook
-          .
-          (lambda ()
-            (interactive)
-            (set-face-attribute
-              'sp-show-pair-match-content-face
-              nil
-              :background
-              (face-attribute 'sp-show-pair-match-face :background)))))
+         (prog-mode-hook . show-smartparens-mode))
   :config
-  (require 'smartparens-config)
-  (show-smartparens-global-mode))
+  (require 'smartparens-config))
+
+(use-package dumbparens
+  :disabled ; TODO: check this out instead of cleverparens some day
+  :hook (prog-mode-hook . dumbparens-mode))
 
 (use-package highlight-sexp
   :disabled
@@ -874,7 +884,9 @@
 
 (use-package elfeed
   :config
-  (load "~/.dotfiles/emacs/elfeed-local-feed.el"))
+  (let ((path "~/.dotfiles/emacs/elfeed-local-feed.el"))
+    (when (file-exists-p path)
+      (load path))))
 
 (use-package elfeed-goodies
   :disabled
@@ -950,6 +962,7 @@
   (push '("C-j" . ctrlf-next-match) ctrlf-minibuffer-bindings)
   (push '("C-k" . ctrlf-previous-match) ctrlf-minibuffer-bindings)
   (push '("<escape>" . ctrlf-cancel) ctrlf-minibuffer-bindings)
+  (push '("C-e" . ctrlf-occur) ctrlf-minibuffer-bindings)
   (define-key evil-normal-state-map (kbd "/") #'ctrlf-forward-default)
   (define-key evil-normal-state-map (kbd "?") #'ctrlf-backward-default))
 
@@ -967,6 +980,9 @@
   :bind (("C-:" . embark-dwim)
          ("C-;" . embark-act)
          :map selectrum-minibuffer-map
+         ("C-e" . embark-export)
+         ("C-s" . embark-collect-snapshot)
+         ("C-l" . embark-collect-live)
          ("C-:" . embark-dwim)
          ("C-;" . embark-act)
          ("C-o" . embark-act)
@@ -1047,19 +1063,14 @@
     (dired-subtree-toggle)
     (when all-the-icons-dired-mode
       (revert-buffer)))
-  :bind ((:map dired-mode-map
-               ("C-c C-d" . dired-create-directory)
-               ("C-c C-f" . dired-create-empty-file)
-               ("C-c C-/" . dired-narrow-fuzzy)
-               ("C-c /" . dired-narrow-fuzzy)
-               ("<tab>" . arjaz/dired-subtree-toggle)))
+  :bind (:map dired-mode-map
+              ("C-c C-d" . dired-create-directory)
+              ("C-c C-f" . dired-create-empty-file)
+              ("C-c C-/" . dired-narrow-fuzzy)
+              ("C-c /" . dired-narrow-fuzzy)
+              ("<tab>" . arjaz/dired-subtree-toggle))
   :config
   (dired-async-mode t))
-
-(use-package terminal-here
-  :bind ("M-RET" . terminal-here-launch)
-  :custom
-  (terminal-here-terminal-command '("alacritty" "--")))
 
 (use-package yasnippet
   :config
@@ -1104,9 +1115,16 @@
 
 (use-package company-tabnine
   :after (company)
-  :disabled
-  :config
-  (add-to-list 'company-backends 'company-tabnine))
+  :init
+  (defun tabnine-off ()
+    "Turn off TabNine"
+    (interactive)
+    (setq company-backends (delete 'company-tabnine company-backends)))
+  (defun tabnine-on ()
+    "Turn on TabNine"
+    (interactive)
+    (tabnine-off)
+    (setq company-backends (add-to-list 'company-backends 'company-tabnine))))
 
 (use-package realgud
   :disabled)
@@ -1308,9 +1326,16 @@
 
 (use-package cider
   :bind (:map cider-repl-mode-map
-              ("C-l" . cider-repl-clear-buffer))
+              ("C-l" . cider-repl-clear-buffer)
+         :map cider-mode-map
+              ("C-c M-c" . cider-debug-defun-at-point))
+  :custom
+  (cider-repl-display-help-banner nil)
   :config
   (advice-add 'cider-find-var :before (lambda (&rest r) (evil-set-jump))))
+
+(use-package sayid
+  :hook (clojure-mode-hook . sayid-setup-package))
 
 (use-package cider-eval-sexp-fu)
 
@@ -1425,7 +1450,8 @@
   ("C-c t" . telega-prefix-map)
   :bind
   (:map telega-msg-button-map
-        ("q" . kill-current-buffer)
+        ("q" . telega)
+        ("S-d" . telega-msg-delete-marked-or-at-point)
         ("k" . evil-previous-line)
         ("l" . evil-forward-char)))
          ;; :map telega-chat-mode-map
@@ -1453,6 +1479,9 @@
                     :host github
                     :type git
                     :files ("*.el")))
+
+(use-package app-launcher
+  :straight (app-launcher :host github :repo "SebastienWae/app-launcher"))
 
 (use-package cyrillic-dvorak-im
   :straight (cyrillic-dvorak-im :repo "xFA25E/cyrillic-dvorak-im"

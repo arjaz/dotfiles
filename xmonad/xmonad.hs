@@ -194,7 +194,7 @@ myLayoutHook = tiled ||| big ||| circled
   ratio   = 1 / 2
 
 myStartupHook = do
-  spawnOnce "~/.fehbg --restore"
-  spawnOnce "picom --config ~/.picom.conf"
-  spawnOnce "redshift -l 50.4461248:30.5214979"
-  spawnOnce "emacs --daemon"
+  spawnOnce "~/.fehbg --restore &"
+  spawnOnce "picom --config ~/.picom.conf &"
+  spawnOnce "redshift -l 50.4461248:30.5214979 &"
+  spawnOnce "emacs --daemon &"
