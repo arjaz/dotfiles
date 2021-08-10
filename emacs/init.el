@@ -38,6 +38,7 @@
 (use-package emacs
   :straight nil
   :custom
+  (tab-always-indent 'complete)
   (inhibit-compacting-font-caches t)
   ;; I think it's managed by GHCM now
   (gc-cons-threshold most-positive-fixnum "2^61 bytes")
@@ -182,9 +183,6 @@
   :config
   (gcmh-mode 1))
 
-;; TODO: check this out
-(use-package system-packages)
-
 (use-package so-long
   :config
   (global-so-long-mode))
@@ -204,9 +202,6 @@
   :bind (("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)
          ("C-h k" . helpful-key)))
-
-;; TODO: move that back to hy-mode, load org config properly
-(use-package ob-hy)
 
 (use-package org
   :hook (org-babel-after-execute-hook . org-redisplay-inline-images)
@@ -246,8 +241,7 @@
    'org-babel-load-languages
    '((emacs-lisp . t)
      (shell . t)
-     (python . t)
-     (hy . t))))
+     (python . t))))
 
 (use-package solaire-mode
   :hook (after-init-hook . solaire-global-mode))
@@ -462,7 +456,9 @@
   (evil-want-C-d-scroll t)
   (evil-want-C-u-scroll t)
   :config
-  (evil-mode t))
+  (evil-mode t)
+  ;; No
+  (define-key evil-insert-state-map (kbd "C-k") nil))
 
 (use-package evil-leader
   :custom
@@ -565,6 +561,9 @@
 
   ;; bind evil-jump-out-args
   (define-key evil-normal-state-map "K" 'evil-jump-out-args))
+
+(use-package smart-comment
+  :bind ("M-;" . smart-comment))
 
 (use-package evil-commentary
   :config
@@ -735,11 +734,12 @@
 (use-package eshell-up)
 
 (use-package esh-autosuggest
-  ;; FIXME: there's a conflict with company-tng and evil-integration
-  ;; :disabled
+  :disabled
   :demand
+  ;; FIXME: there's a conflict with company-tng and evil-integration
+  ;; TODO: will that work with corfu?
   :bind (:map esh-autosuggest-active-map
-              ("C-e" . company-complete-selection))
+              ("C-e" . corfu-complete))
   :hook (eshell-mode-hook . esh-autosuggest-mode))
 
 (use-package bash-completion)
@@ -953,20 +953,10 @@
   (selectrum-prescient-mode t)
   (selectrum-mode t))
 
-(use-package ctrlf
-  :custom
-  (ctrlf-default-search-style 'fuzzy)
-  (ctrlf-alternate-search-style 'regexp)
+(use-package consult
   :config
-  (ctrlf-mode t)
-  (push '("C-j" . ctrlf-next-match) ctrlf-minibuffer-bindings)
-  (push '("C-k" . ctrlf-previous-match) ctrlf-minibuffer-bindings)
-  (push '("<escape>" . ctrlf-cancel) ctrlf-minibuffer-bindings)
-  (push '("C-e" . ctrlf-occur) ctrlf-minibuffer-bindings)
-  (define-key evil-normal-state-map (kbd "/") #'ctrlf-forward-default)
-  (define-key evil-normal-state-map (kbd "?") #'ctrlf-backward-default))
-
-(use-package consult)
+  (define-key evil-normal-state-map (kbd "/") #'consult-line)
+  (define-key evil-normal-state-map (kbd "?") #'consult-line))
 
 (use-package consult-projectile
   :after (consult projectile)
@@ -1075,16 +1065,38 @@
 (use-package yasnippet
   :config
   (yas-reload-all)
-  (yas-global-mode t)
-  (defvar my/company-point nil)
-  (advice-add 'company-complete-common :before
-              (lambda () (setq my/company-point (point))))
-  (advice-add 'company-complete-common :after
-              (lambda ()
-                (when (equal my/company-point (point))
-                  (yas-expand)))))
+  (yas-global-mode t))
+  ;; (defvar my/company-point nil)
+  ;; (advice-add 'company-complete-common :before
+  ;;             (lambda () (setq my/company-point (point))))
+  ;; (advice-add 'company-complete-common :after
+  ;;             (lambda ()
+  ;;               (when (equal my/company-point (point))
+  ;;                 (yas-expand)))))
+
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)              ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)               ;; Enable auto completion
+  (corfu-commit-predicate t)   ;; Do not commit selected candidates on next input
+  (corfu-quit-at-boundary nil) ;; Automatically quit at word boundary
+  (corfu-quit-no-match t)      ;; Automatically quit if there is no match
+  ;; (corfu-echo-documentation nil)) ;; Do not show documentation in the echo area
+  ;; Optionally use TAB for cycling, default is `corfu-complete'.
+  :bind (:map corfu-map
+         ("C-j" . corfu-next)
+         ("C-k" . corfu-previous))
+         ;; ("TAB" . corfu-next)
+         ;; ([tab] . corfu-next)
+         ;; ("S-TAB" . corfu-previous)
+         ;; ([backtab] . corfu-previous))
+  :demand
+  :config
+  (corfu-global-mode t))
 
 (use-package company
+  :disabled
   :hook (prog-mode-hook . company-mode)
   :custom
   (company-idle-delay 0)
@@ -1104,16 +1116,18 @@
   (company-auto-commit nil)
   (company-auto-commit-chars nil))
 
-(use-package yasnippet-snippets
-  :after company)
+(use-package yasnippet-snippets)
+  ;; :after company)
   ;; :config
   ;; (add-to-list 'company-backends 'company-yasnippet))
 
 (use-package company-flx
+  :disabled
   :config
   (company-flx-mode t))
 
 (use-package company-tabnine
+  :disabled
   :after (company)
   :init
   (defun tabnine-off ()
@@ -1277,7 +1291,7 @@
   ;;            ("C-l" . sly-mrepl-clear-repl)
   :custom
   (sly-complete-symbol-fuction 'sly-simple-completions)
-  (inferior-lisp-program "sbcl"))
+  (inferior-lisp-program "sbcl")) ;; TODO: ccl
 
 (use-package sly-quicklisp)
 
@@ -1348,7 +1362,6 @@
                                (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
 (use-package elm-mode
-  :after company
   :hook (elm-mode-hook . elm-format-on-save-mode))
 
 (use-package flycheck-elm
@@ -1423,8 +1436,6 @@
 
 (use-package restclient)
 
-(use-package company-restclient)
-
 (use-package simple-httpd
   :custom
   (httpd-root "/var/www"))
@@ -1473,6 +1484,10 @@
   :disabled)
 
 (use-package stumpwm-mode)
+
+(use-package wakatime-mode
+  :config
+  (global-wakatime-mode t))
 
 (use-package tshell
   :straight (tshell :repo "TatriX/tshell"
