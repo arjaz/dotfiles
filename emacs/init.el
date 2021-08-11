@@ -353,13 +353,13 @@
          . highlight-parentheses-mode))
 
 (use-package prism
-  :hook ((clojure-mode-hook lisp-mode-hook) . prism-mode)
+  :hook ((clojure-mode-hook lisp-mode-hook emacs-lisp-mode-hook) . prism-mode)
   :config
   (prism-set-colors
     :lightens '(0)
     :desaturations '(0)
-    :colors (-map #'doom-color
-                  '(yellow blue magenta green cyan))))
+    :colors (mapcar #'doom-color
+                    '(yellow blue magenta green cyan))))
 
 (use-package highlight-indent-guides
   ;; :hook (prog-mode-hook . highlight-indent-guides-mode)
@@ -1355,7 +1355,8 @@
 
 (use-package clj-refactor
   :custom
-  (clj-warn-on-eval nil)
+  (cljr-warn-on-eval nil)
+  (cljr-clojure-test-declaration "[clojure.test :as test :refer [deftest testing is]]")
   :hook (clojure-mode-hook . (lambda ()
                                (interactive)
                                (clj-refactor-mode t)
