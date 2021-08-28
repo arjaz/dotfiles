@@ -1,7 +1,7 @@
 Config
   {
     -- appearance
-    font = "xft:Iosevka-13"
+    font = "xft:Iosevka Arjaz-12"
   , borderColor = "#2e3440"
   , border = NoBorder
   , bgColor = "#2e3440"

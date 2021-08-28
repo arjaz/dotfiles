@@ -36,8 +36,6 @@
 *.color14: nord7
 *.color15: nord6
 
-URxvt*font: xft:FiraCode:size=11
-
 Xft.dpi: 96
 Xft.antialias: true
 Xft.hinting: true
@@ -45,16 +43,5 @@ Xft.rgba: rgb
 Xft.autohint: false
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
-
-URxvt.scrollBar: false
-
-URxvt*fading: 0
-
-URxvt.perl-ext-common: resize-font,ibeamcursor,fork-here
-
-URxvt.iso14755: false
-URxvt.iso14755_52: false
-
-URxvt.keysym.M-o: perl:fork-here:fork-at-cwd
 
 emacs.verticalScrollBars: false

@@ -85,7 +85,7 @@ myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
 myExtraWorkspaces = [(xK_0, "0")]
 
 dmenu_options =
-  "-fn \"Iosevka-13\" -nb \""
+  "-fn \"Iosevka Arjaz-11\" -nb \""
     ++ bg0
     ++ "\" -nf \""
     ++ fg0
@@ -107,12 +107,16 @@ myAdditionalKeysP =
   , ("M-w"       , spawn browser)
   , ("M-b"       , spawn fileBrowser)
   , ("M-<F2>"    , spawn "telegram-desktop")
-  , ( "M-<Escape>"
-    , spawn "betterlockscreen -l dimblur -t 'Eendracht Maakt Magt'"
+  , ( "M-s d"
+    , spawn
+      "setxkbmap -option grp:ctrl_alt_toggle dvorak,ru,ua -option compose:ralt -option ctrl:nocaps"
     )
-  ,
+  , ( "M-s q"
+    , spawn
+      "setxkbmap -option grp:ctrl_alt_toggle us,ru,ua -option compose:ralt -option ctrl:nocaps"
+    )
     -- emacs
-    ("M-e"  , spawn "emacsclient -c -a=''")
+  , ("M-e"  , spawn "emacsclient -c -a=''")
   , ("M-o e", spawn "emacsclient -c -a='' --eval '(eshell)'")
   , ("M-o v", spawn "emacsclient -c -a='' --eval '(vterm)'")
   , ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'")
