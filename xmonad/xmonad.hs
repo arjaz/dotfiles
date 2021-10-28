@@ -85,7 +85,7 @@ myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
 myExtraWorkspaces = [(xK_0, "0")]
 
 dmenu_options =
-  "-fn \"Iosevka Arjaz-11\" -nb \""
+  "-fn \"Iosevka Arjaz-13\" -nb \""
     ++ bg0
     ++ "\" -nf \""
     ++ fg0
@@ -105,6 +105,7 @@ myAdditionalKeysP =
   [ -- Spawning programs
     ("M-<Return>", spawn term)
   , ("M-w"       , spawn browser)
+  , ("M-S-w"     , spawn "nyxt")
   , ("M-b"       , spawn fileBrowser)
   , ("M-<F2>"    , spawn "telegram-desktop")
   , ( "M-s d"
@@ -117,6 +118,7 @@ myAdditionalKeysP =
     )
     -- emacs
   , ("M-e"  , spawn "emacsclient -c -a=''")
+  , ("M-o c", spawn "emacsclient -c -a='' --eval '(org-roam-capture)'")
   , ("M-o e", spawn "emacsclient -c -a='' --eval '(eshell)'")
   , ("M-o v", spawn "emacsclient -c -a='' --eval '(vterm)'")
   , ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'")
@@ -165,6 +167,7 @@ myManageHook = composeAll
   , manageDocks
   , return True --> doF W.swapDown
   , className =? "TelegramDesktop" --> moveTo "9"
+  , className =? "Slack" --> moveTo "9"
   , manageHook desktopConfig
   , fullscreenManageHook
   ]
@@ -201,4 +204,5 @@ myStartupHook = do
   spawnOnce "~/.fehbg --restore &"
   spawnOnce "picom --config ~/.picom.conf &"
   spawnOnce "redshift -l 50.4461248:30.5214979 &"
+  spawnOnce "aw-qt &"
   spawnOnce "emacs --daemon &"

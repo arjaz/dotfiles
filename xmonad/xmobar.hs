@@ -1,7 +1,7 @@
 Config
   {
     -- appearance
-    font = "xft:Iosevka Arjaz-12"
+    font = "xft:Iosevka Arjaz-13"
   , borderColor = "#2e3440"
   , border = NoBorder
   , bgColor = "#2e3440"
@@ -18,7 +18,7 @@ Config
   , commands =
       [ Run Memory ["-t", "<available>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
-      , Run Date "%d/%m/%Y, %a, %I:%M%P" "date" 10
+     , Run Date "%d/%m/%Y, %a, %I:%M%P" "date" 10
       , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 1
       , Run DiskU [("nvme0n1p2", "<free>")] [] 20
       , Run Kbd []
