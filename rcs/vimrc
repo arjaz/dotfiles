@@ -61,6 +61,9 @@ syntax enable
 colorscheme nord
 set colorcolumn=81
 
+" Font
+set guifont=Iosevka\ Arjaz:h11
+
 " Delete trailing whitespaces on save
 autocmd BufWritePre * %s/\s\+$//e
 

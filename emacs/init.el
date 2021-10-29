@@ -309,6 +309,11 @@
 
 (use-package tree-sitter-langs)
 
+;; TODO: check out
+(use-package tree-edit
+  :straight (:host github
+             :repo "ethan-leba/tree-edit"))
+
 (use-package fira-code-mode
   :if (-contains? default-frame-alist '(font . "Fira Code"))
   :custom
@@ -390,12 +395,21 @@
   :demand t
   :config
   (good-scroll-mode)
+  (defun center-cursor (&rest _)
+    (interactive)
+    (move-to-window-line nil))
+  (defun good-scroll-move-recenter (step)
+    (interactive)
+    (advice-add #'good-scroll--render :after #'center-cursor)
+    (good-scroll-move step)
+    (sit-for good-scroll-duration)
+    (advice-remove #'good-scroll--render #'center-cursor))
   (defun good-scroll-up-half-screen ()
     (interactive)
-    (good-scroll-move (/ (good-scroll--window-usable-height) 2)))
+    (good-scroll-move-recenter (/ (good-scroll--window-usable-height) 2)))
   (defun good-scroll-down-half-screen ()
     (interactive)
-    (good-scroll-move (- (/ (good-scroll--window-usable-height) 2))))
+    (good-scroll-move-recenter (- (/ (good-scroll--window-usable-height) 2))))
   :general
   (:states 'normal
    [remap evil-scroll-down] #'good-scroll-up-half-screen
