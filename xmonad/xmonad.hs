@@ -105,7 +105,7 @@ myAdditionalKeysP =
   [ -- Spawning programs
     ("M-<Return>", spawn term)
   , ("M-w"       , spawn browser)
-  , ("M-S-w"     , spawn "nyxt")
+  , ("M-S-w"     , spawn "WEBKIT_FORCE_SANDBOX=0 nyxt")
   , ("M-b"       , spawn fileBrowser)
   , ("M-<F2>"    , spawn "telegram-desktop")
   , ( "M-s d"

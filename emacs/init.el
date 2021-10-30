@@ -278,6 +278,7 @@
   :demand t
   :init
   (make-directory "~/.org/roam" t)
+  (setq org-roam-v2-ack t)
   :custom
   (org-roam-directory (file-truename "~/.org/roam"))
   :general
@@ -288,7 +289,6 @@
    "C-c n l" #'org-roam-buffer-toggle
    "C-c n c" #'org-roam-capture)
   :config
-  (setq org-roam-v2-ack t)
   (org-roam-setup)
   (org-roam-db-autosync-mode))
 
@@ -301,26 +301,6 @@
 (use-package solaire-mode
   :hook (after-init-hook . solaire-global-mode))
 
-(use-package tree-sitter
-  :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode)
-  :config
-  (push '(clojure-mode . clojure) tree-sitter-major-mode-language-alist)
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs)
-
-;; TODO: check out
-(use-package tree-edit
-  :straight (:host github
-             :repo "ethan-leba/tree-edit"))
-
-(use-package fira-code-mode
-  :if (-contains? default-frame-alist '(font . "Fira Code"))
-  :custom
-  (fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
-  :config
-  (global-fira-code-mode))
-
 ;; TODO: ugly
 ;; TODO: check out doom-flatwhite
 (use-package doom-themes
@@ -328,10 +308,7 @@
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
-  :init
-  (defvar light-theme 'doom-gruvbox-light)
-  (defvar dark-theme 'doom-nord)
-  (defvar loaded-theme-p nil)
+  :preface
   (defun load-dark-theme ()
     "Load the saved dark theme."
     (interactive)
@@ -342,14 +319,16 @@
     (interactive)
     (disable-theme dark-theme)
     (load-theme light-theme t))
+  :init
+  (defvar light-theme 'doom-gruvbox-light)
+  (defvar dark-theme 'doom-nord)
+  (defvar loaded-theme-p nil)
   :hook
-  (server-after-make-frame-hook
-   .
-   (lambda ()
-     (interactive)
-     (unless loaded-theme-p
-       (load-dark-theme)
-       (setq loaded-theme-p t))))
+  (server-after-make-frame-hook . (lambda ()
+                                    (interactive)
+                                    (unless loaded-theme-p
+                                      (load-dark-theme)
+                                      (setq loaded-theme-p t))))
   :config
   ;; (unless server-process
   ;;   (load-dark-theme))
@@ -388,28 +367,24 @@
 
 (use-package good-scroll
   :custom
-  ;; move minimum when cursor exits view, instead of recentering
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
   (good-scroll-avoid-vscroll-reset t)
   :demand t
-  :config
-  (good-scroll-mode)
-  (defun center-cursor (&rest _)
-    (interactive)
-    (move-to-window-line nil))
+  :preface
   (defun good-scroll-move-recenter (step)
     (interactive)
-    (advice-add #'good-scroll--render :after #'center-cursor)
     (good-scroll-move step)
     (sit-for good-scroll-duration)
-    (advice-remove #'good-scroll--render #'center-cursor))
+    (move-to-window-line nil))
   (defun good-scroll-up-half-screen ()
     (interactive)
     (good-scroll-move-recenter (/ (good-scroll--window-usable-height) 2)))
   (defun good-scroll-down-half-screen ()
     (interactive)
-    (good-scroll-move-recenter (- (/ (good-scroll--window-usable-height) 2))))
+    (good-scroll-move-recenter (/ (good-scroll--window-usable-height) -2)))
+  :config
+  (good-scroll-mode)
   :general
   (:states 'normal
    [remap evil-scroll-down] #'good-scroll-up-half-screen
@@ -441,14 +416,16 @@
          highlight-parentheses-mode))
 
 (use-package prism
-  :config
-  (setq prism-parens t)
+  :preface
   (defun nice-prism-colors (&rest _)
     (interactive)
     (prism-set-colors
       :lightens '(0)
       :desaturations `(,(if (member light-theme custom-enabled-themes) 0 7.5))
       :colors (mapcar #'doom-color '(red blue magenta green cyan))))
+  :custom
+  (prism-parens t)
+  :config
   (advice-add #'load-light-theme :after #'nice-prism-colors)
   (advice-add #'load-dark-theme  :after #'nice-prism-colors)
   :hook
@@ -570,9 +547,7 @@
 (use-package evil
   :hook (after-change-major-mode-hook . (lambda () (modify-syntax-entry ?_ "w")))
   :demand t
-  :init
-  (setq evil-want-keybinding nil
-        evil-want-integration t)
+  :preface
   (defun split-window-right+switch ()
     (interactive)
     (split-window-right)
@@ -581,6 +556,9 @@
     (interactive)
     (split-window-below)
     (other-window 1))
+  :init
+  (setq evil-want-keybinding nil
+        evil-want-integration t)
   :custom
   (evil-split-window-below t)
   (evil-vsplit-window-right t)
@@ -788,11 +766,12 @@
 
 (use-package ansi-color
   :straight (:type built-in)
-  :config
+  :preface
   (defun colorize-compilation-buffer ()
     (read-only-mode)
     (ansi-color-apply-on-region compilation-filter-start (point))
     (read-only-mode))
+  :config
   (add-hook #'compilation-filter-hook #'colorize-compilation-buffer))
 
 (use-package xterm-color)
@@ -819,7 +798,7 @@
   (eshell-history-size 1024)
   (eshell-scroll-to-bottom-on-input nil)
   (eshell-hist-ignoredups t)
-  :init
+  :preface
   (defun eshell-new ()
     "Open a new eshell session."
     (interactive)
@@ -905,7 +884,7 @@
   (:states 'normal
    :prefix leader-key
    "n m" #'mu4e)
-  :init
+  :preface
   (defun mu4e-revert-main ()
     (interactive)
     (when (s-contains? "*mu4e-main*" (buffer-name))
@@ -1173,12 +1152,13 @@
 (use-package embark
   :after marginalia
   :demand
-  :config
+  :preface
   ;; Cider integration
   (defun cider-refine-expression-type (type target)
     (cons
      (if (bound-and-true-p cider-mode) 'clojure-sexp type)
      target))
+  :config
   (add-to-list 'embark-transformer-alist '(expression . cider-refine-expression-type))
   (add-to-list 'embark-transformer-alist '(symbol     . cider-refine-expression-type))
   (add-to-list 'embark-transformer-alist '(defun      . cider-refine-expression-type))
@@ -1533,9 +1513,9 @@
   (cljr-clojure-test-declaration "[clojure.test :as test :refer [deftest testing is]]")
   :hook
   (clojure-mode-hook . (lambda ()
-                               (interactive)
-                               (clj-refactor-mode t)
-                               (cljr-add-keybindings-with-prefix "C-c C-m"))))
+                         (interactive)
+                         (clj-refactor-mode t)
+                         (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
 (use-package elm-mode
   :hook (elm-mode-hook . elm-format-on-save-mode))
@@ -1581,6 +1561,27 @@
 (use-package yaml-mode)
 
 (use-package dockerfile-mode)
+
+(use-package tree-sitter
+  :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode)
+  :config
+  (push '(clojure-mode . clojure) tree-sitter-major-mode-language-alist)
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs)
+
+;; TODO: check out
+(use-package tree-edit
+  :disabled
+  :straight (:host github
+             :repo "ethan-leba/tree-edit"))
+
+(use-package fira-code-mode
+  :if (-contains? default-frame-alist '(font . "Fira Code"))
+  :custom
+  (fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
+  :config
+  (global-fira-code-mode))
 
 (use-package pdf-tools
   :hook (pdf-view-mode-hook . pdf-view-dark-minor-mode)
@@ -1682,6 +1683,10 @@
   :demand t
   :config
   (selected-global-mode))
+
+(use-package nov
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
 (use-package nano-modeline
   :disabled
