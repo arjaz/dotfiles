@@ -420,9 +420,9 @@
   (defun nice-prism-colors (&rest _)
     (interactive)
     (prism-set-colors
-      :lightens '(0)
-      :desaturations `(,(if (member light-theme custom-enabled-themes) 0 7.5))
-      :colors (mapcar #'doom-color '(red blue magenta green cyan))))
+     :lightens '(0)
+     :desaturations `(,(if (member light-theme custom-enabled-themes) 0 7.5))
+     :colors (mapcar #'doom-color '(red blue magenta green cyan))))
   :custom
   (prism-parens t)
   :config
@@ -1253,7 +1253,8 @@
 
 (use-package company
   :demand t
-  ;; :hook (prog-mode-hook . company-mode)
+  ;; TODO: cider + eshell
+  :hook (prog-mode-hook . company-mode)
   :custom
   (company-idle-delay 0)
   (company-echo-delay 0)
@@ -1271,8 +1272,6 @@
   (company-backends '(company-capf))
   (company-auto-commit nil)
   (company-auto-commit-chars nil)
-  :config
-  (global-company-mode)
   :general
   (:keymaps 'company-active-map
    "RET" #'company-complete-selection
@@ -1391,6 +1390,8 @@
   ;; :custom
   ;; (lsp-haskell-formatting-provider "ormolu")
   )
+
+(use-package tuareg)
 
 (use-package idris-mode)
 
@@ -1577,11 +1578,9 @@
              :repo "ethan-leba/tree-edit"))
 
 (use-package fira-code-mode
-  :if (-contains? default-frame-alist '(font . "Fira Code"))
   :custom
   (fira-code-mode-disabled-ligatures '("[]" "x" "===" "!=="))
-  :config
-  (global-fira-code-mode))
+  :hook (prog-mode-hook . fira-code-mode))
 
 (use-package pdf-tools
   :hook (pdf-view-mode-hook . pdf-view-dark-minor-mode)
@@ -1645,7 +1644,7 @@
    ;; ("C-c C-f" . telega-filter-by-name)
    ;; ("C-c C-t" . telega-filter-by-type)
    ;; ("g r" . telega-filters-reset)
-  ))
+   ))
 
 ;; should be deferred in case of emacs server
 (use-package screenshot

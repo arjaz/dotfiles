@@ -1,27 +1,19 @@
-import qualified Codec.Binary.UTF8.String      as UTF8
-import qualified DBus                          as D
-import qualified DBus.Client                   as D
-import           Graphics.X11.ExtraTypes.XF86
 import           XMonad
 import           XMonad.Config.Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
-import           XMonad.Layout.BinarySpacePartition
 import           XMonad.Layout.Circle
 import           XMonad.Layout.Fullscreen
                                          hiding ( fullscreenEventHook )
-import           XMonad.Layout.Gaps
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.Named
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.OneBig
-import           XMonad.Layout.Reflect
 import           XMonad.Layout.ResizableTile
 import           XMonad.Layout.Spacing
-import           XMonad.Layout.ZoomRow
 import qualified XMonad.StackSet               as W
 import           XMonad.Util.EZConfig           ( additionalKeys
                                                 , additionalKeysP
@@ -29,43 +21,47 @@ import           XMonad.Util.EZConfig           ( additionalKeys
 import           XMonad.Util.Run
 import           XMonad.Util.SpawnOnce
 
+main :: IO ()
 main = do
   xmproc <- spawnPipe "xmobar"
-  xmonad $ docks $ myConfig xmproc
+  xmonad . docks . ewmhFullscreen . ewmh $ myConfig xmproc
 
 myConfig output =
-  ewmh
-    $                 desktopConfig
-                        { terminal           = term
-                        , modMask            = mask
-                        , borderWidth        = myBorderWidth
-                        , normalBorderColor  = bg0
-                        , focusedBorderColor = bg1
-                        , workspaces         = myWorkspaces
-                        , focusFollowsMouse  = False
-                        , manageHook         = myManageHook
-                        , layoutHook         = myLayoutHook
-                        , startupHook = myStartupHook <+> ewmhDesktopsStartup
-                        , logHook = (dynamicLogWithPP $ myPP output) <+> ewmhDesktopsLogHook
-                        , handleEventHook    = fullscreenEventHook
-                                               <+> ewmhDesktopsEventHook
-                                               <+> handleEventHook desktopConfig
-                        }
+  desktopConfig { terminal           = term
+                , modMask            = mask
+                , borderWidth        = myBorderWidth
+                , normalBorderColor  = bg0
+                , focusedBorderColor = bg1
+                , workspaces         = myWorkspaces
+                , focusFollowsMouse  = False
+                , manageHook         = myManageHook
+                , layoutHook         = myLayoutHook
+                , startupHook        = myStartupHook
+                , logHook            = dynamicLogWithPP (myPP output)
+                , handleEventHook    = handleEventHook desktopConfig
+                }
     `additionalKeys`  myAdditionalKeys
     `additionalKeysP` myAdditionalKeysP
 
+term :: String
 term = "alacritty"
 
+fg0 :: String
 fg0 = "#d8dee9"
 
+fg1 :: String
 fg1 = "#4c566a"
 
+bg0 :: String
 bg0 = "#2e3440"
 
+bg1 :: String
 bg1 = "#88c0d0"
 
+myCurrentWSColor :: String
 myCurrentWSColor = "#a3be8c"
 
+myUrgentWSColor :: String
 myUrgentWSColor = "#d08770"
 
 myPP xmproc = xmobarPP { ppUrgent  = xmobarColor myUrgentWSColor ""
@@ -76,15 +72,18 @@ myPP xmproc = xmobarPP { ppUrgent  = xmobarColor myUrgentWSColor ""
 
 toggleStrutsKey XConfig { XMonad.modMask = modMask } = (modMask, xK_o)
 
+mask :: KeyMask
 mask = mod4Mask
 
+myBorderWidth :: Dimension
 myBorderWidth = 1
 
-myWorkspaces = map show [1 .. 9] ++ (map snd myExtraWorkspaces)
+myWorkspaces = map show [1 .. 9] ++ map snd myExtraWorkspaces
 
 myExtraWorkspaces = [(xK_0, "0")]
 
-dmenu_options =
+dmenuOptions :: String
+dmenuOptions =
   "-fn \"Iosevka Arjaz-13\" -nb \""
     ++ bg0
     ++ "\" -nf \""
@@ -95,12 +94,16 @@ dmenu_options =
     ++ bg0
     ++ "\""
 
+browser :: String
 browser = "brave"
 
+fileBrowser :: String
 fileBrowser = "thunar"
 
+screenshotsFolder :: String
 screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
 
+myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
   [ -- Spawning programs
     ("M-<Return>", spawn term)
@@ -132,9 +135,9 @@ myAdditionalKeysP =
     )
   ,
     -- dmenu
-    ("M-d", spawn $ "dmenu_run -p Run: " ++ dmenu_options)
-  , ("M-p", spawn $ "passmenu -p Pass: " ++ dmenu_options)
-  , ("M-n", spawn $ "networkmanager_dmenu " ++ dmenu_options)
+    ("M-d", spawn $ "dmenu_run -p Run: " ++ dmenuOptions)
+  , ("M-p", spawn $ "passmenu -p Pass: " ++ dmenuOptions)
+  , ("M-n", spawn $ "networkmanager_dmenu " ++ dmenuOptions)
   ,
     -- Audio controls
     ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
@@ -155,10 +158,8 @@ myAdditionalKeysP =
   ]
 
 myAdditionalKeys =
-  [ ((mask, key), (windows $ W.greedyView ws))
-  | (key, ws) <- myExtraWorkspaces
-  ]
-  ++ [ ((mask .|. shiftMask, key), (windows $ W.shift ws))
+  [ ((mask, key), windows $ W.greedyView ws) | (key, ws) <- myExtraWorkspaces ]
+  ++ [ ((mask .|. shiftMask, key), windows $ W.shift ws)
      | (key, ws) <- myExtraWorkspaces
      ]
 
@@ -200,6 +201,7 @@ myLayoutHook = tiled ||| big ||| circled
   delta   = 3 / 100
   ratio   = 1 / 2
 
+myStartupHook :: X ()
 myStartupHook = do
   spawnOnce "~/.fehbg --restore &"
   spawnOnce "picom --config ~/.picom.conf &"
