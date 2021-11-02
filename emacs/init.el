@@ -155,7 +155,7 @@
   :general
   ("C-l" #'comint-clear-buffer)
   :config
-  ;; ugly
+  ;; TODO: ugly
   (setq sql-postgres-login-params
         (append sql-postgres-login-params '(port))))
 
@@ -285,7 +285,7 @@
   (:states 'normal
    "C-c n f" #'org-roam-node-find
    "C-c n i" #'org-roam-node-insert
-   ;; That's a backlins buffer
+   ;; That's a backlinks buffer
    "C-c n l" #'org-roam-buffer-toggle
    "C-c n c" #'org-roam-capture)
   :config
@@ -301,7 +301,6 @@
 (use-package solaire-mode
   :hook (after-init-hook . solaire-global-mode))
 
-;; TODO: ugly
 ;; TODO: check out doom-flatwhite
 (use-package doom-themes
   :after (solaire-mode)
@@ -595,7 +594,7 @@
 
 (use-package evil-embrace
   :custom
-  (evil-embrace-show-help-p nil)
+  (evil-embrace-show-help-p t)
   :config
   (evil-embrace-enable-evil-surround-integration))
 
@@ -664,7 +663,6 @@
   :hook (lisp-mode-hook . aggressive-indent-mode))
 
 (use-package hungry-delete
-  :disabled
   :hook (prog-mode-hook . hungry-delete-mode))
 
 (use-package ws-butler
@@ -877,109 +875,6 @@
   (treemacs-load-theme 'all-the-icons))
 
 (use-package treemacs-projectile)
-
-(use-package mu4e
-  :demand
-  :general
-  (:states 'normal
-   :prefix leader-key
-   "n m" #'mu4e)
-  :preface
-  (defun mu4e-revert-main ()
-    (interactive)
-    (when (s-contains? "*mu4e-main*" (buffer-name))
-      (revert-buffer)))
-  :hook (mu4e-context-changed-hook . mu4e-revert-main)
-  :config
-  (setq mu4e-root-maildir "~/Maildir"
-        smtpmail-local-domain "gmail.com"
-        smtpmail-default-smtp-server "smpt.gmail.com"
-        smtpmail-smtp-server "smpt.gmail.com"
-        smtpmail-smtp-service 587
-        smtpmail-queue-mail nil
-        mu4e-attachment-dir "~/Downloads"
-        ;; don't save message to Sent Messages, IMAP takes care of this
-        mu4e-sent-messages-behavior 'delete
-        ;; allow for updating mail
-        mu4e-get-mail-command "mbsync -a"
-        ;; something about ourselves
-        mu4e-view-show-images t
-        mu4e-view-prefer-html t
-        mu4e-update-interval 180
-        mu4e-headers-auto-update t
-        mu4e-compose-signature-auto-include nil
-        mu4e-compose-format-flowed t
-        mu4e-view-image-max-width 800
-        mu4e-change-filenames-when-moving t
-        mu4e-compose-dont-reply-to-self t
-        ;; don't keep message buffers around
-        message-kill-buffer-on-exit t
-        org-mu4e-convert-to-html t
-        mu4e-confirm-quit nil
-        mu4e-context-policy 'pick-first
-        mu4e-compose-context-policy 'always-ask
-        mu4e-contexts
-        (list
-         (make-mu4e-context
-          :name "main"
-          :enter-func (lambda () (mu4e-message "Entering main context"))
-          :leave-func (lambda () (mu4e-message "Leaving main context"))
-          :match-func (lambda (msg)
-                        (when msg
-                          (mu4e-message-contact-field-matches
-                           msg '(:from :to :cc :bcc) "art6661322@gmail.com")))
-          :vars '((user-mail-address . "art6661322@gmail.com")
-                  (user-full-name . "Eugene Rossokha")
-                  (mu4e-sent-folder . "/art-gmail/[art].Sent Mail")
-                  (mu4e-drafts-folder . "/art-gmail/[art].drafts")
-                  (mu4e-trash-folder . "/art-gmail/[art].Bin")
-                  (smtpmail-queue-dir . "~/Maildir/art-gmail/queue/cur")
-                  (message-send-mail-function . smtpmail-send-it)
-                  (smtpmail-smtp-user . "art6661322")
-                  (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
-                  (smtpmail-auth-credentials . "~/.authinfo.gpg")
-                  (smtpmail-default-smtp-server . "smtp.gmail.com")
-                  (smtpmail-smtp-server . "smtp.gmail.com")
-                  (smtpmail-smtp-service . 587)
-                  (smtpmail-debug-info . t)
-                  (smtpmail-debug-verbose . t)
-                  (mu4e-maildir-shortcuts . (("/art-gmail/INBOX"           . ?i)
-                                             ("/art-gmail/[art].Sent Mail" . ?s)
-                                             ("/art-gmail/[art].Bin"       . ?t)
-                                             ("/art-gmail/[art].All Mail"  . ?a)
-                                             ("/art-gmail/[art].Starred"   . ?r)
-                                             ("/art-gmail/[art].drafts"    . ?d)))))
-         (make-mu4e-context
-          :name "work"
-          :enter-func (lambda () (mu4e-message "Entering work context"))
-          :leave-func (lambda () (mu4e-message "Leaving work context"))
-          :match-func (lambda (msg)
-                        (when msg
-                          (mu4e-message-contact-field-matches
-                           msg '(:from :to :cc :bcc) "eugene.rossokha@vacuumlabs.com")))
-          :vars '((user-mail-address . "eugene.rossokha@vacuumlabs.com")
-                  (user-full-name . "Eugene Rossokha")
-                  (mu4e-sent-folder . "/vacuumlabs-gmail/[vacuumlabs].Sent Mail")
-                  (mu4e-drafts-folder . "/vacuumlabs-gmail/[vacuumlabs].drafts")
-                  (mu4e-trash-folder . "/vacuumlabs-gmail/[vacuumlabs].Bin")
-                  (smtpmail-queue-dir . "~/Maildir/vacuumlabs-gmail/queue/cur")
-                  (message-send-mail-function . smtpmail-send-it)
-                  (smtpmail-smtp-user . "eugene.rossokha")
-                  (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
-                  (smtpmail-auth-credentials . "~/.authinfo.gpg")
-                  (smtpmail-default-smtp-server . "smtp.gmail.com")
-                  (smtpmail-smtp-server . "smtp.gmail.com")
-                  (smtpmail-smtp-service . 587)
-                  (smtpmail-debug-info . t)
-                  (smtpmail-debug-verbose . t)
-                  (mu4e-maildir-shortcuts . (("/vacuumlabs-gmail/INBOX"                  . ?i)
-                                             ("/vacuumlabs-gmail/[vacuumlabs].Sent Mail" . ?s)
-                                             ("/vacuumlabs-gmail/[vacuumlabs].Bin"       . ?t)
-                                             ("/vacuumlabs-gmail/[vacuumlabs].All Mail"  . ?a)
-                                             ("/vacuumlabs-gmail/[vacuumlabs].Starred"   . ?r)
-                                             ("/vacuumlabs-gmail/[vacuumlabs].drafts"    . ?d)))))))
-  (require 'smtpmail)
-  (require 'org-mu4e))
 
 (use-package org-mime)
 
@@ -1254,7 +1149,7 @@
 (use-package company
   :demand t
   ;; TODO: cider + eshell
-  :hook (prog-mode-hook . company-mode)
+  ;; :hook (prog-mode-hook . company-mode)
   :custom
   (company-idle-delay 0)
   (company-echo-delay 0)
@@ -1272,6 +1167,8 @@
   (company-backends '(company-capf))
   (company-auto-commit nil)
   (company-auto-commit-chars nil)
+  :config
+  (global-company-mode)
   :general
   (:keymaps 'company-active-map
    "RET" #'company-complete-selection
@@ -1393,6 +1290,8 @@
 
 (use-package tuareg)
 
+(use-package reason-mode)
+
 (use-package idris-mode)
 
 (use-package python-x
@@ -1454,9 +1353,14 @@
 (use-package rjsx-mode
   :mode "\\.jsx?$")
 
-(use-package typescript-mode)
+(use-package typescript-mode
+  :mode "\\.tsx?$")
 
-(use-package purescript-mode)
+(use-package purescript-mode
+  :hook (purescript-mode-hook . turn-on-purescript-indentation))
+
+(use-package psc-ide
+  :hook (purescript-mode-hook . psc-ide-mode))
 
 (use-package hy-mode
   :bind (:map inferior-hy-mode-map

@@ -49,8 +49,8 @@ term = "alacritty"
 fg0 :: String
 fg0 = "#d8dee9"
 
-fg1 :: String
-fg1 = "#4c566a"
+-- fg1 :: String
+-- fg1 = "#4c566a"
 
 bg0 :: String
 bg0 = "#2e3440"
@@ -70,7 +70,7 @@ myPP xmproc = xmobarPP { ppUrgent  = xmobarColor myUrgentWSColor ""
                        , ppOutput  = hPutStrLn xmproc
                        }
 
-toggleStrutsKey XConfig { XMonad.modMask = modMask } = (modMask, xK_o)
+-- toggleStrutsKey XConfig { XMonad.modMask = modMask } = (modMask, xK_o)
 
 mask :: KeyMask
 mask = mod4Mask
@@ -128,7 +128,6 @@ myAdditionalKeysP =
   , ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'")
   , ("M-o g", spawn "emacsclient -c -a='' --eval '(elpher)'")
   , ("M-o t", spawn "emacsclient -c -a='' --eval '(telega)'")
-  , ("M-o m", spawn "emacsclient -c -a='' --eval '(mu4e)'")
   , ( "M-o i"
     , spawn
       "emacsclient -c -a='' --eval '(find-file \"~/.dotfiles/emacs/init.el\")'"
@@ -157,6 +156,7 @@ myAdditionalKeysP =
   , ("M-S-l"                 , sendMessage MirrorExpand)
   ]
 
+myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
   [ ((mask, key), windows $ W.greedyView ws) | (key, ws) <- myExtraWorkspaces ]
   ++ [ ((mask .|. shiftMask, key), windows $ W.shift ws)
