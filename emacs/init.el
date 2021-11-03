@@ -446,6 +446,9 @@
 
 (use-package all-the-icons)
 
+(use-package all-the-icons-dired
+  :hook (dired-mode-hook . all-the-icons-dired-mode))
+
 (use-package hl-todo
   :custom
   (hl-todo-keyword-faces
@@ -509,7 +512,8 @@
    "C-c /"   #'dired-narrow-fuzzy
    "<tab>"   #'dired-subtree-toggle)
   :config
-  (dired-async-mode t))
+  (advice-add #'dired-subtree-toggle :after (lambda (&rest _) (interactive) (revert-buffer)))
+  (dired-async-mode))
 
 ;; TODO: That looks interesting
 (use-package objed
@@ -887,7 +891,7 @@
    "b f" #'apheleia-format-buffer)
   :config
   (setf (alist-get 'black apheleia-formatters)
-        '("black" "-l 79"))
+        '("black" "-l 180"))
   (add-to-list 'apheleia-formatters '(cljstyle . ("cljstyle" "pipe")))
   (add-to-list 'apheleia-mode-alist '(clojure-mode . cljstyle)))
 
@@ -1308,12 +1312,12 @@
 (use-package py-isort
   :hook (before-save-hook . py-isort-before-save)
   :custom
-  (py-isort-options '("-l=79" "-m=3" "--tc")))
+  (py-isort-options '("-l=180" "-m=3" "--tc")))
 
 (use-package python-black
   :hook (python-mode-hook . python-black-on-save-mode)
   :custom
-  (python-black-extra-args '("-l 79")))
+  (python-black-extra-args '("-l 180")))
 
 (use-package pyvenv)
 

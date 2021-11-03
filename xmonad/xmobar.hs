@@ -19,9 +19,31 @@ Config
       [ Run Memory ["-t", "<available>M"] 10
       , Run Com "getMasterVolume" [] "volumelevel" 10
       , Run Date "%d/%m/%Y, %a, %I:%M%P" "date" 10
-      , Run Volume "default" "Master" ["--template", "Vol: <volume>%"] 1
+      , Run
+        Volume
+        "default"
+        "Master"
+        [ "--template"
+        , "<status> <volume>%"
+        , "--"
+        , "-l"
+        , "<icon=/usr/share/icons/stlarch_icons/vol2.xbm/>"
+        , "-m"
+        , "<icon=/usr/share/icons/stlarch_icons/vol1.xbm/>"
+        , "-h"
+        , "<icon=/usr/share/icons/stlarch_icons/vol1.xbm/>"
+        , "--on"
+        , ""
+        , "--off"
+        , "<icon=/usr/share/icons/stlarch_icons/vol3.xbm/>"
+        , "--onc"
+        , "#d8dee9"
+        , "--offc"
+        , "#d8dee9"
+        ]
+        1
       , Run DiskU [("/", "<free>")] [] 20
-      , Run Kbd []
+      , Run Kbd [ ("us(dvorak)", "dv") ]
       , Run StdinReader
       ]
 
@@ -29,5 +51,5 @@ Config
   , sepChar = "%"
   , alignSep = "}{"
   , template =
-      " %StdinReader% }{ %memory% * %disku% | %default:Master% | %date% | %kbd% "
+      " %StdinReader% }{ %memory% <> %disku% | %default:Master% | %date% | %kbd% "
   }

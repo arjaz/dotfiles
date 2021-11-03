@@ -64,11 +64,13 @@ myCurrentWSColor = "#a3be8c"
 myUrgentWSColor :: String
 myUrgentWSColor = "#d08770"
 
-myPP xmproc = xmobarPP { ppUrgent  = xmobarColor myUrgentWSColor ""
-                       , ppCurrent = xmobarColor myCurrentWSColor ""
-                       , ppTitle   = const ""
-                       , ppOutput  = hPutStrLn xmproc
-                       }
+myPP xmproc = xmobarPP
+  { ppUrgent  = xmobarColor myUrgentWSColor ""
+  , ppCurrent = xmobarColor myCurrentWSColor ""
+  , ppTitle   = const ""
+  , ppOutput  = hPutStrLn xmproc
+  , ppSep     = "  <icon=/usr/share/icons/stlarch_icons/tile.xbm/>  "
+  }
 
 -- toggleStrutsKey XConfig { XMonad.modMask = modMask } = (modMask, xK_o)
 
@@ -78,6 +80,7 @@ mask = mod4Mask
 myBorderWidth :: Dimension
 myBorderWidth = 1
 
+myWorkspaces :: [String]
 myWorkspaces = map show [1 .. 9] ++ map snd myExtraWorkspaces
 
 myExtraWorkspaces = [(xK_0, "0")]
@@ -178,24 +181,21 @@ myLayoutHook = tiled ||| big ||| circled
  where
   tiled =
     named "Main"
-      $ avoidStruts
+      . avoidStruts
       . smartBorders
       . smartSpacing gapSize
-      $ mkToggle (NOBORDERS ?? FULL ?? EOT)
+      . mkToggle (NOBORDERS ?? FULL ?? EOT)
       $ ResizableTall nmaster delta ratio []
   big =
     named "Console"
-      $ avoidStruts
+      . avoidStruts
       . smartBorders
       . smartSpacing gapSize
-      $ mkToggle (NOBORDERS ?? FULL ?? EOT)
+      . mkToggle (NOBORDERS ?? FULL ?? EOT)
       $ OneBig (4 / 5) (4 / 5)
-  circled =
-    named "Fancy"
-      $ avoidStruts
-      . withBorder myBorderWidth
-      $ mkToggle (NOBORDERS ?? FULL ?? EOT)
-      $ Circle
+  circled = named "Fancy" . avoidStruts . withBorder myBorderWidth $ mkToggle
+    (NOBORDERS ?? FULL ?? EOT)
+    Circle
   gapSize = 4
   nmaster = 1
   delta   = 3 / 100
