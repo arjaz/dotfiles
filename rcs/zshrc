@@ -6,6 +6,7 @@ export VISUAL='nvim'
 # Plugins
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+source ~/.config/zsh/zsh-up/up.plugin.zsh
 # plugins=(
 #     git
 #     zsh-autosuggestions
@@ -25,6 +26,7 @@ export HISTSIZE=1000
 export HISTFILE=~/.zsh_history
 
 # Aliases
+alias ping=gping
 alias em='emacsclient --alternate-editor="" -nw '
 alias vim=nvim
 alias v=nvim
@@ -47,8 +49,6 @@ alias ls=exa
 alias dvorak='setxkbmap -option grp:ctrl_alt_toggle dvorak,ru,ua -option compose:ralt'
 alias qwerty='setxkbmap -option grp:ctrl_alt_toggle us,ru,ua -option compose:ralt'
 alias nocaps='setxkbmap -option ctrl:nocaps'
-
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 
@@ -77,3 +77,6 @@ export GUIX_LOCPATH="$HOME/.guix-profile/lib/locale"
 # Theme
 [ $TERM != "dumb" ] && eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
+
+# opam configuration
+[[ ! -r /home/arjaz/.opam/opam-init/init.zsh ]] || source /home/arjaz/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null

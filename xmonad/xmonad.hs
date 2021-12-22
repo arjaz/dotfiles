@@ -1,4 +1,9 @@
+{-# LANGUAGE PartialTypeSignatures #-}
+
+import           Data.Semigroup                 ( Endo )
+import           GHC.IO.Handle                  ( Handle )
 import           XMonad
+import           XMonad.Actions.WindowGo
 import           XMonad.Config.Desktop
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops
@@ -24,8 +29,9 @@ import           XMonad.Util.SpawnOnce
 main :: IO ()
 main = do
   xmproc <- spawnPipe "xmobar"
-  xmonad . docks . ewmhFullscreen . ewmh $ myConfig xmproc
+  xmonad . docks . ewmhFullscreen . ewmh . myConfig $ xmproc
 
+myConfig :: Handle -> XConfig _
 myConfig output =
   desktopConfig { terminal           = term
                 , modMask            = mask
@@ -44,7 +50,7 @@ myConfig output =
     `additionalKeysP` myAdditionalKeysP
 
 term :: String
-term = "alacritty"
+term = "alacritty -e tmux"
 
 fg0 :: String
 fg0 = "#d8dee9"
@@ -64,6 +70,7 @@ myCurrentWSColor = "#a3be8c"
 myUrgentWSColor :: String
 myUrgentWSColor = "#d08770"
 
+myPP :: Handle -> PP
 myPP xmproc = xmobarPP
   { ppUrgent  = xmobarColor myUrgentWSColor ""
   , ppCurrent = xmobarColor myCurrentWSColor ""
@@ -72,8 +79,6 @@ myPP xmproc = xmobarPP
   , ppSep     = "  <icon=/usr/share/icons/stlarch_icons/tile.xbm/>  "
   }
 
--- toggleStrutsKey XConfig { XMonad.modMask = modMask } = (modMask, xK_o)
-
 mask :: KeyMask
 mask = mod4Mask
 
@@ -81,27 +86,22 @@ myBorderWidth :: Dimension
 myBorderWidth = 1
 
 myWorkspaces :: [String]
-myWorkspaces = map show [1 .. 9] ++ map snd myExtraWorkspaces
+myWorkspaces = map show ([1 .. 9] :: [Int]) <> map snd myExtraWorkspaces
 
+myExtraWorkspaces :: [(KeySym, String)]
 myExtraWorkspaces = [(xK_0, "0")]
 
 dmenuOptions :: String
 dmenuOptions =
   "-fn \"Iosevka Arjaz-13\" -nb \""
-    ++ bg0
-    ++ "\" -nf \""
-    ++ fg0
-    ++ "\" -sb \""
-    ++ bg1
-    ++ "\" -sf \""
-    ++ bg0
-    ++ "\""
-
-browser :: String
-browser = "brave"
-
-fileBrowser :: String
-fileBrowser = "thunar"
+    <> bg0
+    <> "\" -nf \""
+    <> fg0
+    <> "\" -sb \""
+    <> bg1
+    <> "\" -sf \""
+    <> bg0
+    <> "\""
 
 screenshotsFolder :: String
 screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
@@ -110,10 +110,10 @@ myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
   [ -- Spawning programs
     ("M-<Return>", spawn term)
-  , ("M-w"       , spawn browser)
+  , ("M-w", runOrRaise "firefox" (className =? "firefox"))
   , ("M-S-w"     , spawn "WEBKIT_FORCE_SANDBOX=0 nyxt")
-  , ("M-b"       , spawn fileBrowser)
-  , ("M-<F2>"    , spawn "telegram-desktop")
+  , ("M-b"       , spawn "thunar")
+  , ("M-<F2>", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
   , ( "M-s d"
     , spawn
       "setxkbmap -option grp:ctrl_alt_toggle dvorak,ru,ua -option compose:ralt -option ctrl:nocaps"
@@ -122,33 +122,24 @@ myAdditionalKeysP =
     , spawn
       "setxkbmap -option grp:ctrl_alt_toggle us,ru,ua -option compose:ralt -option ctrl:nocaps"
     )
+
     -- emacs
-  , ("M-e"  , spawn "emacsclient -c -a=''")
-  , ("M-o c", spawn "emacsclient -c -a='' --eval '(org-roam-capture)'")
-  , ("M-o e", spawn "emacsclient -c -a='' --eval '(eshell)'")
-  , ("M-o v", spawn "emacsclient -c -a='' --eval '(vterm)'")
-  , ("M-o d", spawn "emacsclient -c -a='' --eval '(dired nil)'")
+  , ("M-e"                   , spawn "emacsclient -c -a=''")
   , ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'")
-  , ("M-o g", spawn "emacsclient -c -a='' --eval '(elpher)'")
-  , ("M-o t", spawn "emacsclient -c -a='' --eval '(telega)'")
-  , ( "M-o i"
-    , spawn
-      "emacsclient -c -a='' --eval '(find-file \"~/.dotfiles/emacs/init.el\")'"
-    )
-  ,
+
     -- dmenu
-    ("M-d", spawn $ "dmenu_run -p Run: " ++ dmenuOptions)
-  , ("M-p", spawn $ "passmenu -p Pass: " ++ dmenuOptions)
-  , ("M-n", spawn $ "networkmanager_dmenu " ++ dmenuOptions)
-  ,
+  , ("M-d", spawn $ "dmenu_run -p Run: " <> dmenuOptions)
+  , ("M-p", spawn $ "passmenu -p Pass: " <> dmenuOptions)
+  , ("M-n", spawn $ "networkmanager_dmenu " <> dmenuOptions)
+
     -- Audio controls
-    ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
+  , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
   , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
   , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
-  ,
+
     -- Screenshots
-    ("<Print> <Print>", spawn $ "escrotum -C " ++ screenshotsFolder)
-  , ("<Print> p", spawn $ "escrotum -C -s " ++ screenshotsFolder)
+  , ("<Print> <Print>", spawn $ "escrotum -C " <> screenshotsFolder)
+  , ("<Print> p", spawn $ "escrotum -C -s " <> screenshotsFolder)
   ,
     -- Xmonad messages
     ("M-m"                   , windows W.swapMaster)
@@ -162,10 +153,11 @@ myAdditionalKeysP =
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
   [ ((mask, key), windows $ W.greedyView ws) | (key, ws) <- myExtraWorkspaces ]
-  ++ [ ((mask .|. shiftMask, key), windows $ W.shift ws)
+  <> [ ((mask .|. shiftMask, key), windows $ W.shift ws)
      | (key, ws) <- myExtraWorkspaces
      ]
 
+myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
   [ isFullscreen --> doFullFloat
   , manageDocks
@@ -177,6 +169,7 @@ myManageHook = composeAll
   ]
   where moveTo = doF . W.shift
 
+myLayoutHook :: Choose _ _ Window
 myLayoutHook = tiled ||| big ||| circled
  where
   tiled =
@@ -184,6 +177,7 @@ myLayoutHook = tiled ||| big ||| circled
       . avoidStruts
       . smartBorders
       . smartSpacing gapSize
+      -- . spacingWithEdge (gapSize * 2)
       . mkToggle (NOBORDERS ?? FULL ?? EOT)
       $ ResizableTall nmaster delta ratio []
   big =
@@ -201,10 +195,13 @@ myLayoutHook = tiled ||| big ||| circled
   delta   = 3 / 100
   ratio   = 1 / 2
 
+-- TODO: specify all dependencies
+-- TODO: check out xmonad.prompt and xmonad.prompt.org
 myStartupHook :: X ()
 myStartupHook = do
   spawnOnce "~/.fehbg --restore &"
   spawnOnce "picom --config ~/.picom.conf &"
   spawnOnce "redshift -l 50.4461248:30.5214979 &"
   spawnOnce "aw-qt &"
+  spawnOnce "wired -r &"
   spawnOnce "emacs --daemon &"

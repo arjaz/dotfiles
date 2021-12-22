@@ -50,6 +50,5 @@ Config
   -- layout
   , sepChar = "%"
   , alignSep = "}{"
-  , template =
-      " %StdinReader% }{ %memory% <> %disku% | %default:Master% | %date% | %kbd% "
+  , template = " %StdinReader% }{ %memory% <> %disku% | %default:Master% | %date% | %kbd% "
   }

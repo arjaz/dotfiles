@@ -14,3 +14,6 @@ no-cv-ss = true
     number-sign = "slanted"
     dollar = "open"
     cent = "open"
+
+  [buildPlans.iosevka-arjaz.ligations]
+  inherits = "dlig"
