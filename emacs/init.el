@@ -105,7 +105,7 @@
   :config
   (defvar used-font "Iosevka Arjaz")
   (add-to-list 'default-frame-alist `(font . ,used-font))
-  (set-face-attribute 'default nil :family used-font :height 140)
+  (set-face-attribute 'default nil :family used-font :height 130)
   (set-face-attribute 'variable-pitch nil :family "Roboto")
   (set-frame-font used-font))
 
@@ -234,9 +234,9 @@
 
 (use-package helpful
   :general
-  ("C-h f" #'helpful-callable
-   "C-h v" #'helpful-variable
-   "C-h k" #'helpful-key))
+  ([remap describe-key]      #'helpful-key
+   [remap describe-function] #'helpful-callable
+   [remap describe-variable] #'helpful-variable))
 
 (use-package visual-regexp)
 
@@ -351,35 +351,26 @@
   (doom-themes-org-config))
 
 (use-package feebleline
-  :disabled
   :config
   (feebleline-mode))
 
+;; (setq-default mode-line-format
+;;               '("%5l:%c "
+;;                 (:eval (feebleline-file-directory))
+;;                 (:eval (feebleline-file-or-buffer-name))
+;;                 (:eval (feebleline-file-modified-star))
+;;                 " - "
+;;                 (:eval (feebleline-git-branch))))
+
+;; TODO: check that out with `mode-line-format'
 (use-package mood-line
+  :disabled
   :config
   (mood-line-mode t))
 
 (use-package page-break-lines
   :config
   (page-break-lines-mode))
-
-(use-package centaur-tabs
-  :disabled
-  :hook
-  (centaur-tabs-mode . centaur-tabs-headline-match)
-  (centaur-tabs-mode . centaur-tabs-group-by-projectile-project)
-  :config
-  (centaur-tabs-mode)
-  (setq centaur-tabs-height 36
-        centaur-tabs-set-icons t
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-modified-marker "⏺"
-        centaur-tabs-close-button "×"
-        centaur-tabs-set-bar 'under
-        centaur-tabs-style "rounded"
-        centaur-tabs-gray-out-icons 'buffer
-        centaur-tabs-enable-ido-completion nil
-        x-underline-at-descent-line t))
 
 (use-package good-scroll
   :custom
@@ -406,31 +397,6 @@
    [remap evil-scroll-down] #'good-scroll-up-half-screen
    [remap evil-scroll-up] #'good-scroll-down-half-screen))
 
-(use-package rainbow-delimiters
-  :disabled
-  :hook ((prog-mode-hook       . rainbow-delimiters-mode)))
-;; (emacs-lisp-mode-hook . (lambda () (rainbow-delimiters-mode -1)))
-;; (clojure-mode-hook    . (lambda () (rainbow-delimiters-mode -1)))
-;; (hy-mode-hook         . (lambda () (rainbow-delimiters-mode -1)))
-;; (sly-mode-hook        . (lambda () (rainbow-delimiters-mode -1)))
-;; (lisp-mode-hook       . (lambda () (rainbow-delimiters-mode -1)))
-;; (scheme-mode-hook     . (lambda () (rainbow-delimiters-mode -1)))
-;; (racket-mode-hook     . (lambda () (rainbow-delimiters-mode -1)))))
-
-(use-package highlight-parentheses
-  :disabled
-  :custom
-  (highlight-parentheses-colors (mapcar #'doom-color '(red orange yellow magenta)))
-  :hook ((emacs-lisp-mode-hook
-          hy-mode-hook
-          clojure-mode-hook
-          sly-mode-hook
-          lisp-mode-hook
-          scheme-mode-hook
-          racket-mode-hook)
-         .
-         highlight-parentheses-mode))
-
 (use-package prism
   :preface
   (defun nice-prism-colors (&rest _)
@@ -448,8 +414,9 @@
   ((lisp-mode-hook clojure-mode-hook) . prism-mode)
   (prism-mode-hook . nice-prism-colors))
 
-(use-package highlight-indentation
-  :hook (python-mode-hook . highlight-indentation-current-column-mode))
+(use-package indent-guide
+  :hook (python-mode-hook . indent-guide-mode)
+  :custom (indent-guide-char ":"))
 
 (use-package highlight-numbers
   :hook (prog-mode-hook . highlight-numbers-mode))
@@ -507,10 +474,10 @@
   :hook (dired-mode-hook . auto-revert-mode)
   :custom
   (dired-listing-switches "-alhg")
-  (dired-auto-revert-buffer t "don't prompt to revert; just do it")
-  (dired-dwim-target t "suggest a target for moving/copying intelligently")
+  (dired-auto-revert-buffer t)
+  (dired-dwim-target t)
   (dired-hide-details-hide-symlink-targets nil)
-  (dired-recursive-copies 'always "always copy/delete recursively")
+  (dired-recursive-copies 'always)
   (dired-recursive-deletes 'top))
 
 (use-package diredfl
@@ -527,12 +494,94 @@
   :config
   (dired-async-mode))
 
-(use-package dirvish
-  :disabled)
-
 ;; TODO: check out
 (use-package meow
-  :disabled)
+  :disabled
+  :preface
+  (defun meow-setup-dvorak ()
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
+    (meow-leader-define-key
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     '("/" . meow-keypad-describe-key)
+     '("?" . meow-cheatsheet))
+    (meow-motion-overwrite-define-key
+     ;; custom keybinding for motion state
+     '("<escape>" . ignore))
+    (meow-normal-define-key
+     '("0" . meow-expand-0)
+     '("9" . meow-expand-9)
+     '("8" . meow-expand-8)
+     '("7" . meow-expand-7)
+     '("6" . meow-expand-6)
+     '("5" . meow-expand-5)
+     '("4" . meow-expand-4)
+     '("3" . meow-expand-3)
+     '("2" . meow-expand-2)
+     '("1" . meow-expand-1)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("<" . meow-beginning-of-thing)
+     '(">" . meow-end-of-thing)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("d" . meow-delete)
+     '("D" . meow-backward-delete)
+     '("e" . meow-line)
+     '("E" . meow-goto-line)
+     '("f" . meow-find)
+     '("g" . meow-cancel-selection)
+     '("G" . meow-grab)
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     '("i" . meow-insert)
+     '("I" . meow-open-above)
+     '("j" . meow-join)
+     '("k" . meow-kill)
+     '("l" . meow-till)
+     '("m" . meow-mark-word)
+     '("M" . meow-mark-symbol)
+     '("n" . meow-next)
+     '("N" . meow-next-expand)
+     '("o" . meow-block)
+     '("O" . meow-to-block)
+     '("p" . meow-prev)
+     '("P" . meow-prev-expand)
+     '("q" . meow-quit)
+     '("Q" . meow-goto-line)
+     '("r" . meow-replace)
+     '("R" . meow-swap-grab)
+     '("s" . meow-search)
+     '("t" . meow-right)
+     '("T" . meow-right-expand)
+     '("u" . meow-undo)
+     '("U" . meow-undo-in-selection)
+     '("v" . meow-visit)
+     '("w" . meow-next-word)
+     '("W" . meow-next-symbol)
+     '("x" . meow-save)
+     '("X" . meow-sync-grab)
+     '("y" . meow-yank)
+     '("z" . meow-pop-selection)
+     '("'" . repeat)
+     '("C-e" . avy-goto-char-timer)
+     '("<escape>" . ignore)))
+  :config
+  (meow-setup-dvorak)
+  (meow-global-mode))
 
 (use-package evil
   :hook (after-change-major-mode-hook . (lambda () (modify-syntax-entry ?_ "w")))
@@ -566,7 +615,8 @@
    "b s" #'save-buffer
    "q" #'delete-window)
   :config
-  (evil-mode))
+  (evil-mode)
+  (define-key evil-insert-state-map (kbd "C-k") nil))
 
 (use-package evil-collection
   :demand t
@@ -666,11 +716,16 @@
 
 ;; That's weird with redos sometimes
 (use-package undo-fu
-  :general
-  (:states 'normal
-   :keymaps 'override
-   "u" #'undo-fu-only-undo
-   "U" #'undo-fu-only-redo))
+  ;; :general
+  ;; (:states 'normal
+  ;;  :keymaps 'override
+  ;;  "u" #'undo-fu-only-undo
+  ;;  "U" #'undo-fu-only-redo)
+  )
+
+(use-package undo-fu-session
+  :config
+  (global-undo-fu-session-mode))
 
 (use-package aggressive-indent
   :hook (lisp-mode-hook . aggressive-indent-mode))
@@ -712,9 +767,7 @@
   (dashboard-center-content t)
   (dashboard-startup-banner "~/.config/emacs/emacs-dash.png")
   (dashboard-items '((recents  . 5)
-                     (bookmarks . 5)
-                     (projects . 5)
-                     (agenda . 5)))
+                     (bookmarks . 5)))
   (dashboard-banner-logo-title "Eendracht Maakt Macht")
   (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   :config
@@ -752,19 +805,32 @@
              :host github))
 
 (use-package evil-cleverparens
-  :hook ((clojure-mode-hook . evil-cleverparens-mode)
-         (hy-mode-hook . evil-cleverparens-mode)
-         (emacs-lisp-mode-hook . evil-cleverparens-mode)
+  :hook ((clojure-mode-hook     . evil-cleverparens-mode)
+         (hy-mode-hook          . evil-cleverparens-mode)
+         (emacs-lisp-mode-hook  . evil-cleverparens-mode)
          (common-lisp-mode-hook . evil-cleverparens-mode)
-         (scheme-mode-hook . evil-cleverparens-mode)
-         (lisp-mode-hook . evil-cleverparens-mode)
-         (racket-mode-hook . evil-cleverparens-mode))
+         (scheme-mode-hook      . evil-cleverparens-mode)
+         (lisp-mode-hook        . evil-cleverparens-mode)
+         (racket-mode-hook      . evil-cleverparens-mode))
   :custom
-  (evil-cp-additional-bindings (remove
-                                '("M-O" . evil-cp-open-above-form)
-                                (remove '("M-o" . evil-cp-open-below-form)
-                                        evil-cp-additional-bindings)))
-  (evil-cleverparens-use-additional-bindings t))
+  (evil-cleverparens-use-additional-bindings t)
+  :config
+  (setf (alist-get "M-O" evil-cp-additional-bindings nil nil #'equal) nil
+        (alist-get "M-o" evil-cp-additional-bindings nil nil #'equal) nil))
+
+(use-package puni
+  :preface
+  (defun puni-change-line ()
+    (interactive)
+    (puni-kill-line)
+    (evil-insert 1))
+  :hook
+  (prog-mode-hook . puni-mode)
+  (text-mode-hook . puni-mode)
+  :general
+  (:states 'normal
+   [remap evil-delete-line] #'puni-kill-line
+   [remap evil-change-line] #'puni-change-line))
 
 (use-package ansi-color
   :straight (:type built-in)
@@ -884,17 +950,19 @@
 (use-package org-mime)
 
 (use-package apheleia
-  :hook ((clojure-mode-hook haskell-mode-hook) . apheleia-mode)
+  :hook ((clojure-mode-hook haskell-mode-hook python-mode-hook) . apheleia-mode)
+  :demand
   :general
   (:states 'normal
    :keymaps 'override
    :prefix leader-key
    "b f" #'apheleia-format-buffer)
   :config
-  (setf (alist-get 'black apheleia-formatters)
-        '("black" "-l 180"))
-  (add-to-list 'apheleia-formatters '(cljstyle . ("cljstyle" "pipe")))
-  (add-to-list 'apheleia-mode-alist '(clojure-mode . cljstyle)))
+  (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
+  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
+  (setf (alist-get 'ormolu       apheleia-formatters) '("ormolu"))
+  (setf (alist-get 'haskell-mode apheleia-mode-alist) 'ormolu))
+
 
 (use-package elfeed
   :config
@@ -1014,14 +1082,15 @@
   (ctrlf-alternate-search-style 'regexp)
   :config
   (ctrlf-mode)
-  (push '("C-j" . ctrlf-next-match) ctrlf-minibuffer-bindings)
-  (push '("C-k" . ctrlf-previous-match) ctrlf-minibuffer-bindings)
-  (push '("C-e" . ctrlf-occur) ctrlf-minibuffer-bindings)
-  (push '("<escape>" . ctrlf-cancel) ctrlf-minibuffer-bindings)
   :general
+  (:keymaps 'ctrlf-minibuffer-mode-map
+   "C-j"      #'ctrlf-next-match
+   "C-k"      #'ctrlf-previous-match
+   "C-e"      #'ctrlf-occur
+   "<escape>" #'ctrlf-cancel)
   (:states 'normal
-   "/" #'ctrlf-forward-default
-   "?" #'ctrlf-backward-default))
+   "/"        #'ctrlf-forward-default
+   "?"        #'ctrlf-backward-default))
 
 (use-package consult
   :ensure-system-package (rg . ripgrep)
@@ -1163,18 +1232,8 @@
   :config
   (smart-tabs-insinuate 'c 'c++))
 
-(use-package yasnippet
-  :config
-  (yas-reload-all)
-  (yas-global-mode t))
-
-(use-package dabbrev
-  :straight (:type built-in)
-  :general
-  ("M-/"   #'dabbrev-completion
-   "C-M-/" #'dabbrev-expand))
-
 (use-package company
+  :disabled
   :demand t
   ;; TODO: cider + eshell
   ;; :hook (prog-mode-hook . company-mode)
@@ -1203,14 +1262,13 @@
    "<ret>" #'company-complete-selection))
 
 (use-package corfu
-  :disabled
   :custom
   (corfu-auto-prefix 2)
   (corfu-cycle t)              ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)               ;; Enable auto completion
-  (corfu-commit-predicate t)   ;; Commit selected candidates on next input
   (corfu-quit-at-boundary nil) ;; Automatically quit at word boundary
   (corfu-quit-no-match t)      ;; Automatically quit if there is no match
+  (corfu-preselect-first nil)
   ;; (corfu-echo-documentation nil)) ;; Do not show documentation in the echo area
   ;; Optionally use TAB for cycling, default is `corfu-complete'.
   :general
@@ -1223,18 +1281,68 @@
    [backtab] #'corfu-previous)
   :demand
   :config
-  (corfu-global-mode t))
+  (corfu-global-mode))
+
+(use-package corfu-doc
+  :straight (:host github
+             :repo "galeo/corfu-doc")
+  :hook (corfu-mode-hook . corfu-doc-mode)
+  :custom
+  (corfu-doc-delay "1.5"))
+
+(use-package cape
+  :straight (:host github
+             :repo "minad/cape")
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword))
+
+(use-package kind-icon
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+(use-package tempel
+  :straight (:host github
+             :repo "minad/tempel")
+  :preface
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; The depth is set to -1, such that `tempel-expand' is tried *before* the
+    ;; programming mode Capf. If a template name can be completed it takes
+    ;; precedence over the programming mode completion. `tempel-expand' only
+    ;; triggers on exact matches. Alternatively use `tempel-complete' if you
+    ;; want to see all matches, but then Tempel will probably trigger too
+    ;; often when you don't expect it.
+    (add-hook 'completion-at-point-functions #'tempel-expand -1 'local))
+  :general
+  (:keymaps 'tempel-map
+   "<tab>"     #'tempel-next
+   "<backtab>" #'tempel-previous)
+  :hook
+  (prog-mode-hook . tempel-setup-capf)
+  (text-mode-hook . tempel-setup-capf))
 
 (use-package company-tabnine
   :preface
   (defun turn-tabnine-off ()
     (interactive)
-    (setq company-backends (remove 'company-tabnine company-backends)))
+    (when tabnine-original-capfs
+      (setq-local completion-at-point-functions tabnine-original-capfs))
+    ;; (setq company-backends (remove 'company-tabnine company-backends))
+    )
   (defun turn-tabnine-on ()
     (interactive)
-    (add-to-list 'company-backends #'company-tabnine)))
-
-(use-package yasnippet-snippets)
+    (setq tabnine-original-capfs completion-at-point-functions)
+    (setq-local completion-at-point-functions (cons (cape-company-to-capf #'company-tabnine)
+                                                    completion-at-point-functions))
+    ;; (add-to-list 'company-backends #'company-tabnine)
+    )
+  :init
+  (defvar tabnine-original-capfs))
 
 (use-package dumb-jump
   :hook (xref-backend-functions . dumb-jump-xref-activate)
@@ -1270,12 +1378,18 @@
    "l l" #'eglot))
 
 (use-package lsp-mode
+  :preface
+  (defun lsp-mode-setup-completion-for-corfu ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(flex)))
+  :hook (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
+  :demand t
   ;; :disabled
   :custom
   (lsp-enable-symbol-highlighting nil)
   (lsp-lens-enable t)
   (lsp-prefer-capf t)
-  (lsp-completion-provider :capf)
+  (lsp-completion-provider :none) ; use corfu instead
   (lsp-idle-delay 0.75)
   (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
@@ -1431,19 +1545,12 @@
 (use-package python-isort
   :hook (python-mode-hook . python-isort-on-save-mode))
 
-(use-package blacken
-  :hook (python-mode-hook . blacken-mode)
-  :custom
-  (blacken-line-length 180))
-
 (use-package pyvenv)
 
 (use-package auto-virtualenv
   :hook (python-mode-hook . auto-virtualenv-set-virtualenv))
 
-(use-package poetry
-  ;; :hook (python-mode-hook . poetry-tracking-mode)
-  )
+(use-package poetry)
 
 (use-package highlight-defined
   :hook (emacs-lisp-mode-hook . highlight-defined-mode))
@@ -1529,7 +1636,8 @@
   :bind (:map cider-repl-mode-map
          ("C-l" . cider-repl-clear-buffer)
          :map cider-mode-map
-         ("C-c M-c" . cider-debug-defun-at-point))
+         ("C-c M-c" . cider-debug-defun-at-point)
+         ("C-c C-p" . cider-inspect-last-sexp))
   :custom
   (cider-repl-display-help-banner nil)
   :config
@@ -1570,14 +1678,6 @@
          ("C-c C-c" . racket-run)
          ("C-c C-r" . racket-send-region)))
 
-(use-package erlang-start
-  :load-path "/usr/lib/erlang/lib/tools-3.5.1/emacs/"
-  :straight nil
-  :custom
-  (erlang-root-dir "/usr/lib/erlang/")
-  (exec-path (cons "/usr/lib/erlang/bin" exec-path))
-  (erlang-man-root-dir "/usr/lib/erlang/man"))
-
 (use-package elixir-mode)
 
 (use-package gdscript-mode
@@ -1606,6 +1706,11 @@
   (global-tree-sitter-mode))
 
 (use-package tree-sitter-langs)
+
+;; TODO: set up tree-sitter-indent-python-scopes
+(use-package tree-sitter-indent
+  ;; :hook (python-mode-hook . tree-sitter-indent-mode)
+  )
 
 ;; TODO: Replace with tree-edit once it's done
 (use-package evil-textobj-tree-sitter
@@ -1690,12 +1795,15 @@
   (which-key-mode t))
 
 ;; TODO: try with Django + Celery + stuff
+;;       dtache
 (use-package prodigy)
 
+;; TODO: telega-adblock
 (use-package telega
   :straight (telega :branch "master")
-  :hook
-  (telega-load-hook . telega-notifications-mode)
+  ;; :hook
+  ;; (telega-load-hook . telega-notifications-mode)
+  ;; (telega-load-hook . telega-adblock-mode)
   :custom
   (telega-auto-download '((photo         opened)
                           (video         opened)
@@ -1723,7 +1831,10 @@
    ;; ("C-c C-f" . telega-filter-by-name)
    ;; ("C-c C-t" . telega-filter-by-type)
    ;; ("g r" . telega-filters-reset)
-   ))
+   )
+  :config
+  ;; (require 'telega-adblock)
+  )
 
 ;; should be deferred in case of emacs server
 (use-package screenshot
@@ -1735,6 +1846,8 @@
                         :files ("*.el")))
 
 (use-package stumpwm-mode)
+
+(use-package nix-mode)
 
 (use-package activity-watch-mode
   :demand t
@@ -1749,10 +1862,6 @@
    :keymaps 'override
    :prefix leader-key
    "b a" #'activity-watch-visualize-as-org))
-
-(use-package cyrillic-dvorak-im
-  :straight (cyrillic-dvorak-im :repo "xFA25E/cyrillic-dvorak-im"
-                                :host github))
 
 (use-package selected
   :general
