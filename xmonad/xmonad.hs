@@ -1,7 +1,8 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 
 import Data.Semigroup (Endo)
-import GHC.IO.Handle (Handle)
+import System.Exit
+import System.IO
 import XMonad
 import XMonad.Actions.WindowGo
 import XMonad.Config.Desktop
@@ -24,6 +25,7 @@ import qualified XMonad.StackSet as W
 import XMonad.Util.EZConfig
   ( additionalKeys,
     additionalKeysP,
+    removeKeysP,
   )
 import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
@@ -51,12 +53,13 @@ myConfig output =
     }
     `additionalKeys` myAdditionalKeys
     `additionalKeysP` myAdditionalKeysP
+    `removeKeysP` ["M-,", "M-."]
 
 term :: String
 term = "alacritty -e tmux"
 
-fg0 :: String
-fg0 = "#d8dee9"
+-- fg0 :: String
+-- fg0 = "#d8dee9"
 
 -- fg1 :: String
 -- fg1 = "#4c566a"
@@ -100,32 +103,28 @@ screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
-  [ -- Spawning programs
-    ("M-<Return>", spawn term),
+  [ ("M-<Return>", spawn term),
     ("M-o w", runOrRaise "firefox" (className =? "firefox")),
-    ("M-o S-w", spawn "WEBKIT_FORCE_SANDBOX=0 nyxt"),
     ("M-o b", spawn "thunar"),
     ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop")),
-    -- emacs
     ("M-e", spawn "emacsclient -c -a=''"),
+    ("M-o e", io exitSuccess),
     ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'"),
+    ("M-o c", spawn "emacsclient -c -a='' --eval '(xmonad-org-capture)'"),
     ("M-d", spawn "rofi -show run"),
     ("M-o j", spawn "rofi -show window"),
     ("M-o p", spawn "pass clip -r"), -- -r is for rofi
-    -- Audio controls
     ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%"),
     ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%"),
     ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle"),
-    -- Screenshots
-    ("M-p M-p", spawn $ "escrotum -C " <> screenshotsFolder),
-    ("M-p p", spawn $ "escrotum -C -s " <> screenshotsFolder),
-    -- Xmonad messages
+    ("M-o q", io exitSuccess),
+    ("M-o S-s", spawn $ "escrotum -C " <> screenshotsFolder),
+    ("M-o s", spawn $ "escrotum -C -s " <> screenshotsFolder),
+    ("M--", sendMessage Expand),
     ("M-m", windows W.swapMaster),
     ("M-S-q", kill),
     ("M-<Tab>", sendMessage NextLayout),
-    ("M-f", sendMessage (Toggle FULL) >> sendMessage ToggleStruts),
-    ("M-S-h", sendMessage MirrorShrink),
-    ("M-S-l", sendMessage MirrorExpand)
+    ("M-s", sendMessage (Toggle FULL) >> sendMessage ToggleStruts)
   ]
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
@@ -154,7 +153,6 @@ myLayoutHook = tiled ||| big ||| circled
         . avoidStruts
         . smartBorders
         . smartSpacing gapSize
-        -- . spacingWithEdge (gapSize * 2)
         . mkToggle (NOBORDERS ?? FULL ?? EOT)
         $ ResizableTall nmaster delta ratio []
     big =
@@ -165,10 +163,11 @@ myLayoutHook = tiled ||| big ||| circled
         . mkToggle (NOBORDERS ?? FULL ?? EOT)
         $ OneBig (4 / 5) (4 / 5)
     circled =
-      named "Fancy" . avoidStruts . withBorder myBorderWidth $
-        mkToggle
-          (NOBORDERS ?? FULL ?? EOT)
-          Circle
+      named "Fancy"
+        . avoidStruts
+        . withBorder myBorderWidth
+        . mkToggle (NOBORDERS ?? FULL ?? EOT)
+        $ Circle
     gapSize = 4
     nmaster = 1
     delta = 3 / 100
@@ -182,4 +181,3 @@ myStartupHook = do
   spawnOnce "redshift -l 50.4461248:30.5214979 &"
   spawnOnce "aw-qt &"
   spawnOnce "wired -r &"
-  spawnOnce "emacs --daemon &"
