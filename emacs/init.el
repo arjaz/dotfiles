@@ -2,13 +2,13 @@
 ;;; -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;;; That's my (Eugene's) local Emacs configuration
+;;; My Emacs configuration
 
 ;;; Code:
 
-;; Straight
 (defvar comp-deferred-compilation-deny-list ())
 (defvar bootstrap-version)
+(defvar straight-repository-branch "develop")
 (let ((bootstrap-file (expand-file-name
                        "straight/repos/straight.el/bootstrap.el"
                        user-emacs-directory))
@@ -90,6 +90,7 @@
   :custom
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
+  (cursor-type 'hbar)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
   (window-divider-mode t)
@@ -100,10 +101,10 @@
   :preface
   (defun init-fonts ()
     (interactive)
-    (defvar used-font "Iosevka Arjaz")
+    (defvar used-font "Iosevka")
     (add-to-list 'default-frame-alist `(font . ,used-font))
     (set-face-attribute 'default nil :family used-font :height 105)
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)
+    (set-face-attribute 'variable-pitch nil :family "Roboto" :height 100)
     (set-frame-font used-font))
   :hook
   (server-after-make-frame-hook . init-fonts)
@@ -112,7 +113,9 @@
 (use-package cus-edit
   :straight (:type built-in)
   :custom
-  (custom-file (concat user-emacs-directory "garbage.el")))
+  (custom-file (concat user-emacs-directory "garbage.el"))
+  :config
+  (load custom-file))
 
 (use-package autorevert
   :straight (:type built-in)
@@ -224,11 +227,15 @@
    ([remap describe-function] . helpful-callable)
    ([remap describe-variable] . helpful-variable)))
 
+(use-package goto-chg
+  :bind
+  ("C-c b l l" . goto-last-change)
+  ("C-c b l r" . goto-last-change-reverse))
+
 (use-package visual-regexp
   :bind
   (([remap query-replace] . vr/replace)))
 
-;; TODO: Set up org-capture-templates
 (use-package org
   :hook (org-babel-after-execute-hook . org-redisplay-inline-images)
   :preface
@@ -254,45 +261,79 @@
      (shell      . t)
      (python     . t))))
 
-(use-package org-modern
-  :straight (:host github
-             :repo "minad/org-modern")
-  :hook (org-mode-hook . org-modern-mode))
-
-(use-package solaire-mode
-  :hook (window-setup-hook . solaire-global-mode))
+(use-package dbus)
 
 (use-package doom-themes
-  :after (solaire-mode)
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
-  (doom-gruvbox-dark-variant "soft")
+  (doom-gruvbox-light-variant "hard")
+
   :preface
+
   (defun load-dark-theme ()
     "Load the saved dark theme."
     (interactive)
-    (disable-theme light-theme)
+    (message "Loading dark theme")
+    (mapcar #'disable-theme custom-enabled-themes)
     (load-theme dark-theme t))
+
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
-    (disable-theme dark-theme)
+    (message "Loading light theme")
+    (mapcar #'disable-theme custom-enabled-themes)
     (load-theme light-theme t))
-  (defun load-theme-once ()
+
+  (defun load-theme-on-startup ()
     (interactive)
-    (unless loaded-theme-p
-      (load-dark-theme)
-      (setq loaded-theme-p t)))
+    (unless custom-enabled-themes
+      (dbus-call-method-asynchronously
+       :session "org.freedesktop.portal.Desktop"
+       "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+       "Read"
+       (lambda (value) (set-theme-from-dbus-value (caar value)))
+       "org.freedesktop.appearance"
+       "color-scheme")))
+
+  (defun choose-theme (light-theme-p theme)
+    (interactive (list
+                  (y-or-n-p "Choose the light theme?")
+                  (intern (completing-read "Load custom theme: " (mapcar #'symbol-name (custom-available-themes))))))
+    (mapcar #'disable-theme custom-enabled-themes)
+    (if light-theme-p
+        (progn
+          (setq light-theme theme)
+          (load-light-theme))
+      (setq dark-theme theme)
+      (load-dark-theme)))
+
+  (defun set-theme-from-dbus-value (value)
+    (message "value is %s" value)
+    (if (equal value '1)
+        (load-dark-theme)
+      (load-light-theme)))
+
+  (defun dbus-on-theme-changed (path var value)
+    (when (and (string-equal path "org.freedesktop.appearance")
+               (string-equal var "color-scheme"))
+      (set-theme-from-dbus-value (car value))))
+
   :init
-  (defvar light-theme 'doom-gruvbox-light)
+  (defvar light-theme 'doom-flatwhite)
+  ;; (defvar dark-theme 'doom-tomorrow-night)
   (defvar dark-theme 'doom-nord)
-  (defvar loaded-theme-p nil)
+
   :hook
-  (window-setup-hook . load-theme-once)
-  (server-after-make-frame-hook . load-theme-once)
+  (server-after-make-frame-hook . (lambda () (interactive) (load-theme-on-startup)))
   :config
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+  (dbus-register-signal
+   :session "org.freedesktop.portal.Desktop"
+   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+   "SettingChanged"
+   #'dbus-on-theme-changed)
+  (load-theme-on-startup))
 
 (use-package feebleline
   :config
@@ -446,14 +487,14 @@
        (cdr (ring-ref avy-ring 0))))
     t)
   :bind
-  (("C-o" . avy-goto-char-timer)
+  (("M-t" . avy-goto-char-timer)
    ("C-t" . avy-goto-word-1)
-   ("M-t" . avy-goto-word-0)
    ("C-c a l" . avy-goto-line))
   :custom
   (avy-background t)
   (avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
-  (avy-dispatch-alist '((?\; . avy-action-embark))))
+  (avy-dispatch-alist '((?\q . avy-action-embark)
+                        (?\M-q . avy-action-embark))))
 
 (use-package ace-window
   :custom
@@ -475,14 +516,12 @@
   :config
   (global-undo-fu-session-mode))
 
-(use-package aggressive-indent
-  :hook (lisp-mode-hook . aggressive-indent-mode))
-
 (use-package ws-butler
   :config
   (ws-butler-global-mode t))
 
 (use-package dashboard
+  :demand
   :custom
   (show-week-agenda-p t)
   (dashboard-set-heading-icons t)
@@ -491,12 +530,15 @@
   (dashboard-set-file-icons t)
   (dashboard-center-content t)
   (dashboard-startup-banner "~/.config/emacs/emacs-dash.png")
-  (dashboard-items '((recents  . 5)
-                     (bookmarks . 5)))
+  (dashboard-items '((agenda . 15)))
   (dashboard-banner-logo-title "Eendracht Maakt Macht")
   (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   :config
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
+  :bind
+  (:map dashboard-mode-map
+   ("n" . dashboard-next-line)
+   ("p" . dashboard-previous-line)))
 
 (use-package olivetti
   :custom
@@ -510,15 +552,47 @@
   :hook (prog-mode-hook . electric-pair-mode))
 
 (use-package puni
-  ;; :hook
-  ;; (prog-mode-hook . puni-mode)
-  ;; (text-mode-hook . puni-mode)
+  :preface
+  (defun puni-rewrap-with (ldelim rdelim)
+    (interactive (list "(" ")"))
+    (let ((point-pos (point)))
+      (puni-squeeze)
+      (insert ldelim)
+      (yank)
+      (insert rdelim)
+      (goto-char point-pos)))
+
+  (defun puni-rewrap-with-parens ()
+    (interactive)
+    (puni-rewrap-with "(" ")"))
+
+  (defun puni-rewrap-with-braces ()
+    (interactive)
+    (puni-rewrap-with "[" "]"))
+
+  (defun puni-rewrap-with-brackets ()
+    (interactive)
+    (puni-rewrap-with "{" "}"))
+
+  (defun puni-rewrap-with-single-quotes ()
+    (interactive)
+    (puni-rewrap-with "'" "'"))
+
+  (defun puni-rewrap-with-double-quotes ()
+    (interactive)
+    (puni-rewrap-with "\"" "\""))
+
   :bind
-  ;; TODO: slurp/barf based on the current position
-  (("M-r" . puni-raise)
-   ("M-s" . puni-splice)
-   ("M->" . puni-slurp-forward)
-   ("M-<" . puni-barf-forward)))
+  (("M-r"   . puni-raise)
+   ("M-s"   . puni-splice)
+   ("M->"   . puni-slurp-forward)
+   ("M-<"   . puni-barf-forward)
+   ("C-M-s" . puni-squeeze)
+   ("M-("   . puni-rewrap-with-parens)
+   ("M-["   . puni-rewrap-with-braces)
+   ("M-{"   . puni-rewrap-with-brackets)
+   ("M-\""  . puni-rewrap-with-double-quotes)
+   ("M-'"   . puni-rewrap-with-single-quotes)))
 
 (use-package ansi-color
   :straight (:type built-in)
@@ -604,39 +678,14 @@
   (:map ctl-x-map
    ("n v" . vterm)))
 
-(use-package treemacs
-  :bind
-  (:map ctl-x-map
-   ("n t" . treemacs)))
-
-(use-package treemacs-magit)
-
-(use-package treemacs-all-the-icons
-  :config
-  (treemacs-load-theme 'all-the-icons))
-
-(use-package treemacs-projectile)
-
 (use-package org-mime)
 
 (use-package apheleia
-  :hook ((clojure-mode-hook haskell-mode-hook python-mode-hook js-mode-hook)
-         . apheleia-mode)
+  :hook ((clojure-mode-hook haskell-mode-hook python-mode-hook) . apheleia-mode)
   :demand
   :config
   (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
-  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
-  ;; TODO: make that project-local
-  (setf (alist-get 'ormolu       apheleia-formatters) '("ormolu"))
-  (setf (alist-get 'ormolu       apheleia-formatters)
-        '("ormolu"
-          "-o" "-XBangPatterns"
-          "-o" "-XTypeApplications"
-          "-o" "-XTemplateHaskell"
-          "-o" "-XImportQualifiedPost"
-          "-o" "-XPatternSynonyms"
-          "-o" "-fplugin=RecordDotPreprocessor"))
-  (setf (alist-get 'haskell-mode apheleia-mode-alist) 'ormolu))
+  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)  )
 
 (use-package elfeed
   :config
@@ -680,9 +729,10 @@
   :demand
   :straight (vertico :host github
                      :repo "minad/vertico"
-                     :files ("*" (:exclude ".git")))
+                     :files ("*.el" "extensions/*.el"))
   :bind
-  (:map vertico-map
+  (("C-c b c r" . vertico-repeat)
+   :map vertico-map
    ("<escape>" . abort-minibuffers))
   :config
   (vertico-mode))
@@ -742,7 +792,9 @@
   (([remap switch-to-buffer] . consult-buffer)
    ("C-c C-s" . consult-line)
    ("C-c b a" . consult-ripgrep)
-   ("C-c b r" . consult-recent-file)))
+   ("C-c b r" . consult-recent-file))
+  :config
+  (recentf-mode))
 
 (use-package consult-flycheck
   :after flycheck
@@ -763,6 +815,7 @@
   :config
   (marginalia-mode t))
 
+;; TODO: embark-lsp
 (use-package embark
   :after marginalia
   :demand
@@ -783,21 +836,9 @@
     ("e" cider-read-and-eval))
   (add-to-list 'embark-keymap-alist
                '(clojure-sexp . clojure-expression-map))
-  (embark-define-keymap embark-straight-map
-    "Keymar for actions on straight packages"
-    ("u" straight-visit-package-website)
-    ("r" straight-rebuild-package)
-    ("i" straight-use-package)
-    ("c" straight-check-package)
-    ("F" straight-pull-package-and-deps)
-    ("f" straight-fetch-package)
-    ("p" straight-push-package)
-    ("n" straight-normalize-package)
-    ("m" straight-merge-package))
-  (add-to-list 'embark-keymap-alist '(straight . embark-straight-map))
-  (add-to-list 'marginalia-prompt-categories '("recipe\\|package" . straight))
   :bind
-  (("C-;" . embark-act)
+  (("M-q" . embark-act)
+   ("M-." . embark-dwim)
    :map vertico-map
    ("C-e" . embark-export)
    :map embark-general-map
@@ -833,7 +874,7 @@
   (company-selection-wrap-around t)
   (company-tooltip-limit 10)
   (company-tooltip-align-annotations t)
-  (company-global-modes '(not erc-mode message-mode help-mode gud-mode telega-chat-mode))
+  (company-global-modes '(not erc-mode message-mode help-mode gud-mode))
   (company-require-match 'never)
   ;; Buffer-local backends will be computed when loading a major mode, so
   ;; only specify a global default here.
@@ -864,7 +905,7 @@
   :demand
   :config
   (put 'completion-at-point-functions 'safe-local-variable #'listp)
-  (corfu-global-mode))
+  (global-corfu-mode))
 
 (use-package corfu-doc
   :straight (:host github
@@ -875,7 +916,8 @@
 
 (use-package cape
   :straight (:host github
-             :repo "minad/cape")
+             :repo "minad/cape"
+             :files ("*.el" "extensions/*.el"))
   :init
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
@@ -892,25 +934,17 @@
 
 (use-package company-tabnine
   :preface
-  (defun turn-tabnine-off ()
+  (defun turn-off-tabnine ()
     (interactive)
     ;; (setq company-backends (remove 'company-tabnine company-backends))
     (remove-hook 'completion-at-point-functions (cape-company-to-capf #'company-tabnine) nil)
     )
-  (defun turn-tabnine-on ()
+  (defun turn-on-tabnine ()
     (interactive)
     ;; (add-to-list 'company-backends #'company-tabnine)
-    (add-hook 'completion-at-point-functions (cape-company-to-capf #'company-tabnine) nil t)))
-
-(use-package copilot
-  :straight (:host github
-             :repo "zerolfx/copilot.el"
-             :files ("dist" "copilot.el"))
-  :bind
-  (("M-o" . copilot-complete)
-   ("M-e" . copilot-accept-completion)
-   ("M-a" . copilot-clear-overlay)
-   ("M-i" . copilot-next-completion)))
+    (add-hook 'completion-at-point-functions (cape-company-to-capf #'company-tabnine) nil t))
+  :config
+  (turn-on-tabnine))
 
 (use-package dumb-jump
   :hook (xref-backend-functions . dumb-jump-xref-activate)
@@ -940,34 +974,6 @@
   (add-to-list 'savehist-additional-variables 'dogears-list)
   (dogears-mode))
 
-(use-package better-jumper
-  :disabled
-  :bind
-  (("C-," . better-jumper-jump-backward)
-   ("C-." . better-jumper-jump-forward))
-  :config
-  (better-jumper-mode)
-  (advice-add #'consult-buffer
-              :before
-              `(lambda (&rest _ignore)
-                 ,(interactive-form 'consult-buffer)
-                 (better-jumper-set-jump)))
-  (advice-add #'consult-projectile
-              :before
-              `(lambda (&rest _ignore)
-                 ,(interactive-form 'consult-projectile)
-                 (better-jumper-set-jump)))
-  (advice-add #'xref-find-definitions
-              :before
-              `(lambda (&rest _ignore)
-                 ,(interactive-form 'xref-find-definitions)
-                 (better-jumper-set-jump)))
-  (advice-add #'lsp-find-definition
-              :before
-    `(lambda (&rest _ignore)
-       ,(interactive-form 'lsp-find-definition)
-       (better-jumper-set-jump))))
-
 (use-package consult-better-jumper
   :straight (:host github
              :repo "NicholasBHubbard/consult-better-jumper")
@@ -984,6 +990,7 @@
     [16 48 112 240 112 48 16] nil nil 'center))
 
 (use-package flycheck-inline
+  :disabled
   :hook (flycheck-mode-hook . flycheck-inline-mode))
 
 (use-package flycheck-pos-tip
@@ -1008,6 +1015,7 @@
    ("C-c l a" . eglot-code-actions)
    ("C-c l r" . eglot-rename)))
 
+;; TODO: Check out lsp-bridge
 (use-package lsp-mode
   :preface
   (defun lsp-mode-setup-completion-for-corfu ()
@@ -1017,9 +1025,9 @@
   :demand t
   :custom
   (lsp-keymap-prefix "C-c l")
-  (lsp-enable-symbol-highlighting nil)
+  (lsp-enable-symbol-highlighting t)
   (lsp-modeline-code-actions-enable nil)
-  (lsp-lens-enable t)
+  (lsp-lens-place-position 'above-line)
   (lsp-prefer-capf t)
   (lsp-completion-provider :none) ; use corfu instead
   ;; (lsp-completion-provider :capf)
@@ -1062,9 +1070,11 @@
 
 (use-package lsp-ui
   :custom
-  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-delay 1)
   (lsp-ui-peek-enable nil)
-  (lsp-ui-sideline-enable nil)
+  (lsp-ui-sideline-enable t)
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-show-hover nil))
 
@@ -1073,10 +1083,9 @@
   (haskell-completing-read-function #'completing-read)
   (haskell-process-show-overlays nil)
   (haskell-process-suggest-restart nil)
+  (haskell-font-lock-symbols t)
   :hook
-  (haskell-mode-hook . haskell-indentation-mode)
-  ;; (haskell-mode-hook . interactive-haskell-mode)
-  )
+  (haskell-mode-hook . haskell-indentation-mode))
 
 (use-package lsp-haskell
   :after lsp-mode
@@ -1088,8 +1097,8 @@
   (defun turn-off-haskell-lsp ()
     (interactive)
     (remove-hook 'haskell-mode-hook #'lsp-deferred)
-    ;; TODO: fix that
-    (lsp-workspace-shutdown)))
+    (call-interactively
+     (lsp-workspace-shutdown))))
 
 (use-package python-x
   :preface
@@ -1194,11 +1203,22 @@
   :custom
   (rust-format-on-save t))
 
+(use-package typescript-mode)
+
+(use-package web-mode
+  :mode "\\.tsx\\'"
+  :custom
+  (web-mode-code-indent-offset 2))
+
 (use-package markdown-mode)
 
 (use-package yaml-mode)
 
 (use-package dockerfile-mode)
+
+(use-package visible-mark
+  :config
+  (visible-mark-mode))
 
 (use-package tree-sitter
   :hook
@@ -1226,9 +1246,7 @@
 
 (use-package pdf-tools
   :custom
-  (pdf-view-display-page 'fit-page)
-  :config
-  (pdf-tools-install))
+  (pdf-view-display-page 'fit-page))
 
 (use-package tex-site
   :straight auctex
@@ -1247,27 +1265,7 @@
   :config
   (which-key-mode t))
 
-;; TODO: telega-adblock
-(use-package telega
-  :straight (telega :branch "v0.8.03")
-  ;; :hook
-  ;; (telega-load-hook . telega-notifications-mode)
-  ;; (telega-load-hook . telega-adblock-mode)
-  :custom
-  (telega-auto-download '((photo         opened)
-                          (video         opened)
-                          (file          opened)
-                          (voice-message opened)
-                          (video-message opened)
-                          (web-page      opened)
-                          (instant-view  opened)))
-  (telega-completing-read-function 'completing-read)
-  (telega-use-images t)
-  (telega-root-default-view-function #'telega-view-compact)
-  (telega-use-docker nil)
-  (telega-chat-input-markups '("markdown1" nil "markdown2"))
-  :bind-keymap
-  ("C-c t" . telega-prefix-map))
+(use-package rainbow-mode)
 
 (use-package screenshot
   :straight (:host github
@@ -1275,15 +1273,6 @@
              :build (:not compile)))
 
 (use-package nix-mode)
-
-(use-package activity-watch-mode
-  :demand t
-  :config
-  (global-activity-watch-mode))
-
-(use-package activity-watch-visualize
-  :straight (:host github
-             :repo "arjaz/activity-watch-visualize"))
 
 (use-package selected
   :bind
@@ -1303,7 +1292,104 @@
   (:map ctl-x-map
    ("n z" . zoom-mode)))
 
+(use-package telega
+  :straight (:host github
+             :repo "zevlg/telega.el"
+             :branch "release-0.8.0")
+  :hook (telega-chat-mode-hook . olivetti-mode)
+  :custom
+  (telega-server-libs-prefix "/usr")
+  (telega-use-docker t)
+  (telega-use-images t)
+  (telega-root-show-avatars t)
+  (telega-chat-show-avatars t)
+  (telega-completing-read-function #'completing-read)
+  :bind
+  (:map telega-msg-button-map
+   ("z" . recenter)))
+
 (use-package explain-pause-mode)
+
+(use-package svg-tag-mode
+  :hook (org-mode-hook . svg-tag-mode)
+  :config
+  (defconst date-re "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}")
+  (defconst time-re "[0-9]\\{2\\}:[0-9]\\{2\\}")
+  (defconst day-re "[A-Za-z]\\{3\\}")
+  (defconst day-time-re (format "\\(%s\\)? ?\\(%s\\)?" day-re time-re))
+
+  (defun svg-progress-percent (value)
+    (svg-image (svg-lib-concat
+                (svg-lib-progress-bar (/ (string-to-number value) 100.0)
+                                      nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+                (svg-lib-tag (concat value "%")
+                             nil :stroke 0 :margin 0)) :ascent 'center))
+
+  (defun svg-progress-count (value)
+    (let* ((seq (mapcar #'string-to-number (split-string value "/")))
+           (count (float (car seq)))
+           (total (float (cadr seq))))
+      (svg-image (svg-lib-concat
+                  (svg-lib-progress-bar (/ count total) nil
+                                        :margin 0 :stroke 2 :radius 3 :padding 2 :width 11)
+                  (svg-lib-tag value nil
+                               :stroke 0 :margin 0)) :ascent 'center)))
+
+  (setq svg-tag-tags
+        `(
+          ;; Org tags
+          (":\\([A-Za-z0-9]+\\)" . ((lambda (tag) (svg-tag-make tag))))
+          (":\\([A-Za-z0-9]+[ \-]\\)" . ((lambda (tag) tag)))
+
+          ;; Task priority
+          ("\\[#[A-Z]\\]" . ( (lambda (tag)
+                                (svg-tag-make tag :face 'org-priority
+                                              :beg 2 :end -1 :margin 0))))
+
+          ;; Progress
+          ("\\(\\[[0-9]\\{1,3\\}%\\]\\)" . ((lambda (tag)
+                                              (svg-progress-percent (substring tag 1 -2)))))
+          ("\\(\\[[0-9]+/[0-9]+\\]\\)" . ((lambda (tag)
+                                            (svg-progress-count (substring tag 1 -1)))))
+
+          ;; TODO / DONE
+          ("TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0))))
+          ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
+
+
+          ;; Citation of the form [cite:@Knuth:1984]
+          ("\\(\\[cite:@[A-Za-z]+:\\)" . ((lambda (tag)
+                                            (svg-tag-make tag
+                                                          :inverse t
+                                                          :beg 7 :end -1
+                                                          :crop-right t))))
+          ("\\[cite:@[A-Za-z]+:\\([0-9]+\\]\\)" . ((lambda (tag)
+                                                     (svg-tag-make tag
+                                                                   :end -1
+                                                                   :crop-left t))))
+
+
+          ;; Active date (with or without day name, with or without time)
+          (,(format "\\(<%s>\\)" date-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :beg 1 :end -1 :margin 0))))
+          (,(format "\\(<%s \\)%s>" date-re day-time-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0))))
+          (,(format "<%s \\(%s>\\)" date-re day-time-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0))))
+
+          ;; Inactive date  (with or without day name, with or without time)
+          (,(format "\\(\\[%s\\]\\)" date-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :beg 1 :end -1 :margin 0 :face 'org-date))))
+          (,(format "\\(\\[%s \\)%s\\]" date-re day-time-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :beg 1 :inverse nil :crop-right t :margin 0 :face 'org-date))))
+          (,(format "\\[%s \\(%s\\]\\)" date-re day-time-re) .
+           ((lambda (tag)
+              (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date)))))))
 
 (provide 'init)
 ;;; init.el ends here

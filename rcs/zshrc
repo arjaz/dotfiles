@@ -75,3 +75,5 @@ eval "$(direnv hook zsh)"
 
 # opam configuration
 [[ ! -r /home/arjaz/.opam/opam-init/init.zsh ]] || source /home/arjaz/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+eval "$(antidot init)"

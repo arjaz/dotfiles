@@ -26,31 +26,22 @@ schemes:
       white: '0xECEFF4'
   alacritty-light: &light
     primary:
-      background: '0xfbf1c7'
-      foreground: '0x504945'
+      background: '0xf7f3ee'
+      foreground: '0x605a52'
     cursor:
-      text: '0xfbf1c7'
-      cursor: '0x504945'
+      text: '0x605a52'
+      cursor: '0x605a52'
     normal:
-      black:   '0xfbf1c7'
-      red:     '0x9d0006'
-      green:   '0x79740e'
-      yellow:  '0xb57614'
-      blue:    '0x076678'
+      black:   '0x605a52'
+      red:     '0x955f5f'
+      green:   '0x525643'
+      yellow:  '0x957f5f'
+      blue:    '0x4c5361'
       magenta: '0x8f3f71'
-      cyan:    '0x427b58'
-      white:   '0x504945'
-    bright:
-      black:   '0xbdae93'
-      red:     '0xaf3a03'
-      green:   '0xebdbb2'
-      yellow:  '0xd5c4a1'
-      blue:    '0x665c54'
-      magenta: '0x3c3836'
-      cyan:    '0xd65d0e'
-      white:   '0x282828'
+      cyan:    '0x7382a0'
+      white:   '0xf7f3ee'
 
-colors: *dark
+colors: *light
 
 cursor:
   style: Underline
@@ -60,27 +51,21 @@ window:
     x: 2
     y: 2
 
-# background_opacity: 1
-
 font:
   normal:
-    family: Iosevka Arjaz
+    family: Iosevka
     style: Regular
 
   bold:
-    family: Iosevka Arjaz
+    family: Iosevka
     style: Bold
 
   italic:
-    family: Iosevka Arjaz
+    family: Iosevka
     style: Italic
 
   bold_italic:
-    family: Iosevka Arjaz
+    family: Iosevka
     style: Bold Italic
 
   size: 11.5
-
-key_bindings:
-  - { key: J, mods: Shift|Control, action: ScrollHalfPageDown }
-  - { key: K, mods: Shift|Control, action: ScrollHalfPageUp }
