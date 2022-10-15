@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 
-export EDITOR='nvim'
-export VISUAL='nvim'
+export EDITOR='emacs'
+export VISUAL='emacs'
 
 # Plugins
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -26,11 +26,7 @@ export HISTSIZE=1000
 export HISTFILE=~/.zsh_history
 
 # Aliases
-alias ping=gping
 alias em='emacsclient --alternate-editor="" -nw '
-alias vim=nvim
-alias v=nvim
-alias view='nvim -R'
 
 alias btw=neofetch
 alias :q=exit

@@ -1,13 +1,12 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 
+-- import qualified DBus.Cliest                   as DBusClient
+-- import qualified XMonad.DBus                   as DBus
 import           Data.Semigroup                 ( Endo )
 import           System.Exit
-import           System.IO
 import           XMonad
-import           XMonad.Actions.NoBorders
 import           XMonad.Actions.WindowGo
 import           XMonad.Config.Desktop
-import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
@@ -26,7 +25,6 @@ import           XMonad.Util.EZConfig           ( additionalKeys
                                                 , additionalKeysP
                                                 , removeKeysP
                                                 )
-import           XMonad.Util.Run
 import           XMonad.Util.SpawnOnce
 
 main :: IO ()
@@ -34,18 +32,18 @@ main = xmonad . docks . ewmhFullscreen . ewmh $ myConfig
 
 myConfig :: XConfig _
 myConfig =
-  desktopConfig { terminal           = term
-                , modMask            = mask
-                , borderWidth        = myBorderWidth
-                , normalBorderColor  = bg0
-                , focusedBorderColor = bg1
-                , workspaces         = myWorkspaces
-                , focusFollowsMouse  = False
-                , manageHook         = myManageHook
-                , layoutHook         = myLayoutHook
-                , startupHook        = myStartupHook
-                , handleEventHook    = handleEventHook desktopConfig
-                }
+  def { terminal           = term
+      , modMask            = mask
+      , borderWidth        = myBorderWidth
+      , normalBorderColor  = normalBorderColor'
+      , focusedBorderColor = focusedBorderColor'
+      , workspaces         = map snd myWorkspaces
+      , focusFollowsMouse  = False
+      , manageHook         = myManageHook
+      , layoutHook         = myLayoutHook
+      , startupHook        = myStartupHook
+      , handleEventHook    = handleEventHook desktopConfig
+      }
     `additionalKeys`  myAdditionalKeys
     `additionalKeysP` myAdditionalKeysP
     `removeKeysP`     ["M-,", "M-."]
@@ -53,43 +51,33 @@ myConfig =
 term :: String
 term = "alacritty -e tmux"
 
-fg0 :: String
-fg0 = "#d8dee9"
+-- TODO: Depend on the system theme
+normalBorderColor' :: String
+normalBorderColor' = "#202328"
 
-fg1 :: String
-fg1 = "#4c566a"
-
-bg0 :: String
-bg0 = "#2e3440"
-
-bg1 :: String
-bg1 = "#88c0d0"
-
-myCurrentWSColor :: String
-myCurrentWSColor = "#a3be8c"
-
-myUrgentWSColor :: String
-myUrgentWSColor = "#d08770"
-
-myPP :: PP
-myPP = xmobarPP { ppUrgent  = xmobarColor myUrgentWSColor ""
-                , ppCurrent = xmobarColor myCurrentWSColor ""
-                , ppTitle   = xmobarColor fg0 ""
-                , ppLayout  = const ""
-                , ppSep = "  <icon=/usr/share/icons/stlarch_icons/tile.xbm/>  "
-                }
+-- TODO: Depend on the system theme
+focusedBorderColor' :: String
+focusedBorderColor' = "#955f5f"
 
 mask :: KeyMask
 mask = mod4Mask
 
 myBorderWidth :: Dimension
-myBorderWidth = 1
+myBorderWidth = 2
 
-myWorkspaces :: [String]
-myWorkspaces = map show ([1 .. 9] :: [Int]) <> map snd myExtraWorkspaces
-
-myExtraWorkspaces :: [(KeySym, String)]
-myExtraWorkspaces = [(xK_0, "0")]
+myWorkspaces :: [(KeySym, String)]
+myWorkspaces =
+  [ (xK_1, "1")
+  , (xK_2, "2")
+  , (xK_3, "3")
+  , (xK_4, "4")
+  , (xK_5, "5")
+  , (xK_6, "6")
+  , (xK_7, "7")
+  , (xK_8, "8")
+  , (xK_9, "9")
+  , (xK_0, "0")
+  ]
 
 screenshotsFolder :: String
 screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
@@ -101,23 +89,23 @@ myAdditionalKeysP =
   , ("M-o b"     , spawn "nautilus")
   , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
   , ("M-e"       , spawn "emacsclient -c -a=''")
-  , ("M-o e"     , io exitSuccess)
-  , ("M-o f", spawn "emacsclient -c -a='' --eval '(elfeed)'")
+  , ("M-o e e"   , io exitSuccess)
   , ( "M-o c l"
     , spawn
+      -- TODO: fix that ugliness
       "gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' && sh ~/.config/alacritty/light.sh && sh ~/.config/polybar/light.sh"
     )
   , ( "M-o c d"
     , spawn
+      -- TODO: fix that ugliness
       "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' && sh ~/.config/alacritty/dark.sh && sh ~/.config/polybar/dark.sh"
     )
   , ("M-d"                   , spawn "rofi -show run")
   , ("M-o j"                 , spawn "rofi -show window")
-  , ("M-o p"                 , spawn "pass clip -r")
+  , ("M-o p"                 , spawn "sh -c 'pass clip -r'")
   , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
   , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
   , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
-  , ("M-o q"                 , io exitSuccess)
   , ("M-o S-s", spawn $ "escrotum -C " <> screenshotsFolder)
   , ("M-o s", spawn $ "escrotum -C -s " <> screenshotsFolder)
   , ("M--"                   , sendMessage Expand)
@@ -133,9 +121,9 @@ myAdditionalKeysP =
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
-  [ ((mask, key), windows $ W.greedyView ws) | (key, ws) <- myExtraWorkspaces ]
-  <> [ ((mask .|. shiftMask, key), windows $ W.shift ws)
-     | (key, ws) <- myExtraWorkspaces
+  [ ((mask, key), windows $ W.greedyView ws) | (key, ws) <- myWorkspaces ]
+  <> [ ((mask .|. controlMask, key), windows $ W.shift ws)
+     | (key, ws) <- myWorkspaces
      ]
 
 myManageHook :: Query (Endo WindowSet)
@@ -149,7 +137,7 @@ myManageHook = composeAll
   ]
 
 myLayoutHook :: Choose _ _ Window
-myLayoutHook = fancy ||| big ||| tiled
+myLayoutHook = fancy ||| tiled ||| console
  where
   tiled =
     named "Tall"
@@ -158,7 +146,7 @@ myLayoutHook = fancy ||| big ||| tiled
       . smartSpacing spacingSize
       . mkToggle (NOBORDERS ?? FULL ?? EOT)
       $ ResizableTall nmaster delta ratio []
-  big =
+  console =
     named "Console"
       . avoidStruts
       . smartBorders
@@ -183,12 +171,18 @@ myLayoutHook = fancy ||| big ||| tiled
 
 startupCommands :: [String]
 startupCommands =
-  [ "polybar -r &"
+  [ "polybar -r &" -- TODO: use eww instead
+  -- , "eww open bar &"
   , "~/.fehbg --restore &"
   , "picom --config ~/.picom.conf &"
   , "redshift -l 50.4461248:30.5214979 &"
   , "deadd-notification-center &"
   ]
 
+-- TODO: action to bring a window to the current workspace
+-- https://hackage.haskell.org/package/xmonad-contrib-0.17.1/docs/XMonad-Actions-WindowBringer.html
 myStartupHook :: X ()
 myStartupHook = mapM_ spawnOnce startupCommands
+
+myLogHook :: X ()
+myLogHook = pure ()
