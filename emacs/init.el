@@ -22,11 +22,13 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(defvar use-package-enable-imenu-support t)
 (straight-use-package 'use-package)
 
 (use-package use-package-core
   :straight (:type built-in)
-  :custom (use-package-hook-name-suffix nil))
+  :custom
+  (use-package-hook-name-suffix nil))
 
 (use-package straight
   :custom
@@ -104,7 +106,7 @@
     (let ((font "Iosevka"))
       (add-to-list 'default-frame-alist `(font . ,font))
       (set-face-attribute 'default nil :family font :height 120)
-      (set-face-attribute 'variable-pitch nil :family "Roboto" :height 140)
+      (set-face-attribute 'variable-pitch nil :family "Roboto" :height 150)
       (set-frame-font font)))
   :hook
   (after-init-hook . setup-fonts))
@@ -654,11 +656,6 @@
     (read-only-mode))
   :hook (compilation-filter-hook . colorize-compilation-buffer))
 
-;; (use-package emacs-fancy-compilation
-;;   :straight (:type git
-;;              :host "codeberg.org"
-;;              :repo "ideasman42/emacs-fancy-compilation"))
-
 (use-package xterm-color)
 
 (use-package coterm
@@ -790,10 +787,16 @@
   ;;    (:propertize (:eval (git-branch)) face magit-dimmed)))
   )
 
+(use-package magit-todos
+  :config
+  (magit-todos-mode))
+
+(use-package code-review)
+
 ;; TODO: there's a problem with lsp-ui -- mini-modeline hides the doc frame
 (use-package mini-modeline
   :config
-  ;; TODO: maybe rething eldoc
+  ;; TODO: maybe rethink eldoc
   (setq
    mini-modeline-enhance-visual nil
    mini-modeline-display-gui-line nil
@@ -813,7 +816,15 @@
 
 (use-package browse-at-remote)
 
+(use-package project
+  :straight (:type built-in))
+
+(use-package consult-project-extra
+  :bind
+  ([remap project-find-file] . consult-project-extra-find))
+
 (use-package projectile
+  :disabled
   :custom
   (projectile-project-search-path '("~/Code/"))
   (compilation-scroll-output t)
@@ -821,10 +832,6 @@
   (projectile-mode)
   :bind-keymap
   ("C-c p" . projectile-command-map))
-
-(use-package consult-projectile
-  :bind
-  ([remap projectile-find-file] . consult-projectile))
 
 (use-package wgrep)
 
@@ -912,33 +919,6 @@
   (setq-mode-local c-mode indent-tabs-mode t)
   (setq-mode-local c++-mode indent-tabs-mode t)
   (smart-tabs-insinuate 'c 'c++))
-
-(use-package company
-  :disabled
-  :demand t
-  :custom
-  (company-idle-delay 0.1)
-  (company-echo-delay 0.1)
-  (company-show-numbers t)
-  (company-eclim-auto-save nil)
-  (company-dabbrev-downcase nil)
-  (company-minimum-prefix-length 1)
-  (company-selection-wrap-around t)
-  (company-tooltip-limit 10)
-  (company-tooltip-align-annotations t)
-  (company-global-modes '(not erc-mode message-mode help-mode gud-mode))
-  (company-require-match 'never)
-  ;; Buffer-local backends will be computed when loading a major mode, so
-  ;; only specify a global default here.
-  (company-backends '((company-capf company-dabbrev-code)))
-  (company-auto-commit nil)
-  (company-auto-commit-chars nil)
-  :config
-  (global-company-mode)
-  :bind
-  (:map company-active-map
-   ("RET" . company-complete-selection)
-   ("<ret>" . company-complete-selection)))
 
 (use-package smart-tab
   :config
@@ -1091,6 +1071,7 @@
   :config
   (flycheck-pos-tip-mode t))
 
+;; TODO: maybe flymake cursos
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
@@ -1098,11 +1079,10 @@
   (eldoc-echo-area-display-truncation-message nil))
 
 (use-package eldoc-box
-  :disabled
   :hook (eglot-managed-mode-hook . eldoc-box-hover-mode))
 
 (use-package eglot
-  :disabled
+  ;; :disabled
   :custom
   (read-process-output-max (* 1024 1024 10))
   (eglot-confirm-server-initiated-edits nil)
@@ -1115,9 +1095,34 @@
    ("C-c l r" . eglot-rename)
    ("C-c l f" . eglot-format)
    ("C-c l e" . consult-flymake)
-   ("C-c l h" . eldoc-print-current-symbol-info))
+   ("C-c l h" . eldoc-print-current-symbol-info)
+   ("C-c l o" . open-markdown-link)
+   :map haskell-mode-map
+   ("C-c l l" . eglot-turn-on-hls))
+  :preface
+  (defun eglot-turn-on-hls ()
+    (interactive)
+    (add-hook 'haskell-mode-hook #'eglot-ensure)
+    (call-interactively #'eglot))
+  (defun open-markdown-link (&rest _)
+    (interactive "P")
+    (let ((buffer-list-update-hook nil))
+      (-let [(buffer point) (if-let* ((valid (and (listp last-input-event)
+                                                  (eq (car last-input-event) 'mouse-2)))
+                                      (event (cadr last-input-event))
+                                      (win (posn-window event))
+                                      (buffer (window-buffer win)))
+                                `(,buffer ,(posn-point event))
+                              `(,(current-buffer) ,(point)))]
+        (with-current-buffer buffer
+          ;; Markdown-mode puts the url in 'help-echo
+          (-some--> (get-text-property point 'help-echo)
+            (and (string-match-p goto-address-url-regexp it)
+                 (browse-url it)))))))
   :config
+  (require 'goto-addr)
   ;; corfu setup
+  (push '(haskell-mode . ("haskell-language-server" "--lsp")) eglot-server-programs)
   (push '(eglot (styles orderless)) completion-category-overrides))
 
 ;; TODO: Check out lsp-bridge
@@ -1129,7 +1134,7 @@
              :host github
              :repo "emacs-lsp/lsp-mode"
              :build (:not compile))
-  ;; :disabled
+  :disabled
   :after corfu
   :preface
   (defun lsp-mode-setup-completion-for-corfu ()
@@ -1155,6 +1160,7 @@
   (lsp-diagnostics-flycheck-default-level 'warning))
 
 (use-package consult-lsp
+  :disabled
   :bind
   (:map lsp-mode-map
    ("C-c l c d" . consult-lsp-diagnostics)
@@ -1182,7 +1188,7 @@
    dap-variables-standard-variables))
 
 (use-package lsp-ui
-  ;; :disabled
+  :disabled
   :straight (lsp-ui
              :type git
              :flavor melpa
@@ -1239,7 +1245,7 @@
 (use-package treemacs-magit)
 
 (use-package lsp-treemacs
-  ;; :disabled
+  :disabled
   :config
   (lsp-treemacs-sync-mode))
 
@@ -1252,11 +1258,14 @@
   ;; :hook
   ;; (haskell-mode-hook . haskell-indentation-mode)
   
-
 (use-package lsp-haskell
   :after lsp-mode
+  :disabled
   :custom
   (lsp-haskell-formatting-provider "brittany")
+  :bind
+  (:map haskell-mode-map
+   ("C-c l l" . turn-on-hls))
   :preface
   (defun turn-on-hls ()
     (interactive)
@@ -1271,29 +1280,9 @@
         "haskell-language-server"))
 
 (use-package python-x
-  :preface
-  (defun run-django-shell ()
-    (let ((python-shell-interpreter
-           (expand-file-name (completing-read
-                              "Locate manage.py: "
-                              (projectile-project-files (projectile-acquire-root))
-                              nil
-                              t
-                              "manage.py")
-                             (projectile-project-root)))
-          (python-shell-interpreter-args "shell"))
-      (run-python (python-shell-calculate-command) nil t)))
-  (defun django-shell ()
-    (interactive)
-    (if (poetry-venv-activated-p)
-        (run-django-shell)
-      (poetry-venv-workon)
-      (run-django-shell)
-      (poetry-venv-deactivate)))
   :bind
   (:map inferior-python-mode-map
    ("C-l" . comint-clear-buffer))
-  :demand t
   :config
   (python-x-setup))
 
@@ -1382,6 +1371,14 @@
 (use-package dockerfile-mode)
 
 (use-package nginx-mode)
+
+(setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
+(use-package erlang-start
+  :straight (:type built-in)
+  :config
+  (setq erlang-root-dir "/usr/lib/erlang/")
+  (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+  (setq erlang-man-root-dir "/usr/lib/erlang/man"))
 
 (use-package visible-mark
   :config
