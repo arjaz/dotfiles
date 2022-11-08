@@ -95,6 +95,7 @@
   (cursor-type 'hbar)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
+  (unbind-key (kbd "C-z") 'global-map)
   (window-divider-mode)
   (blink-cursor-mode 0))
 
@@ -117,9 +118,7 @@
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
   :hook
-  (after-init-hook . pixel-scroll-precision-mode)
-  :bind
-  ("C-z" . recenter))
+  (after-init-hook . pixel-scroll-precision-mode))
 
 (use-package cus-edit
   :straight (:type built-in)
