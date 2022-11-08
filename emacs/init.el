@@ -1082,7 +1082,21 @@
   :config
   (flycheck-pos-tip-mode t))
 
-;; TODO: maybe flymake cursos
+(use-package topsy
+  :hook
+  (prog-mode-hook . topsy-mode)
+  :preface
+  (defun haskell-beginning-of-function ()
+    "Return the line moved to by `haskell-ds-backward-decl'."
+    (when (> (window-start) 1)
+      (save-excursion
+        (goto-char (window-start))
+        (haskell-ds-backward-decl)
+        (font-lock-ensure (point) (point-at-eol))
+        (buffer-substring (point) (point-at-eol)))))
+  :config
+  (push `(haskell-mode . haskell-beginning-of-function) topsy-mode-functions))
+
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
