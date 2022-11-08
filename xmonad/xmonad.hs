@@ -87,6 +87,7 @@ myAdditionalKeysP =
   [ ("M-<Return>", spawn term)
   , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
   , ("M-o b"     , spawn "nautilus")
+  , ("M-o M-s", runOrRaise "slack" (className =? "slack"))
   , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
   , ("M-e"       , spawn "emacsclient -c -a=''")
   , ("M-o e e"   , io exitSuccess)
@@ -101,8 +102,7 @@ myAdditionalKeysP =
       "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' && sh ~/.config/alacritty/dark.sh && sh ~/.config/polybar/dark.sh"
     )
   , ("M-d"                   , spawn "rofi -show run")
-  , ("M-o j"                 , spawn "rofi -show window")
-  , ("M-o p"                 , spawn "sh -c 'pass clip -r'")
+  , ("M-o p"                 , spawn "pass clip -r")
   , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
   , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
   , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
@@ -111,7 +111,8 @@ myAdditionalKeysP =
   , ("M--"                   , sendMessage Expand)
   , ("M-m"                   , windows W.swapMaster)
   , ("M-S-q"                 , kill)
-  , ("M-<Tab>"               , sendMessage NextLayout)
+  , ("M-c"                   , sendMessage NextLayout)
+  , ("M-<Tab>"               , spawn "rofi -show window")
   , ( "M-s"
     , sendMessage (Toggle FULL)
       >> sendMessage ToggleStruts
