@@ -752,6 +752,18 @@
   :bind
   ("C-c o m" . magit-status)
   :preface
+  (defun spr-diff ()
+    (interactive)
+    (let ((default-directory (project-root (project-current nil))))
+      (async-shell-command "spr diff")))
+  (defun spr-diff-all ()
+    (interactive)
+    (let ((default-directory (project-root (project-current nil))))
+      (async-shell-command "spr diff --all")))
+  (defun spr-land ()
+    (interactive)
+    (let ((default-directory (project-root (project-current nil))))
+      (async-shell-command "spr land")))
   (defun file-directory ()
     (let ((home (expand-file-name "~")))
       (when (buffer-file-name)
