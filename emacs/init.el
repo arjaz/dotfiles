@@ -101,16 +101,12 @@
 
 (use-package faces
   :straight (:type built-in)
-  :preface
-  (defun setup-fonts ()
-    (interactive)
-    (let ((font "Iosevka"))
-      (add-to-list 'default-frame-alist `(font . ,font))
-      (set-face-attribute 'default nil :family font :height 120)
-      (set-face-attribute 'variable-pitch nil :family "Roboto" :height 150)
-      (set-frame-font font)))
-  :hook
-  (after-init-hook . setup-fonts))
+  :config
+  (let ((font "Iosevka-12"))
+    (add-to-list 'initial-frame-alist `(font . ,font))
+    (add-to-list 'default-frame-alist `(font . ,font))
+    (set-face-attribute 'variable-pitch nil :family "Roboto" :height 150)
+    (set-frame-font font)))
 
 (use-package pixel-scroll
   :straight (:type built-in)
