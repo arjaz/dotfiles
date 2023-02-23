@@ -1,5 +1,5 @@
 schemes:
-  nord: &dark
+  dark: &dark
     primary:
       background: '0x2E3440'
       foreground: '0xD8DEE9'
@@ -24,7 +24,7 @@ schemes:
       magenta: '0xB48EAD'
       cyan: '0x8FBCBB'
       white: '0xECEFF4'
-  alacritty-light: &light
+  light: &light
     primary:
       background: '0xf7f3ee'
       foreground: '0x605a52'
@@ -68,4 +68,4 @@ font:
     family: Iosevka
     style: Bold Italic
 
-  size: 11.5
+  size: 11

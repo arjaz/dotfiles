@@ -52,7 +52,7 @@ myConfig =
         `removeKeysP` ["M-,", "M-."]
 
 term :: String
-term = "alacritty -e tmux"
+term = "kitty"
 
 -- TODO: Depend on the system theme
 normalBorderColor' :: String
@@ -66,7 +66,7 @@ mask :: KeyMask
 mask = mod4Mask
 
 myBorderWidth :: Dimension
-myBorderWidth = 2
+myBorderWidth = 1
 
 myWorkspaces :: [(KeySym, String)]
 myWorkspaces =
@@ -87,25 +87,19 @@ screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
-    [ ("M-<Return>", spawn term)
+    [ ("M-n", windows W.focusDown)
+    , ("M-p", windows W.focusUp)
+    , ("S-M-n", windows W.swapDown)
+    , ("S-M-p", windows W.swapUp)
+    , ("M-<Return>", spawn term)
     , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
     , ("M-o b", spawn "nautilus")
-    , ("M-o M-s", runOrRaise "slack" (className =? "slack"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-e", spawn "emacsclient -c -a=''")
     , ("M-o e e", io exitSuccess)
-    ,
-        ( "M-o c l"
-        , spawn
-            -- TODO: fix that ugliness
-            "gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' && sh ~/.config/alacritty/light.sh && sh ~/.config/polybar/light.sh"
-        )
-    ,
-        ( "M-o c d"
-        , spawn
-            -- TODO: fix that ugliness
-            "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' && sh ~/.config/alacritty/dark.sh && sh ~/.config/polybar/dark.sh"
-        )
+    , ("M-o c l", spawn "sh ~/.dotfiles/scripts/to-light-theme.sh")
+    , ("M-o c d", spawn "sh ~/.dotfiles/scripts/to-dark-theme.sh")
+    , ("M-o d y", spawn "sh ~/.dotfiles/scripts/xclip-yt-dlp.sh")
     , ("M-d", spawn "rofi -show run")
     , ("M-o p", spawn "pass clip -r")
     , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
@@ -113,25 +107,22 @@ myAdditionalKeysP =
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
     , ("M-o S-s", spawn $ "escrotum -C " <> screenshotsFolder)
     , ("M-o s", spawn $ "escrotum -C -s " <> screenshotsFolder)
+    , ("M-o M-S-s", spawn $ "escrotum " <> screenshotsFolder)
+    , ("M-o M-s", spawn $ "escrotum -s " <> screenshotsFolder)
     , ("M--", sendMessage Expand)
     , ("M-m", windows W.swapMaster)
     , ("M-S-q", kill)
     , ("M-c", sendMessage NextLayout)
     , ("M-<Tab>", spawn "rofi -show window")
-    ,
-        ( "M-s"
-        , sendMessage (Toggle FULL)
-            >> sendMessage ToggleStruts
-            >> sendMessage ToggleGaps
-        )
+    , ("M-s", sendMessage (Toggle FULL) >> sendMessage ToggleStruts >> sendMessage ToggleGaps)
     ]
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
     [((mask, key), windows $ W.greedyView ws) | (key, ws) <- myWorkspaces]
-        <> [ ((mask .|. controlMask, key), windows $ W.shift ws)
-           | (key, ws) <- myWorkspaces
-           ]
+    <> [ ((mask .|. shiftMask, key), windows $ W.shift ws)
+       | (key, ws) <- myWorkspaces
+       ]
 
 myManageHook :: Query (Endo WindowSet)
 myManageHook =
@@ -184,13 +175,10 @@ startupCommands =
     , "~/.fehbg --restore &"
     , "picom --config ~/.picom.conf &"
     , "redshift -l 50.4461248:30.5214979 &"
-    , "deadd-notification-center &"
+    , "wired &"
     ]
 
 -- TODO: action to bring a window to the current workspace
 -- https://hackage.haskell.org/package/xmonad-contrib-0.17.1/docs/XMonad-Actions-WindowBringer.html
 myStartupHook :: X ()
 myStartupHook = mapM_ spawnOnce startupCommands
-
-myLogHook :: X ()
-myLogHook = pure ()
