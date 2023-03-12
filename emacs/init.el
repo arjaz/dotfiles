@@ -7,6 +7,7 @@
 ;;; Code:
 
 (defvar comp-deferred-compilation-deny-list ())
+(defvar native-comp-deferred-compilation-deny-list ())
 (defvar bootstrap-version)
 (defvar straight-repository-branch "develop")
 (let ((bootstrap-file (expand-file-name
@@ -81,6 +82,18 @@
   :custom
   (show-paren-context-when-offscreen 'overlay))
 
+(use-package scopeline
+  :after tree-sitter
+  :straight (:repo "meain/scopeline.el"
+             :host github)
+  :preface
+  (defun setup-scopeline ()
+    (interactive)
+    (setq-local show-paren-context-when-offscreen nil)
+    (scopeline-mode))
+  :hook
+  (tree-sitter-mode-hook . setup-scopeline))
+
 (use-package loaddefs
   :straight (:type built-in)
   :custom
@@ -106,10 +119,11 @@
 (use-package faces
   :straight (:type built-in)
   :config
-  (let ((font "Iosevka ss18 Medium-12"))
+  (let ((font "Iosevka ss18 Medium-11"))
     (add-to-list 'initial-frame-alist `(font . ,font))
     (add-to-list 'default-frame-alist `(font . ,font))
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile Regular" :height 120)
+    (set-face-attribute 'variable-pitch nil :family "Sans Serif" :height 110)
+    ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile Regular" :height 120)
     ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 120)
     (set-frame-font font)))
 
@@ -284,7 +298,7 @@
   (org-directory "~/Documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
   (org-hide-leading-stars t)
-  (org-startup-indented nil)
+  (org-startup-indented t)
   (org-agenda-files (list org-default-notes-file))
   (org-columns-default-format "%50ITEM(Task) %TODO %10CLOCKSUM %16TIMESTAMP_IA")
   (org-capture-templates
@@ -311,7 +325,16 @@
   (org-super-agenda-mode))
 
 (use-package org-modern
-  :hook (org-mode-hook . org-modern-mode))
+  :hook
+  (org-mode-hook . org-modern-mode)
+  (org-agenda-finalize-hook . org-modern-agenda)
+  :custom
+  (org-modern-hide-stars nil))
+
+(use-package org-modern-indent
+  :straight (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent")
+  :config ; add late to hook
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 
 (use-package denote
   :straight (:host github
@@ -376,7 +399,7 @@
    #'dbus-on-theme-changed)
   :init
   (defvar after-load-theme-hook ())
-  (defvar light-theme 'modus-operandi)
+  (defvar light-theme 'modus-operandi-tinted)
   (defvar dark-theme 'modus-vivendi-tinted)
   (advice-add #'load-theme :after #'run-after-load-theme-hooks))
 
@@ -458,8 +481,9 @@
                                 yellow-faint)))))
   :custom
   (prism-parens t)
-  :hook
-  ((lisp-mode-hook clojure-mode-hook scheme-mode-hook) . prism-mode))
+  ;; :hook
+  ;; ((lisp-mode-hook clojure-mode-hook scheme-mode-hook) . prism-mode)
+  )
 
 (use-package gdscript-mode)
 
@@ -489,7 +513,8 @@
 (use-package dirvish
   :demand
   :custom
-  (dirvish-attributes '(all-the-icons file-time file-size))
+  (dirvish-attributes '(all-the-icons collapse file-time file-size))
+  (dirvish-use-mode-line nil)
   :config
   (dirvish-override-dired-mode)
   (require 'dirvish-icons)
@@ -525,6 +550,8 @@
   :hook
   (dired-mode-hook . auto-revert-mode)
   :custom
+  (dired-mouse-drag-files t)
+  (mouse-drag-and-drop-region-cross-program t)
   (dired-listing-switches "-alhg")
   (dired-auto-revert-buffer t)
   (dired-dwim-target t)
@@ -1003,6 +1030,16 @@
   (prog-mode-hook . tempel-setup-capf)
   (text-mode-hook . tempel-setup-capf))
 
+(use-package mono-complete
+  :disabled
+  :config
+  (mono-complete-mode)
+  :custom
+  (mono-complete-backends '(capf dabbrev filesystem word-predict))
+  :bind
+  (:map mono-complete-mode-map
+   ("<tab>" . mono-complete-expand-or-fallback)))
+
 (use-package corfu
   :straight
   (:host github
@@ -1022,8 +1059,9 @@
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-separator ?\s)
-  (corfu-quit-at-boundary 'separator)
-  (corfu-quit-no-match 'separator)
+  (corfu-quit-at-boundary t)
+  (corfu-quit-no-match t)
+  (corfu-on-exact-match #'quit)
   (corfu-preselect 'directory)
   :demand
   :config
@@ -1079,11 +1117,25 @@
     (message "TabNine disabled")))
 
 (use-package codeium
-  :disabled
   :straight (:host github
              :repo "Exafunction/codeium.el")
-  :config
-  (add-to-list 'completion-at-point-functions #'codeium-completion-at-point))
+  :preface
+  (defun enable-codeium ()
+    (setq-local completion-at-point-functions (cons #'codeium-completion-at-point completion-at-point-functions)))
+  (defun disable-codeium ()
+    (setq-local completion-at-point-functions (delete #'codeium-completion-at-point completion-at-point-functions)))
+  (defun turn-on-codeium ()
+    (interactive)
+    (enable-codeium)
+    (add-hook 'lsp-completion-mode-hook #'enable-codeium)
+    (add-hook 'prog-mode-hook #'enable-codeium)
+    (message "Codeium enabled"))
+  (defun turn-off-codeium ()
+    (interactive)
+    (disable-codeium)
+    (remove-hook 'lsp-completion-mode-hook #'enable-codeium)
+    (remove-hook 'prog-mode-hook #'enable-codeium)
+    (message "Codeium disabled")))
 
 (use-package dumb-jump
   :hook (xref-backend-functions . dumb-jump-xref-activate)
@@ -1109,7 +1161,6 @@
   (flycheck-indication-mode 'right-fringe)
   :demand t
   :config
-  (global-flycheck-mode)
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [16 48 112 240 112 48 16] nil nil 'center))
 
@@ -1134,22 +1185,6 @@
   :config
   (flycheck-pos-tip-mode t))
 
-(use-package topsy
-  :disabled
-  :hook
-  (prog-mode-hook . topsy-mode)
-  :preface
-  (defun haskell-beginning-of-function ()
-    "Return the line moved to by `haskell-ds-backward-decl'."
-    (when (> (window-start) 1)
-      (save-excursion
-        (goto-char (window-start))
-        (haskell-ds-backward-decl)
-        (font-lock-ensure (point) (point-at-eol))
-        (buffer-substring (point) (point-at-eol)))))
-  :config
-  (push `(haskell-mode . haskell-beginning-of-function) topsy-mode-functions))
-
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
@@ -1161,7 +1196,9 @@
 
 ;; TODO: eglot-ignored-server-capabilites to ignore haskell on-save
 (use-package eglot
-  :disabled
+  :straight (:type built-in)
+  :hook
+  (eglot-managed-mode-hook . eglot-inlay-hints-mode)
   :custom
   (read-process-output-max (* 1024 1024 10))
   (eglot-confirm-server-initiated-edits nil)
@@ -1205,6 +1242,7 @@
   (push '(eglot (styles orderless)) completion-category-overrides))
 
 (use-package lsp-mode
+  :disabled
   :straight (lsp-mode
              :type git
              :flavor melpa
@@ -1237,6 +1275,7 @@
   (lsp-diagnostics-flycheck-default-level 'warning))
 
 (use-package consult-lsp
+  :disabled
   :bind
   (:map lsp-mode-map
    ("C-c l c d" . consult-lsp-diagnostics)
@@ -1244,6 +1283,7 @@
    ("C-c l c f" . consult-lsp-file-symbols)))
 
 (use-package dap-mode
+  :disabled
   :custom
   (dap-auto-configure-features '(sessions locals controls tooltip))
   (dap-python-debugger 'debugpy)
@@ -1263,6 +1303,7 @@
    dap-variables-standard-variables))
 
 (use-package lsp-ui
+  :disabled
   :straight (lsp-ui
              :type git
              :flavor melpa
@@ -1319,6 +1360,7 @@
 (use-package treemacs-magit)
 
 (use-package lsp-treemacs
+  :disabled
   :config
   (lsp-treemacs-sync-mode))
 
@@ -1327,11 +1369,10 @@
   (haskell-completing-read-function #'completing-read)
   (haskell-process-show-overlays nil)
   (haskell-process-suggest-restart nil)
-  (haskell-font-lock-symbols nil)
-  :config
-  (require 'haskell-decl-scan))
+  (haskell-font-lock-symbols nil))
 
 (use-package lsp-haskell
+  :disabled
   :after lsp-mode
   :custom
   (lsp-haskell-formatting-provider "fourmolu")
@@ -1382,7 +1423,9 @@
   :config
   (setq-default sly-symbol-completion-mode nil))
 
-(use-package stumpwm-mode)
+(use-package stumpwm-mode
+  :config
+  (setq stumpwm-shell-program (expand-file-name "~/.stumpwm.d/modules/util/stumpish/stumpish")))
 
 (use-package geiser)
 
@@ -1517,7 +1560,7 @@
   (tree-sitter-after-on-hook . tree-sitter-hl-mode)
   :config
   (push '(clojure-mode . clojure) tree-sitter-major-mode-language-alist)
-  (push '(haskell-mode . haskell) tree-sitter-major-mode-language-alist)
+  ;; (push '(haskell-mode . haskell) tree-sitter-major-mode-language-alist)
   (global-tree-sitter-mode))
 
 (use-package tree-sitter-langs)

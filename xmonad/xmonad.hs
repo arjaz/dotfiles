@@ -54,11 +54,9 @@ myConfig =
 term :: String
 term = "kitty"
 
--- TODO: Depend on the system theme
 normalBorderColor' :: String
 normalBorderColor' = "#202328"
 
--- TODO: Depend on the system theme
 focusedBorderColor' :: String
 focusedBorderColor' = "#955f5f"
 
@@ -95,8 +93,10 @@ myAdditionalKeysP =
     , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
     , ("M-o b", spawn "nautilus")
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
+    , ("M-o l", runOrRaise "slack" (className =? "Slack"))
+    , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
     , ("M-e", spawn "emacsclient -c -a=''")
-    , ("M-o e e", io exitSuccess)
+    , ("M-o q q", io exitSuccess)
     , ("M-o c l", spawn "sh ~/.dotfiles/scripts/to-light-theme.sh")
     , ("M-o c d", spawn "sh ~/.dotfiles/scripts/to-dark-theme.sh")
     , ("M-o d y", spawn "sh ~/.dotfiles/scripts/xclip-yt-dlp.sh")
@@ -109,7 +109,8 @@ myAdditionalKeysP =
     , ("M-o s", spawn $ "escrotum -C -s " <> screenshotsFolder)
     , ("M-o M-S-s", spawn $ "escrotum " <> screenshotsFolder)
     , ("M-o M-s", spawn $ "escrotum -s " <> screenshotsFolder)
-    , ("M--", sendMessage Expand)
+    , ("M-h", sendMessage Expand)
+    , ("M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
     , ("M-S-q", kill)
     , ("M-c", sendMessage NextLayout)
@@ -120,9 +121,7 @@ myAdditionalKeysP =
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
     [((mask, key), windows $ W.greedyView ws) | (key, ws) <- myWorkspaces]
-    <> [ ((mask .|. shiftMask, key), windows $ W.shift ws)
-       | (key, ws) <- myWorkspaces
-       ]
+    <> [((mask .|. shiftMask, key), windows $ W.shift ws) | (key, ws) <- myWorkspaces]
 
 myManageHook :: Query (Endo WindowSet)
 myManageHook =
@@ -170,12 +169,13 @@ myLayoutHook = fancy ||| tiled ||| console
 
 startupCommands :: [String]
 startupCommands =
-    [ "polybar -r &" -- TODO: use eww instead
-    -- , "eww open bar &"
+    [ -- TODO: use eww instead
+      "polybar -r &"
     , "~/.fehbg --restore &"
     , "picom --config ~/.picom.conf &"
     , "redshift -l 50.4461248:30.5214979 &"
     , "wired &"
+    , "~/.screenlayout/rsnt.sh"
     ]
 
 -- TODO: action to bring a window to the current workspace
