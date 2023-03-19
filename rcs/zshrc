@@ -6,12 +6,6 @@ export VISUAL='emacs'
 # Plugins
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-source ~/.config/zsh/zsh-up/up.plugin.zsh
-# plugins=(
-#     git
-#     zsh-autosuggestions
-#     fast-syntax-highlighting
-# )
 
 # Set stuff up
 autoload -Uz compinit promptinit
@@ -21,16 +15,12 @@ promptinit
 zstyle ':completion:*' menu select
 setopt COMPLETE_ALIASES
 zstyle ':completion::complete:*' gain-privileges 1
+
 export SAVEHIST=1000
 export HISTSIZE=1000
-export HISTFILE=~/.zsh_history
 
 # Aliases
 alias em='emacsclient --alternate-editor="" -nw '
-
-alias btw=neofetch
-alias :q=exit
-
 alias i='cd'
 alias o='cd ..'
 alias a=exa
@@ -46,30 +36,7 @@ test -r "~/.dir_colors" && eval $(dircolors ~/.dir_colors)
 # PATH stuff
 typeset -U PATH path
 
-export PATH="$HOME/.dotfiles/scripts:$PATH"
-export PATH="$HOME/.cabal/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.local/share/racket/7.9/bin:$PATH"
-export PATH="$HOME/.roswell/bin:$PATH"
-export ANDROID_HOME="$HOME/Android/Sdk"
-export PATH="$PATH:$ANDROID_HOME/emulator"
-export PATH="$PATH:$ANDROID_HOME/tools"
-export PATH="$PATH:$ANDROID_HOME/tools/bin"
-export PATH="$PATH:$ANDROID_HOME/platform-tools"
-export PATH="$PATH:$ANDROID_HOME/build-tools"
-export PATH="$PATH:$ANDROID_HOME/cmdline-tools"
-export PATH="$PATH:$HOME/.guix-profile/bin"
-export GUIX_PROFILE="$HOME/.config/guix/current"
-export GUIX_LOCPATH="$HOME/.guix-profile/lib/locale"
-. "$GUIX_PROFILE/etc/profile"
-
 # Theme
 [ $TERM != "dumb" ] && eval "$(starship init zsh)"
+
 eval "$(direnv hook zsh)"
-
-# opam configuration
-[[ ! -r /home/arjaz/.opam/opam-init/init.zsh ]] || source /home/arjaz/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-
-eval "$(antidot init)"

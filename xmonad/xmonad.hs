@@ -16,7 +16,6 @@ import XMonad.Layout.Fullscreen hiding (
 import XMonad.Layout.Gaps
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
-import XMonad.Layout.Named
 import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
 import XMonad.Layout.ResizableTile
@@ -81,7 +80,7 @@ myWorkspaces =
     ]
 
 screenshotsFolder :: String
-screenshotsFolder = "\"~/Pics/screenshots/screen-%Y-%m-%d-%T.png\""
+screenshotsFolder = "\"~/pictures/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
@@ -90,16 +89,16 @@ myAdditionalKeysP =
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
+    , ("M-o w", runOrRaise "brave" (className =? "Brave"))
     , ("M-o b", spawn "nautilus")
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
     , ("M-e", spawn "emacsclient -c -a=''")
     , ("M-o q q", io exitSuccess)
-    , ("M-o c l", spawn "sh ~/.dotfiles/scripts/to-light-theme.sh")
-    , ("M-o c d", spawn "sh ~/.dotfiles/scripts/to-dark-theme.sh")
-    , ("M-o d y", spawn "sh ~/.dotfiles/scripts/xclip-yt-dlp.sh")
+    , ("M-o c l", spawn "sh ~/dotfiles/scripts/to-light-theme.sh")
+    , ("M-o c d", spawn "sh ~/dotfiles/scripts/to-dark-theme.sh")
+    , ("M-o d y", spawn "sh ~/dotfiles/scripts/xclip-yt-dlp.sh")
     , ("M-d", spawn "rofi -show run")
     , ("M-o p", spawn "pass clip -r")
     , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
@@ -137,23 +136,17 @@ myManageHook =
 myLayoutHook :: Choose _ _ Window
 myLayoutHook = fancy ||| tiled ||| console
   where
-    tiled =
-        named "Tall"
-            . avoidStruts
-            . smartBorders
+    tiled =   avoidStruts
+             . smartBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
-    console =
-        named "Console"
-            . avoidStruts
+    console = avoidStruts
             . smartBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ OneBig (4 / 5) (4 / 5)
-    fancy =
-        named "Fancy"
-            . avoidStruts
+    fancy =   avoidStruts
             . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
@@ -169,13 +162,12 @@ myLayoutHook = fancy ||| tiled ||| console
 
 startupCommands :: [String]
 startupCommands =
-    [ -- TODO: use eww instead
-      "polybar -r &"
-    , "~/.fehbg --restore &"
-    , "picom --config ~/.picom.conf &"
+    [ -- TODO: use eww
+    "polybar -r &"
+    , "~/dotfiles/scripts/to-light-theme.sh &"
+    , "~/dotfiles/scripts/2monitors.sh &"
     , "redshift -l 50.4461248:30.5214979 &"
     , "wired &"
-    , "~/.screenlayout/rsnt.sh"
     ]
 
 -- TODO: action to bring a window to the current workspace

@@ -23,6 +23,7 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(straight-use-package 'org)
 (defvar use-package-enable-imenu-support t)
 (straight-use-package 'use-package)
 
@@ -34,7 +35,7 @@
 (use-package straight
   :custom
   (straight-use-package-by-default t)
-  (straight-check-for-modifications '(watch-files find-when-checking)))
+  (straight-check-for-modifications '(watch-files vfind-when-checking)))
 
 (use-package emacs
   :straight (:type built-in)
@@ -91,6 +92,8 @@
     (interactive)
     (setq-local show-paren-context-when-offscreen nil)
     (scopeline-mode))
+  :custom
+  (scopeline-overlay-prefix " ◁ ")
   :hook
   (tree-sitter-mode-hook . setup-scopeline))
 
@@ -186,7 +189,7 @@
   :straight (:type built-in)
   :demand t
   :config
-  (let ((path "~/.dotfiles/emacs/elisp-fix-indent.el"))
+  (let ((path "~/dotfiles/emacs/elisp-fix-indent.el"))
     (when (file-exists-p path)
       (load path))))
 
@@ -280,12 +283,6 @@
   :bind
   ([remap query-replace] . vr/replace))
 
-(use-package mermaid-mode)
-
-(use-package ob-mermaid
-  :custom
-  (ob-mermaid-cli-path "/usr/bin/mmdc"))
-
 (use-package org
   :hook
   (org-babel-after-execute-hook . org-redisplay-inline-images)
@@ -295,7 +292,7 @@
   :demand
   :custom
   (org-confirm-babel-evaluate nil)
-  (org-directory "~/Documents/org/")
+  (org-directory "~/documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
   (org-hide-leading-stars t)
   (org-startup-indented t)
@@ -344,7 +341,7 @@
   :straight (:host github
              :repo "mclear-tools/consult-notes")
   :custom
-  (consult-notes-sources '(("Notes" ?n "~/Documents/notes"))))
+  (consult-notes-sources '(("Notes" ?n "~/documents/notes"))))
 
 (use-package dbus)
 
@@ -442,6 +439,7 @@
   (advice-add 'hl-sexp-create-overlay :after 'my-hl-sexp-create-overlay))
 
 (use-package prism
+  :disabled
   :preface
   (defun prism-doom-colors ()
     (interactive)
@@ -840,26 +838,7 @@
 (use-package hledger-mode
   :mode "\\.journal\\'"
   :custom
-  (hledger-jfile "~/Documents/org/hledger/hledger.journal"))
-
-(use-package apheleia
-  :hook
-  ((clojure-mode-hook haskell-mode-hook python-mode-hook) . apheleia-mode)
-  :config
-  (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
-  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
-  (setf (alist-get 'fourmolu     apheleia-formatters) '("fourmolu" file))
-  (setf (alist-get 'haskell-mode apheleia-mode-alist) 'fourmolu))
-
-(use-package elfeed
-  :config
-  (let ((path "~/.dotfiles/emacs/elfeed-local-feed.el"))
-    (when (file-exists-p path)
-      (load path)))
-  :custom
-  (elfeed-search-filter "@6-months-ago")
-  :bind
-  ("C-c o f" . elfeed))
+  (hledger-jfile "~/documents/org/hledger/hledger.journal"))
 
 (use-package magit
   :bind
@@ -1156,6 +1135,13 @@
   (text-mode-hook . wucuo-start)
   (prog-mode-hook . wucuo-start))
 
+(use-package haskell-mode
+  :custom
+  (haskell-completing-read-function #'completing-read)
+  (haskell-process-show-overlays nil)
+  (haskell-process-suggest-restart nil)
+  (haskell-font-lock-symbols nil))
+
 (use-package flycheck
   :custom
   (flycheck-indication-mode 'right-fringe)
@@ -1191,8 +1177,16 @@
   (eldoc-echo-area-prefer-doc-buffer 'maybe)
   (eldoc-echo-area-display-truncation-message nil))
 
+(use-package eldoc-overlay
+  :disabled
+  :custom
+  (eldoc-overlay-backend 'inline-docs)
+  ;; (eldoc-overlay-delay 3)
+  :hook
+  (eldoc-mode-hook . eldoc-overlay-mode))
+
 (use-package eldoc-box
-  :hook (eldoc-mode-hook . eldoc-box-hover-mode))
+  :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode))
 
 ;; TODO: eglot-ignored-server-capabilites to ignore haskell on-save
 (use-package eglot
@@ -1237,8 +1231,8 @@
                  (browse-url it)))))))
   :config
   (require 'goto-addr)
-  ;; corfu setup
   (push '(haskell-mode . ("haskell-language-server" "--lsp")) eglot-server-programs)
+  ;; corfu setup
   (push '(eglot (styles orderless)) completion-category-overrides))
 
 (use-package lsp-mode
@@ -1364,13 +1358,6 @@
   :config
   (lsp-treemacs-sync-mode))
 
-(use-package haskell-mode
-  :custom
-  (haskell-completing-read-function #'completing-read)
-  (haskell-process-show-overlays nil)
-  (haskell-process-suggest-restart nil)
-  (haskell-font-lock-symbols nil))
-
 (use-package lsp-haskell
   :disabled
   :after lsp-mode
@@ -1419,8 +1406,9 @@
    ("C-c M-i" . sly-inspect))
   :custom
   (sly-complete-symbol-function 'sly-simple-completions)
-  (inferior-lisp-program "sbcl")
+  (inferior-lisp-program "ros -Q run")
   :config
+  (load (expand-file-name "~/.roswell/helper.el"))
   (setq-default sly-symbol-completion-mode nil))
 
 (use-package stumpwm-mode
@@ -1517,13 +1505,13 @@
 
 (use-package nginx-mode)
 
-(setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
-(use-package erlang-start
-  :straight (:type built-in)
-  :config
-  (setq erlang-root-dir "/usr/lib/erlang/")
-  (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
-  (setq erlang-man-root-dir "/usr/lib/erlang/man"))
+;; (setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
+;; (use-package erlang-start
+;;   :straight (:type built-in)
+;;   :config
+;;   (setq erlang-root-dir "/usr/lib/erlang/")
+;;   (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+;;   (setq erlang-man-root-dir "/usr/lib/erlang/man"))
 
 (use-package visible-mark
   :config
@@ -1616,6 +1604,15 @@
   :custom
   (nov-text-width 120))
 
+(use-package apheleia
+  :hook
+  ((clojure-mode-hook haskell-mode-hook python-mode-hook) . apheleia-mode)
+  :config
+  (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
+  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
+  (setf (alist-get 'fourmolu     apheleia-formatters) '("fourmolu" file))
+  (setf (alist-get 'haskell-mode apheleia-mode-alist) 'fourmolu))
+
 (use-package editorconfig
   :config
   (editorconfig-mode t))
@@ -1649,13 +1646,13 @@
   (detached-show-output-on-attach t)
   (detached-terminal-data-command system-type))
 
-(use-package moldable-emacs
-  :straight nil
-  ;; must be downloaded separately
-  :load-path "~/.config/emacs/moldable-emacs/"
-  :config
-  (require 'moldable-emacs)
-  (me-setup-molds))
+;; (use-package moldable-emacs
+;;   :straight nil
+;;   ;; must be downloaded separately
+;;   :load-path "~/.config/emacs/moldable-emacs/"
+;;   :config
+;;   (require 'moldable-emacs)
+;;   (me-setup-molds))
 
 ;; (use-package code-compass
 ;;   :straight nil
