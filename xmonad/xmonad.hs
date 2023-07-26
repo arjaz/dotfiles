@@ -51,7 +51,7 @@ myConfig =
         `removeKeysP` ["M-,", "M-."]
 
 term :: String
-term = "kitty"
+term = "kitty -e fish"
 
 normalBorderColor' :: String
 normalBorderColor' = "#202328"
@@ -84,18 +84,18 @@ screenshotsFolder = "\"~/pictures/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
-    [ ("M-n", windows W.focusDown)
-    , ("M-p", windows W.focusUp)
+    [ ("M-h", windows W.focusDown)
+    , ("M-i", windows W.focusUp)
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
     , ("M-o w", runOrRaise "brave" (className =? "Brave"))
-    , ("M-o b", spawn "nautilus")
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
     , ("M-e", spawn "emacsclient -c -a=''")
     , ("M-o q q", io exitSuccess)
+    , ("M-o c c", spawn "setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt")
     , ("M-o c l", spawn "sh ~/dotfiles/scripts/to-light-theme.sh")
     , ("M-o c d", spawn "sh ~/dotfiles/scripts/to-dark-theme.sh")
     , ("M-o d y", spawn "sh ~/dotfiles/scripts/xclip-yt-dlp.sh")
@@ -104,23 +104,21 @@ myAdditionalKeysP =
     , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
     , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
-    , ("M-o S-s", spawn $ "escrotum -C " <> screenshotsFolder)
-    , ("M-o s", spawn $ "escrotum -C -s " <> screenshotsFolder)
-    , ("M-o M-S-s", spawn $ "escrotum " <> screenshotsFolder)
-    , ("M-o M-s", spawn $ "escrotum -s " <> screenshotsFolder)
-    , ("M-h", sendMessage Expand)
-    , ("M-i", sendMessage Shrink)
+    , ("M-o S-s", spawn $ "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
+    , ("M-o s", spawn $ "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-o M-S-s", spawn $ "main " <> screenshotsFolder)
+    , ("M-o M-s", spawn $ "maim -s " <> screenshotsFolder)
+    , ("S-M-h", sendMessage Expand)
+    , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
-    , ("M-S-q", kill)
-    , ("M-c", sendMessage NextLayout)
-    , ("M-<Tab>", spawn "rofi -show window")
+    , ("M-x", kill)
     , ("M-s", sendMessage (Toggle FULL) >> sendMessage ToggleStruts >> sendMessage ToggleGaps)
     ]
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
     [((mask, key), windows $ W.greedyView ws) | (key, ws) <- myWorkspaces]
-    <> [((mask .|. shiftMask, key), windows $ W.shift ws) | (key, ws) <- myWorkspaces]
+        <> [((mask .|. shiftMask, key), windows $ W.shift ws) | (key, ws) <- myWorkspaces]
 
 myManageHook :: Query (Endo WindowSet)
 myManageHook =
@@ -136,17 +134,20 @@ myManageHook =
 myLayoutHook :: Choose _ _ Window
 myLayoutHook = fancy ||| tiled ||| console
   where
-    tiled =   avoidStruts
-             . smartBorders
+    tiled =
+        avoidStruts
+            . smartBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
-    console = avoidStruts
+    console =
+        avoidStruts
             . smartBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ OneBig (4 / 5) (4 / 5)
-    fancy =   avoidStruts
+    fancy =
+        avoidStruts
             . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
@@ -163,11 +164,12 @@ myLayoutHook = fancy ||| tiled ||| console
 startupCommands :: [String]
 startupCommands =
     [ -- TODO: use eww
-    "polybar -r &"
+      "~/dotfiles/scripts/polybar.sh"
     , "~/dotfiles/scripts/to-light-theme.sh &"
-    , "~/dotfiles/scripts/2monitors.sh &"
+    -- , "~/dotfiles/scripts/2monitors.sh &"
     , "redshift -l 50.4461248:30.5214979 &"
     , "wired &"
+    , "picom --config ~/.config/compton.conf &"
     ]
 
 -- TODO: action to bring a window to the current workspace

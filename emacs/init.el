@@ -83,20 +83,6 @@
   :custom
   (show-paren-context-when-offscreen 'overlay))
 
-(use-package scopeline
-  :after tree-sitter
-  :straight (:repo "meain/scopeline.el"
-             :host github)
-  :preface
-  (defun setup-scopeline ()
-    (interactive)
-    (setq-local show-paren-context-when-offscreen nil)
-    (scopeline-mode))
-  :custom
-  (scopeline-overlay-prefix " ◁ ")
-  :hook
-  (tree-sitter-mode-hook . setup-scopeline))
-
 (use-package loaddefs
   :straight (:type built-in)
   :custom
@@ -122,12 +108,10 @@
 (use-package faces
   :straight (:type built-in)
   :config
-  (let ((font "Iosevka ss18 Medium-11"))
+  (let ((font "Iosevka ss08-12"))
     (add-to-list 'initial-frame-alist `(font . ,font))
     (add-to-list 'default-frame-alist `(font . ,font))
-    (set-face-attribute 'variable-pitch nil :family "Sans Serif" :height 110)
-    ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile Regular" :height 120)
-    ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 120)
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 120)
     (set-frame-font font)))
 
 (use-package pixel-scroll
@@ -135,6 +119,7 @@
   :custom
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
+  (pixel-scroll-precision-momentum-seconds 1.75)
   (pixel-scroll-precision-use-momentum t)
   (pixel-scroll-precision-interpolate-page t)
   :hook
@@ -220,7 +205,6 @@
   :custom
   (c-basic-offset 4)
   :config
-  (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
   (add-to-list 'auto-mode-alist '("\\.cppm\\'" . c++-mode)))
 
 (use-package files
@@ -248,11 +232,30 @@
   (unless (file-exists-p (concat user-emacs-directory "backups"))
     (make-directory (concat user-emacs-directory "backups") t)))
 
+;; TODO: have a separate keymap for this
 (use-package hideshow
+  :disabled
   :straight (:type built-in)
   :bind
   ("C-c t t" . hs-toggle-hiding)
-  :hook (prog-mode-hook . hs-minor-mode))
+  ("C-c t h" . hs-hide-block)
+  ("C-c t s" . hs-show-block)
+  ("C-c t C-h" . hs-hide-all)
+  ("C-c t C-s" . hs-show-all)
+  ("C-c t l" . hs-hide-level)
+  :hook
+  (prog-mode-hook . hs-minor-mode))
+
+(use-package origami
+  :bind
+  ("C-c t t" . origami-toggle-node)
+  ("C-c t h" . origami-close-node)
+  ("C-c t s" . origami-open-node)
+  ("C-c t C-h" . origami-close-all-nodes)
+  ("C-c t C-s" . origami-open-all-nodes)
+  ("C-c t l" . origami-recursively-toggle-node)
+  :config
+  (global-origami-mode))
 
 (use-package gcmh
   :demand
@@ -274,14 +277,15 @@
   ([remap describe-function] . helpful-callable)
   ([remap describe-variable] . helpful-variable))
 
-(use-package goto-chg
-  :bind
-  ("C-c g l" . goto-last-change)
-  ("C-c g r" . goto-last-change-reverse))
-
 (use-package visual-regexp
   :bind
   ([remap query-replace] . vr/replace))
+
+(use-package mermaid-mode)
+
+(use-package ob-mermaid
+  :custom
+  (ob-mermaid-cli-path "/usr/bin/mmdc"))
 
 (use-package org
   :hook
@@ -289,8 +293,12 @@
   :bind
   ("C-c a a" . org-agenda)
   ("C-c a c" . org-capture)
+  (:map org-mode-map
+   ("C-c a d" . org-archive-all-done))
   :demand
   :custom
+  (org-todo-keywords
+   '((sequence "TODO" "IN-PROGRESS" "DONE")))
   (org-confirm-babel-evaluate nil)
   (org-directory "~/documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
@@ -304,10 +312,13 @@
      ("n" "Active task" entry (file+headline ,org-default-notes-file "Tasks")
       "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (current-time))\n%i\n%a\n  %u")))
   :config
+  (require 'org-archive)
+  ;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'org-archive-all-done nil t)))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (shell      . t)
+     (mermaid    . t)
      (python     . t))))
 
 (use-package org-super-agenda
@@ -356,7 +367,7 @@
   :preface
   (defun run-after-load-theme-hooks (&rest r)
     (run-hooks 'after-load-theme-hook))
-  ;; TODO: replace all of that with a plugin
+  ;; TODO: replace all of that with a plugin https://github.com/LionyxML/auto-dark-emacs
   (defun load-dark-theme ()
     "Load the saved dark theme."
     (interactive)
@@ -396,12 +407,13 @@
    #'dbus-on-theme-changed)
   :init
   (defvar after-load-theme-hook ())
-  (defvar light-theme 'modus-operandi-tinted)
-  (defvar dark-theme 'modus-vivendi-tinted)
+  (defvar light-theme 'modus-operandi)
+  (defvar dark-theme 'modus-vivendi)
   (advice-add #'load-theme :after #'run-after-load-theme-hooks))
 
-;; TODO: make doom-monokai-pro use its green face for the comments
 (use-package doom-themes)
+
+(use-package catppuccin-theme)
 
 (use-package ef-themes
   :straight (:host github
@@ -414,7 +426,7 @@
 (use-package highlight-sexp
   ;; :hook
   ;; ((lisp-mode-hook clojure-mode-hook scheme-mode-hook) . highlight-sexp-mode)
-  :config
+  :preface
   (defun my-hl-sexp-create-overlay ()
     (when (overlayp hl-sexp-overlay)
       (if (or (member 'modus-operandi custom-enabled-themes)
@@ -435,8 +447,16 @@
              (assoc-default
               'bg-alt
               doom-themes--colors)))))))
+  :config
   (add-hook 'after-load-theme-hook 'my-hl-sexp-create-overlay)
   (advice-add 'hl-sexp-create-overlay :after 'my-hl-sexp-create-overlay))
+
+(use-package highlight-indent-guides
+  :disabled
+  :hook
+  (prog-mode-hook . highlight-indent-guides-mode)
+  :custom
+  (highlight-indent-guides-method 'bitmap))
 
 (use-package prism
   :disabled
@@ -484,10 +504,6 @@
   )
 
 (use-package gdscript-mode)
-
-(use-package indent-guide
-  :hook (python-mode-hook . indent-guide-mode)
-  :custom (indent-guide-char ":"))
 
 (use-package highlight-numbers
   :hook (prog-mode-hook . highlight-numbers-mode))
@@ -596,11 +612,6 @@
    ("C->" . mc/mark-next-like-this)
    ("C-<" . mc/mark-previous-like-this)))
 
-(use-package ace-mc
-  :disabled
-  :bind
-  ("C-c m o" . ace-mc-add-multiple-cursors))
-
 (use-package expand-region
   :bind
   ("C-M-SPC" . er/expand-region)
@@ -626,8 +637,9 @@
   (("M-t" . avy-goto-char-2)
    ("C-t" . avy-goto-word-1))
   :custom
+  (avy-style 'post)
   (avy-background t)
-  (avy-keys '(?r ?s ?n ?t ?a ?e ?e ?i ?h))
+  (avy-keys '(?r ?s ?n ?t ?a ?e ?i ?h))
   (avy-dispatch-alist '((?\M-o . avy-action-embark))))
 
 (use-package ace-window
@@ -679,6 +691,7 @@
   (dashboard-startup-banner (concat user-emacs-directory "emacs-dash.png"))
   (dashboard-items '((agenda . 15)))
   (dashboard-banner-logo-title "Eendracht Maakt Macht")
+  ;; (dashboard-agenda-release-buffers t)
   (initial-buffer-choice #'dashboard-buffer)
   ;; (dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
   :init
@@ -691,9 +704,21 @@
 
 (use-package olivetti
   :custom
-  (olivetti-body-width 150)
+  (olivetti-body-width 180)
+  ;; :hook
+  ;; (compilation-mode-hook . olivetti-mode)
   :bind
   ("C-c o o" . olivetti-mode))
+
+(use-package auto-olivetti
+  :straight
+  (auto-olivetti
+   :host sourcehut
+   :repo "ashton314/auto-olivetti")
+  :config
+  (auto-olivetti-mode)
+  :custom
+  (auto-olivetti-enabled-modes '(text-mode prog-mode)))
 
 (use-package elec-pair
   :straight (:type built-in)
@@ -709,7 +734,7 @@
   (setq
    mc/cmds-to-run-once
    (remove 'puni-backward-delete-char mc/cmds-to-run-once))
-  :hook (prog-mode-hook . puni-mode)
+  ;; :hook (prog-mode-hook . puni-mode)
   :preface
   (defun puni-rewrap-with (ldelim rdelim)
     (interactive (list "(" ")"))
@@ -808,7 +833,9 @@
 
 (use-package eshell-up)
 
-(use-package pcmpl-args)
+(use-package pcmpl-args
+  :config
+  (require 'pcmpl-gnu))
 
 (use-package bash-completion)
 
@@ -865,9 +892,27 @@
                  (fancy (when (char-displayable-p ?) " ")))
         (concat fancy branch))))
   :config
+  (magit-wip-mode)
   (setq magit-git-environment
          (append magit-git-environment
             (list "OVERCOMMIT_COLOR=0"))))
+
+(use-package magit-delta
+  :hook (magit-mode-hook . magit-delta-mode))
+
+(use-package magit-difftastic
+  :straight nil
+  :load-path "~/dotfiles/emacs/"
+  :after magit
+  :config
+  (transient-define-prefix th/magit-aux-commands ()
+    "My personal auxiliary magit commands."
+    ["Auxiliary commands"
+     ("d" "Difftastic Diff (dwim)" th/magit-diff-with-difftastic)
+     ("s" "Difftastic Show" th/magit-show-with-difftastic)])
+  (transient-append-suffix 'magit-dispatch "!"
+    '("#" "Custom Magit" th/magit-aux-commands))
+  (define-key magit-mode-map (kbd "#") 'th/magit-aux-commands))
 
 (use-package magit-todos)
 
@@ -883,7 +928,11 @@
   (transient-append-suffix 'forge-dispatch '(0 2 -1)
     '("b c" "code-review pr at point" code-review-forge-pr-at-point)))
 
-;; TODO: there's a problem with lsp-ui -- mini-modeline hides the doc frame
+(use-package breadcrumb
+  :straight
+  (:host github
+   :repo "joaotavora/breadcrumb"))
+
 (use-package mini-modeline
   :config
   ;; TODO: maybe rethink eldoc
@@ -894,20 +943,23 @@
    '((:propertize (:eval (file-directory)) face font-lock-variable-name-face)
      (:propertize (:eval (file-or-buffer-name)) face font-lock-keyword-face))
    mini-modeline-r-format
-   '("%5l:%c"
+   '((:eval (breadcrumb-imenu-crumbs))
+     "%5l:%c"
      (:eval (s-repeat (- 4 (length (number-to-string (current-column)))) " "))
      (:propertize (:eval (file-read-write-indicator)) face font-lock-warning-face)
      "  "
-     (:propertize (:eval (git-branch)) face magit-dimmed)))
+     (:propertize
+      (:eval (unless (file-remote-p default-directory)
+               (git-branch)))
+      face magit-dimmed)))
   (mini-modeline-mode))
-
-(use-package magit-delta
-  :hook (magit-mode-hook . magit-delta-mode))
 
 (use-package browse-at-remote)
 
 (use-package project
   :straight (:type built-in))
+
+;; TODO: add projection
 
 (use-package consult-project-extra
   :bind
@@ -1013,11 +1065,16 @@
   :disabled
   :config
   (mono-complete-mode)
+  (set-face-attribute 'mono-complete-preview-face nil
+                      :inherit 'shadow
+                      :background (face-attribute 'shadow :background)
+                      :foreground (face-attribute 'shadow :foreground))
   :custom
+  (mono-complete-preview-delay 0.235)
   (mono-complete-backends '(capf dabbrev filesystem word-predict))
   :bind
   (:map mono-complete-mode-map
-   ("<tab>" . mono-complete-expand-or-fallback)))
+   ("C-<tab>" . mono-complete-expand)))
 
 (use-package corfu
   :straight
@@ -1036,7 +1093,7 @@
   :custom
   (corfu-auto-prefix 3)
   (corfu-cycle t)
-  (corfu-auto t)
+  (corfu-auto nil)
   (corfu-separator ?\s)
   (corfu-quit-at-boundary t)
   (corfu-quit-no-match t)
@@ -1095,6 +1152,16 @@
     (remove-hook 'prog-mode-hook #'enable-tabnine)
     (message "TabNine disabled")))
 
+(use-package copilot
+  :straight (:host github
+             :repo "zerolfx/copilot.el"
+             :files ("dist" "*.el"))
+  :bind
+  ("M-\\" . copilot-accept-completion)
+  :hook
+  ;; (prog-mode-hook . copilot-mode)
+  )
+
 (use-package codeium
   :straight (:host github
              :repo "Exafunction/codeium.el")
@@ -1117,25 +1184,31 @@
     (message "Codeium disabled")))
 
 (use-package dumb-jump
-  :hook (xref-backend-functions . dumb-jump-xref-activate)
+  :hook
+  (xref-backend-functions . dumb-jump-xref-activate)
   :custom
-  (dumb-jump-default-project "~/Code")
   (xref-show-definitions-function #'xref-show-definitions-completing-read))
 
-(use-package consult-flyspell
-  :hook
-  (text-mode-hook . flyspell-mode)
-  (prog-mode-hook . flyspell-prog-mode)
+(use-package jinx
+  :straight
+  (:host github
+   :repo "minad/jinx"
+   :files ("*"))
   :custom
   (ispell-program-name "hunspell")
-  (ispell-local-dictionary "en_US"))
+  (ispell-local-dictionary "en_US")
+  :config
+  (global-jinx-mode))
 
 (use-package wucuo
+  :disabled
   :hook
   (text-mode-hook . wucuo-start)
   (prog-mode-hook . wucuo-start))
 
 (use-package haskell-mode
+  :config
+  (remove-hook 'haskell-mode-hook #'interactive-haskell-mode)
   :custom
   (haskell-completing-read-function #'completing-read)
   (haskell-process-show-overlays nil)
@@ -1151,11 +1224,11 @@
     [16 48 112 240 112 48 16] nil nil 'center))
 
 (use-package flycheck-posframe
-  ;; :hook
-  ;; (flycheck-mode-hook . flycheck-posframe-mode)
+  :hook
+  (flycheck-mode-hook . flycheck-posframe-mode)
   :custom
   (flycheck-posframe-position 'window-bottom-right-corner)
-  (flycheck-posframe-border-width 10)
+  (flycheck-posframe-border-width 1)
   :config
   (flycheck-posframe-configure-pretty-defaults))
 
@@ -1174,28 +1247,21 @@
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
+  ;; (eldoc-echo-area-usen-multiline-p t)
   (eldoc-echo-area-prefer-doc-buffer 'maybe)
   (eldoc-echo-area-display-truncation-message nil))
 
-(use-package eldoc-overlay
-  :disabled
-  :custom
-  (eldoc-overlay-backend 'inline-docs)
-  ;; (eldoc-overlay-delay 3)
-  :hook
-  (eldoc-mode-hook . eldoc-overlay-mode))
-
 (use-package eldoc-box
-  :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode))
+  :hook (eldoc-mode-hook . eldoc-box-hover-mode))
 
-;; TODO: eglot-ignored-server-capabilites to ignore haskell on-save
 (use-package eglot
-  :straight (:type built-in)
+  :disabled
   :hook
   (eglot-managed-mode-hook . eglot-inlay-hints-mode)
   :custom
   (read-process-output-max (* 1024 1024 10))
   (eglot-confirm-server-initiated-edits nil)
+  (eglot-stay-out-of '(yasnippet))
   :bind
   (("C-c l l" . eglot)
    :map eglot-mode-map
@@ -1230,13 +1296,19 @@
             (and (string-match-p goto-address-url-regexp it)
                  (browse-url it)))))))
   :config
+  (fset #'eglot--snippet-expansion-fn #'ignore)
   (require 'goto-addr)
   (push '(haskell-mode . ("haskell-language-server" "--lsp")) eglot-server-programs)
   ;; corfu setup
   (push '(eglot (styles orderless)) completion-category-overrides))
 
-(use-package lsp-mode
+(use-package consult-eglot
   :disabled
+  :bind
+  (:map eglot-mode-map
+   ("C-c l c" . consult-eglot-symbols)))
+
+(use-package lsp-mode
   :straight (lsp-mode
              :type git
              :flavor melpa
@@ -1251,6 +1323,8 @@
           '(orderless)))
   :hook
   (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
+  :bind
+  ("C-c l l" . lsp)
   :demand t
   :custom
   (lsp-keymap-prefix "C-c l")
@@ -1261,15 +1335,18 @@
   (lsp-completion-provider :none) ; use corfu instead
   ;; (lsp-completion-provider :capf)
   (lsp-idle-delay 0.75)
+  (lsp-inlay-hint-enable t)
   (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
   (lsp-headerline-breadcrumb-icons-enable nil)
+  (lsp-enable-semantic-highlighting t)
   (read-process-output-max (* 1024 1024 10))
   (lsp-file-watch-threshold 512)
-  (lsp-diagnostics-flycheck-default-level 'warning))
+  (lsp-diagnostics-flycheck-default-level 'warning)
+  (lsp-eldoc-enable-hover t)
+  (lsp-eldoc-render-all t))
 
 (use-package consult-lsp
-  :disabled
   :bind
   (:map lsp-mode-map
    ("C-c l c d" . consult-lsp-diagnostics)
@@ -1277,27 +1354,19 @@
    ("C-c l c f" . consult-lsp-file-symbols)))
 
 (use-package dap-mode
-  :disabled
   :custom
   (dap-auto-configure-features '(sessions locals controls tooltip))
-  (dap-python-debugger 'debugpy)
   :hook
   (dap-stopped-hook . (lambda (arg) (call-interactively #'dap-hydra)))
-  :preface
-  (defun dap-variables-python-module ()
-    (s-concat
-     (s-replace "/" "." (dap-variables-project-relative-dirname))
-     (dap-variables-buffer-basename-sans-extension)))
   :config
   (require 'dap-python)
   (require 'dap-variables)
   (require 'dap-gdb-lldb)
-  (push
-   '("\\`pythonModule\\'" . dap-variables-python-module)
-   dap-variables-standard-variables))
+  (require 'dap-cpptools)
+  (dap-gdb-lldb-setup)
+  (dap-cpptools-setup))
 
 (use-package lsp-ui
-  :disabled
   :straight (lsp-ui
              :type git
              :flavor melpa
@@ -1305,6 +1374,7 @@
              :host github
              :repo "emacs-lsp/lsp-ui"
              :build (:not compile))
+  :disabled
   :bind
   (:map lsp-ui-mode-map
    ("C-c l t s" . lsp-ui-sideline-toggle-symbols-info)
@@ -1315,7 +1385,7 @@
   (lsp-ui-doc-delay 1)
   (lsp-ui-peek-enable t)
   (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-diagnostics nil)
   (lsp-ui-sideline-diagnostic-max-lines 10)
   (lsp-ui-sideline-show-hover nil)
   :preface
@@ -1338,8 +1408,6 @@
         (lsp--info "No content at point.")))))
 
 (use-package treemacs
-  ;; :bind
-  ;; ("C-c o t" . treemacs)
   :custom
   (treemacs-is-never-other-window t)
   (treemacs-width 32)
@@ -1354,41 +1422,26 @@
 (use-package treemacs-magit)
 
 (use-package lsp-treemacs
-  :disabled
   :config
   (lsp-treemacs-sync-mode))
 
 (use-package lsp-haskell
-  :disabled
   :after lsp-mode
+  :preface
   :custom
   (lsp-haskell-formatting-provider "fourmolu")
-  :bind
-  (:map haskell-mode-map
-   ("C-c l l" . lsp))
+  (lsp-haskell-plugin-pragmas-completion-on nil)
+  (lsp-haskell-plugin-ghcide-completions-config-auto-extend-on nil)
+  (lsp-haskell-plugin-ghcide-completions-config-snippets-on nil)
   :config
   (setf (alist-get 'lsp-haskell-server-path safe-local-variable-values)
         "haskell-language-server"))
 
-;; TODO: check out https://github.com/astoff/comint-mime
-(use-package python-x
-  :bind
-  (:map inferior-python-mode-map
-   ("C-l" . comint-clear-buffer))
-  :config
-  (python-x-setup))
+(use-package tuareg)
 
-(use-package cython-mode)
+(use-package merlin)
 
-(use-package python-isort
-  :hook (python-mode-hook . python-isort-on-save-mode))
-
-(use-package pyvenv)
-
-(use-package auto-virtualenv
-  :hook (python-mode-hook . auto-virtualenv-set-virtualenv))
-
-(use-package poetry)
+(use-package dune)
 
 (use-package highlight-defined
   :hook (emacs-lisp-mode-hook . highlight-defined-mode))
@@ -1408,12 +1461,7 @@
   (sly-complete-symbol-function 'sly-simple-completions)
   (inferior-lisp-program "ros -Q run")
   :config
-  (load (expand-file-name "~/.roswell/helper.el"))
   (setq-default sly-symbol-completion-mode nil))
-
-(use-package stumpwm-mode
-  :config
-  (setq stumpwm-shell-program (expand-file-name "~/.stumpwm.d/modules/util/stumpish/stumpish")))
 
 (use-package geiser)
 
@@ -1474,28 +1522,20 @@
   :custom
   (cljr-warn-on-eval nil)
   (cljr-clojure-test-declaration "[clojure.test :as test :refer [deftest testing is]]")
+  :preface
+  (defun setup-clj-refactor ()
+    (interactive)
+    (clj-refactor-mode)
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
   :hook
-  (clojure-mode-hook . (lambda ()
-                         (clj-refactor-mode)
-                         (cljr-add-keybindings-with-prefix "C-c C-m"))))
+  (clojure-mode-hook . setup-clj-refactor))
 
 (use-package aggressive-indent-mode
   :hook (lisp-mode-hook . aggressive-indent-mode))
 
-(use-package rust-mode
-  :bind
-  (:map rust-mode-map
-   ("C-c C-p" . rust-run-clippy)
-   ("C-c C-c" . rust-run))
-  :custom
-  (rust-format-on-save t))
+(use-package rust-mode)
 
 (use-package typescript-mode)
-
-(use-package web-mode
-  :mode "\\.tsx\\'"
-  :custom
-  (web-mode-code-indent-offset 2))
 
 (use-package markdown-mode)
 
@@ -1504,6 +1544,10 @@
 (use-package dockerfile-mode)
 
 (use-package nginx-mode)
+
+(use-package zig-mode)
+
+(use-package elixir-mode)
 
 ;; (setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
 ;; (use-package erlang-start
@@ -1519,44 +1563,25 @@
 
 (use-package treesit
   :straight (:type built-in)
+  :custom
+  (treesit-font-lock-level 4)
   :config
   (setq
    treesit-extra-load-path
    '("~/.tree-sitter/bin/"
      "~/.config/emacs/straight/build/tree-sitter-langs/bin/")))
 
-;; ;; NOTE: doesn't modify the hooks
-;; (use-package treesit-auto
-;;   :straight
-;;   (:host github
-;;    :repo "renzmann/treesit-auto")
-;;   :custom
-;;   (treesit-auto-install t)
-;;   :config
-;;   (add-to-list
-;;    'treesit-auto-fallback-alist
-;;    '(bash-ts-mode . sh-mode))
-;;   (global-treesit-auto-mode))
-
-;; (use-package combobulate
-;;   :straight
-;;   (:host github
-;;    :repo "michkeynp/combobulate"))
-
-(use-package tree-sitter
-  :hook
-  (tree-sitter-after-on-hook . tree-sitter-hl-mode)
+(use-package treesit-auto
+  :straight
+  (:host github
+   :repo "renzmann/treesit-auto")
+  :custom
+  (treesit-auto-install t)
   :config
-  (push '(clojure-mode . clojure) tree-sitter-major-mode-language-alist)
-  ;; (push '(haskell-mode . haskell) tree-sitter-major-mode-language-alist)
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs)
-
-(use-package ts-fold
-  :straight (:host github
-             :repo "emacs-tree-sitter/ts-fold")
-  :hook (tree-sitter-after-on-hook . ts-fold-mode))
+  (global-treesit-auto-mode)
+  (add-to-list
+   'treesit-auto-fallback-alist
+   '(bash-ts-mode . sh-mode)))
 
 (use-package ligature
   :straight (:host github
@@ -1571,7 +1596,8 @@
       "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!==" ">>=" "=<<" "<>" ":>"
       ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++"))
   (ligature-set-ligatures 'prog-mode iosevka-ligatures)
-  (global-ligature-mode))
+  ;; (global-ligature-mode)
+  )
 
 (use-package xah-math-input
   :bind
@@ -1593,20 +1619,17 @@
   :custom
   (reftex-plug-into-AUCTeX t))
 
-;; (use-package latex-preview-pane)
-
-(use-package nov
-  :straight (nov :type git
-                 :flavor melpa
-                 :repo "https://depp.brause.cc/nov.el.git"
-                 :build (:not compile))
-  :mode ("\\.epub\\'" . nov-mode)
-  :custom
-  (nov-text-width 120))
-
 (use-package apheleia
   :hook
-  ((clojure-mode-hook haskell-mode-hook python-mode-hook) . apheleia-mode)
+  (clojure-mode-hook . apheleia-mode)
+  (haskell-mode-hook . apheleia-mode)
+  (python-mode-hook . apheleia-mode)
+  (rust-mode-hook . apheleia-mode)
+  (rust-ts-mode-hook . apheleia-mode)
+  (typescript-mode-hook . apheleia-mode)
+  (typescript-ts-mode-hook . apheleia-mode)
+  (tsx-ts-mode-hook . apheleia-mode)
+  :demand
   :config
   (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
   (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
@@ -1615,7 +1638,7 @@
 
 (use-package editorconfig
   :config
-  (editorconfig-mode t))
+  (editorconfig-mode))
 
 (use-package rainbow-mode)
 
@@ -1646,47 +1669,21 @@
   (detached-show-output-on-attach t)
   (detached-terminal-data-command system-type))
 
-;; (use-package moldable-emacs
-;;   :straight nil
-;;   ;; must be downloaded separately
-;;   :load-path "~/.config/emacs/moldable-emacs/"
-;;   :config
-;;   (require 'moldable-emacs)
-;;   (me-setup-molds))
-
-;; (use-package code-compass
-;;   :straight nil
-;;   ;; must be downloaded separately
-;;   :load-path "~/.config/emacs/code-compass/"
-;;   :init
-;;   (use-package async)
-;;   (use-package dash)
-;;   (use-package f)
-;;   (use-package s)
-;;   (use-package simple-httpd))
-
-(use-package selected
-  :bind
-  (:map selected-keymap
-   ("<tab>" . indent-region))
-  :config
-  (selected-global-mode))
-
 (use-package sudo-edit)
 
 (use-package zoom
   :custom
-  (zoom-size '(0.618 . 0.618))
-  :bind
-  ("C-c o z" . zoom-mode))
+  (zoom-size '(0.618 . 0.618)))
 
 (use-package mpdel
+  :disabled
   :config
   (mpdel-mode)
   :custom
   (mpdel-prefix-key (kbd "C-c o n m")))
 
 (use-package mpdel-embark
+  :disabled
   :straight
   (:host github
    :repo "mpdel/mpdel-embark")
@@ -1694,7 +1691,8 @@
   :config
   (mpdel-embark-setup))
 
-(use-package ement)
+(use-package ement
+  :disabled)
 
 (use-package alert
   :demand t
@@ -1702,6 +1700,7 @@
   (setq alert-default-style 'notifications))
 
 (use-package slack
+  :disabled
   :custom
   (slack-render-image-p t)
   (slack-buffer-emojify t)
@@ -1728,6 +1727,7 @@
              :repo "zevlg/telega.el"
              :branch "release-0.8.0"
              :build (:not compile))
+  :disabled
   :hook
   ;; Make the text variable-pitch
   (telega-root-mode-hook . buffer-face-mode)
@@ -1750,11 +1750,11 @@
   ;; (telega-transient-mode)
   (telega-notifications-mode))
 
-(use-package explain-pause-mode)
-
-(use-package keyfreq
-  :config
-  (keyfreq-mode))
+(use-package mastodon
+  :disabled
+  :custom
+  (mastodon-instance-url "https://emacs.ch")
+  (mastodon-active-user "arjaz"))
 
 (provide 'init)
 ;;; init.el ends here
