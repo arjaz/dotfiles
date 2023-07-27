@@ -2,9 +2,11 @@
 
 -- import qualified DBus.Cliest                   as DBusClient
 -- import qualified XMonad.DBus                   as DBus
+import Control.Monad (liftM2)
 import Data.Semigroup (Endo)
 import System.Exit
 import XMonad
+import XMonad.Hooks.RefocusLast (isFloat)
 import XMonad.Actions.WindowGo
 import XMonad.Config.Desktop
 import XMonad.Hooks.EwmhDesktops
@@ -13,6 +15,7 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.Fullscreen hiding (
     fullscreenEventHook,
  )
+import XMonad.Layout.LayoutHints
 import XMonad.Layout.Gaps
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
@@ -89,7 +92,7 @@ myAdditionalKeysP =
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "brave" (className =? "Brave"))
+    , ("M-o w", runOrRaise "brave" (className =? "Brave-browser"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
@@ -124,22 +127,22 @@ myManageHook :: Query (Endo WindowSet)
 myManageHook =
     composeAll
         [ isFullscreen --> doFullFloat
-        , manageDocks
-        , return True --> doF W.swapDown
-        , manageHook desktopConfig
+        , className =? "Brave-browser" --> viewShift "1"
+        , title =? "Telegram" --> viewShift "9"
+        , title =? "Telegram" --> doRectFloat (W.RationalRect 0.15 0.1 0.4 0.8)
+        , isDialog --> doFloat
         , fullscreenManageHook
-        , isDialog --> doCenterFloat
+        , manageDocks
+        , manageHook desktopConfig
+        , fmap not isFloat >> fmap not (className =? "TelegramDesktop") --> doF W.swapDown
         ]
+  where
+    viewShift = doF . liftM2 (.) W.greedyView W.shift
 
 myLayoutHook :: Choose _ _ Window
-myLayoutHook = fancy ||| tiled ||| console
+myLayoutHook = -- layoutHints
+  fancy ||| console
   where
-    tiled =
-        avoidStruts
-            . smartBorders
-            . smartSpacing spacingSize
-            . mkToggle (NOBORDERS ?? FULL ?? EOT)
-            $ ResizableTall nmaster delta ratio []
     console =
         avoidStruts
             . smartBorders

@@ -96,6 +96,7 @@
 (use-package frame
   :straight (:type built-in)
   :custom
+  (frame-resize-pixelwise t)
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
   (cursor-type 'hbar)
@@ -108,9 +109,11 @@
 (use-package faces
   :straight (:type built-in)
   :config
-  (let ((font "Iosevka ss08-12"))
+  ;; (let ((font "Iosevka ss08-12"))
+  (let ((font "Inconsolata-13"))
     (add-to-list 'initial-frame-alist `(font . ,font))
     (add-to-list 'default-frame-alist `(font . ,font))
+    (set-face-attribute 'fixed-pitch nil :family font)
     (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 120)
     (set-frame-font font)))
 
@@ -333,9 +336,17 @@
   (org-super-agenda-mode))
 
 (use-package org-modern
+  :preface
+  (defun org-set-line-spacing ()
+    ;; TODO: Does it work with org-modern-indent and src?
+    (setq-local line-specing 0.2))
+  :config
+  (set-face-attribute 'org-modern-label nil :height 1.0)
   :hook
   (org-mode-hook . org-modern-mode)
   (org-agenda-finalize-hook . org-modern-agenda)
+  (org-mode-hook . org-set-line-spacing)
+  (org-agenda-finalize-hook . org-set-line-spacing)
   :custom
   (org-modern-hide-stars nil))
 
@@ -356,12 +367,19 @@
 
 (use-package dbus)
 
+(use-package doom-themes)
+
 (use-package modus-themes
   :custom
-  (modus-themes-mode-line '(moody accented borderless))
-  (modus-themes-syntax '(green-strings))
-  (modus-themes-paren-match '(intense))
-  (modus-themes-region '(bg-only))
+  (modus-themes-common-palette-overrides
+   '((comment red-faint)
+     (preprocessor fg-main)
+     (constant fg-main)
+     (variable fg-main)
+     (type fg-main)
+     (fnname fg-main)
+     (keyword fg-main)
+     (builtin fg-main)))
   :hook
   (after-init-hook . load-theme-on-startup)
   :preface
@@ -409,15 +427,9 @@
   (defvar after-load-theme-hook ())
   (defvar light-theme 'modus-operandi)
   (defvar dark-theme 'modus-vivendi)
+  ;; (defvar light-theme 'doom-homage-white)
+  ;; (defvar dark-theme 'doom-homage-black)
   (advice-add #'load-theme :after #'run-after-load-theme-hooks))
-
-(use-package doom-themes)
-
-(use-package catppuccin-theme)
-
-(use-package ef-themes
-  :straight (:host github
-             :repo "protesilaos/ef-themes"))
 
 (use-package page-break-lines
   :config
@@ -506,15 +518,22 @@
 (use-package gdscript-mode)
 
 (use-package highlight-numbers
+  :disabled
   :hook (prog-mode-hook . highlight-numbers-mode))
 
 (use-package readable-numbers
+  :disabled
   :straight (:host github
              :repo "Titan-C/cardano.el"
              :files ("readable-numbers.el")))
 
 (use-package highlight-escape-sequences
+  :disabled
   :hook (prog-mode-hook . hes-mode))
+
+(use-package highlight-defined
+  :disabled
+  :hook (emacs-lisp-mode-hook . highlight-defined-mode))
 
 (use-package all-the-icons)
 
@@ -546,6 +565,7 @@
   (all-the-icons-completion-mode))
 
 (use-package hl-todo
+  :disabled
   :custom
   (hl-todo-keyword-faces
    `(("TODO" warning bold)
@@ -782,7 +802,8 @@
     (read-only-mode)
     (ansi-color-apply-on-region compilation-filter-start (point))
     (read-only-mode))
-  :hook (compilation-filter-hook . colorize-compilation-buffer))
+  :hook
+  (compilation-filter-hook . colorize-compilation-buffer))
 
 (use-package xterm-color)
 
@@ -827,8 +848,8 @@
    :map eshell-mode-map
    ("C-c C-l" . eshell/clear-buffer))
   :config
-  (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-  (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  (add-hook 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  ;; (remove-hook 'eshell-preoutput-filter-functions 'eshell-handle-ansi-color)
   (setenv "TERM" "xterm-256color"))
 
 (use-package eshell-up)
@@ -857,8 +878,14 @@
   (eshell-syntax-highlighting-global-mode t))
 
 (use-package vterm
+  :custom
+  (vterm-shell "fish")
   :bind
   ("C-c o v" . vterm))
+
+(use-package eshell-vterm
+  :config
+  (eshell-vterm-mode))
 
 (use-package org-mime)
 
@@ -1158,7 +1185,7 @@
              :files ("dist" "*.el"))
   :bind
   ("M-\\" . copilot-accept-completion)
-  :hook
+  ;; :hook
   ;; (prog-mode-hook . copilot-mode)
   )
 
@@ -1443,12 +1470,6 @@
 
 (use-package dune)
 
-(use-package highlight-defined
-  :hook (emacs-lisp-mode-hook . highlight-defined-mode))
-
-(use-package highlight-quoted
-  :hook (emacs-lisp-mode-hook . highlight-quoted-mode))
-
 (use-package eros
   :hook (emacs-lisp-mode-hook . eros-mode))
 
@@ -1577,11 +1598,10 @@
    :repo "renzmann/treesit-auto")
   :custom
   (treesit-auto-install t)
+  (treesit-auto-opt-out-list
+   '(clojure))
   :config
-  (global-treesit-auto-mode)
-  (add-to-list
-   'treesit-auto-fallback-alist
-   '(bash-ts-mode . sh-mode)))
+  (global-treesit-auto-mode))
 
 (use-package ligature
   :straight (:host github
