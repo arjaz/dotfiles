@@ -92,7 +92,7 @@ myAdditionalKeysP =
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "brave" (className =? "Brave-browser"))
+    , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
@@ -127,7 +127,7 @@ myManageHook :: Query (Endo WindowSet)
 myManageHook =
     composeAll
         [ isFullscreen --> doFullFloat
-        , className =? "Brave-browser" --> viewShift "1"
+        , className =? "firefox" --> viewShift "1"
         , title =? "Telegram" --> viewShift "9"
         , title =? "Telegram" --> doRectFloat (W.RationalRect 0.15 0.1 0.4 0.8)
         , isDialog --> doFloat
