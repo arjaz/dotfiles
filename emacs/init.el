@@ -109,8 +109,8 @@
 (use-package faces
   :straight (:type built-in)
   :config
-  ;; (let ((font "Iosevka ss08-12"))
-  (let ((font "Inconsolata-13"))
+  (let ((font "Iosevka ss08-9"))
+  ;; (let ((font "Inconsolata-9.5"))
     (add-to-list 'initial-frame-alist `(font . ,font))
     (add-to-list 'default-frame-alist `(font . ,font))
     (set-face-attribute 'fixed-pitch nil :family font)
@@ -316,7 +316,6 @@
       "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (current-time))\n%i\n%a\n  %u")))
   :config
   (require 'org-archive)
-  ;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'org-archive-all-done nil t)))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
@@ -355,10 +354,6 @@
   :config ; add late to hook
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 
-(use-package denote
-  :straight (:host github
-             :repo "protesilaos/denote"))
-
 (use-package consult-notes
   :straight (:host github
              :repo "mclear-tools/consult-notes")
@@ -367,12 +362,10 @@
 
 (use-package dbus)
 
-(use-package doom-themes)
-
 (use-package modus-themes
   :custom
   (modus-themes-common-palette-overrides
-   '((comment red-faint)
+   '((comment green-cooler)
      (preprocessor fg-main)
      (constant fg-main)
      (variable fg-main)
@@ -427,113 +420,29 @@
   (defvar after-load-theme-hook ())
   (defvar light-theme 'modus-operandi)
   (defvar dark-theme 'modus-vivendi)
-  ;; (defvar light-theme 'doom-homage-white)
-  ;; (defvar dark-theme 'doom-homage-black)
   (advice-add #'load-theme :after #'run-after-load-theme-hooks))
 
 (use-package page-break-lines
   :config
   (page-break-lines-mode))
 
-(use-package highlight-sexp
-  ;; :hook
-  ;; ((lisp-mode-hook clojure-mode-hook scheme-mode-hook) . highlight-sexp-mode)
-  :preface
-  (defun my-hl-sexp-create-overlay ()
-    (when (overlayp hl-sexp-overlay)
-      (if (or (member 'modus-operandi custom-enabled-themes)
-              (member 'modus-vivendi custom-enabled-themes))
-          (overlay-put
-           hl-sexp-overlay
-           'face
-           `(:background
-             ,(car
-               (assoc-default
-                'bg-inactive
-                (modus-themes--current-theme-palette)))))
-        (overlay-put
-         hl-sexp-overlay
-         'face
-         `(:background
-           ,(car
-             (assoc-default
-              'bg-alt
-              doom-themes--colors)))))))
-  :config
-  (add-hook 'after-load-theme-hook 'my-hl-sexp-create-overlay)
-  (advice-add 'hl-sexp-create-overlay :after 'my-hl-sexp-create-overlay))
-
-(use-package highlight-indent-guides
-  :disabled
+(use-package indent-bars
+  :straight
+  (:host github
+   :repo "jdtsmith/indent-bars")
   :hook
-  (prog-mode-hook . highlight-indent-guides-mode)
+  (prog-mode-hook . indent-bars-mode)
   :custom
-  (highlight-indent-guides-method 'bitmap))
-
-(use-package prism
-  :disabled
-  :preface
-  (defun prism-doom-colors ()
-    (interactive)
-    (prism-set-colors
-      :lightens '(0)
-      :desaturations '(0)
-      :colors (mapcar 'doom-color '(red blue magenta green cyan))))
-  (defun prism-or-modus-randomize (&rest _)
-    (interactive)
-    (if (--any (member it custom-enabled-themes) modus-themes-items)
-        (prism-set-modus-colors)
-      (prism-randomize-colors)))
-  (defun prism-set-modus-colors (&rest _)
-    (interactive)
-    (prism-set-colors
-      :desaturations '(0)
-      :lightens '(0)
-      :colors (prism-set-colors
-                :desaturations '(0)
-                :lightens '(0)
-                :colors (modus-themes-with-colors
-                          (list fg-main
-                                magenta
-                                cyan-cooler
-                                magenta-cooler
-                                blue
-                                magenta-warmer
-                                cyan-warmer
-                                red-cooler
-                                green
-                                fg-main
-                                cyan
-                                yellow
-                                blue-warmer
-                                red-warmer
-                                green-cooler
-                                yellow-faint)))))
-  :custom
-  (prism-parens t)
-  ;; :hook
-  ;; ((lisp-mode-hook clojure-mode-hook scheme-mode-hook) . prism-mode)
-  )
+  (indent-bars-color '(highlight :face-bg t :blend 0.3))
+  (indent-bars-highlight-current-depth '(:face default :blend 0.3))
+  (indent-bars-pattern ".")
+  (indent-bars-width-frac 0.1)
+  (indent-bars-pad-frac 0.1)
+  (indent-bars-zigzag nil)
+  (indent-bars-color-by-depth nil)
+  (indent-bars-display-on-blank-lines t))
 
 (use-package gdscript-mode)
-
-(use-package highlight-numbers
-  :disabled
-  :hook (prog-mode-hook . highlight-numbers-mode))
-
-(use-package readable-numbers
-  :disabled
-  :straight (:host github
-             :repo "Titan-C/cardano.el"
-             :files ("readable-numbers.el")))
-
-(use-package highlight-escape-sequences
-  :disabled
-  :hook (prog-mode-hook . hes-mode))
-
-(use-package highlight-defined
-  :disabled
-  :hook (emacs-lisp-mode-hook . highlight-defined-mode))
 
 (use-package all-the-icons)
 
@@ -643,6 +552,32 @@
   :bind
   ("M-;" . smart-comment))
 
+(use-package isearch
+  :straight
+  (:type built-in)
+  :preface
+  (defun isearch-forward-other-window (prefix)
+    "Function to isearch-forward in other-window."
+    (interactive "P")
+    (unless (one-window-p)
+      (save-excursion
+        (let ((next (if prefix -1 1)))
+          (other-window next)
+          (isearch-forward)
+          (other-window (- next))))))
+  (defun isearch-backward-other-window (prefix)
+    "Function to isearch-backward in other-window."
+    (interactive "P")
+    (unless (one-window-p)
+      (save-excursion
+        (let ((next (if prefix 1 -1)))
+          (other-window next)
+          (isearch-backward)
+          (other-window (- next))))))
+  :bind
+  ("C-M-s" . isearch-forward-other-window)
+  ("C-M-r" . isearch-backward-other-window))
+
 (use-package avy
   :preface
   (defun avy-action-embark (pt)
@@ -653,14 +588,56 @@
       (select-window
        (cdr (ring-ref avy-ring 0))))
     t)
+  (defun avy-action-mark-to-char (pt)
+    (activate-mark)
+    (goto-char pt))
+  (defun avy-action-teleport-whole-line (pt)
+    (avy-action-kill-whole-line pt)
+    (save-excursion (yank)) t)
+  (defun avy-action-copy-whole-line (pt)
+    (save-excursion
+      (goto-char pt)
+      (cl-destructuring-bind (start . end)
+          (bounds-of-thing-at-point 'line)
+        (copy-region-as-kill start end)))
+    (select-window
+     (cdr
+      (ring-ref avy-ring 0)))
+    t)
+  (defun avy-action-yank-whole-line (pt)
+    (avy-action-copy-whole-line pt)
+    (save-excursion (yank))
+    t)
+  (defun avy-action-kill-whole-line (pt)
+    (save-excursion
+      (goto-char pt)
+      (kill-whole-line))
+    (select-window
+     (cdr
+      (ring-ref avy-ring 0)))
+    t)
   :bind
   (("M-t" . avy-goto-char-2)
-   ("C-t" . avy-goto-word-1))
+   ("C-t" . avy-goto-word-1)
+   :map isearch-mode-map
+   ("M-t" . avy-isearch))
   :custom
   (avy-style 'post)
   (avy-background t)
   (avy-keys '(?r ?s ?n ?t ?a ?e ?i ?h))
-  (avy-dispatch-alist '((?\M-o . avy-action-embark))))
+  (avy-dispatch-alist
+   '((?\o . avy-action-embark)
+     (?\M-t . avy-action-teleport)
+     (?\M-T . avy-action-teleport-whole-line)
+     (?m . avy-action-mark)
+     (?  . avy-action-mark-to-char)
+     (?z . avy-action-zap-to-char)
+     (?w . avy-action-copy)
+     (?W . avy-action-copy-whole-line)
+     (?y . avy-action-yank)
+     (?Y . avy-action-yank-whole-line)
+     (?k . avy-action-kill-stay)
+     (?K . avy-action-kill-whole-line))))
 
 (use-package ace-window
   :custom
@@ -674,6 +651,12 @@
   :bind
   (("C-x C-o" . rotate-window)
    ("C-x M-o" . rotate-layout)))
+
+(use-package popper
+  :config
+  (popper-mode)
+  :bind
+  ("C-c p" . popper-toggle-latest))
 
 (use-package undo-fu
   :bind
@@ -747,13 +730,6 @@
 (use-package parinfer-rust-mode)
 
 (use-package puni
-  :config
-  (setq
-   mc/cmds-to-run-for-all
-   (cons 'puni-backward-delete-char mc/cmds-to-run-for-all))
-  (setq
-   mc/cmds-to-run-once
-   (remove 'puni-backward-delete-char mc/cmds-to-run-once))
   ;; :hook (prog-mode-hook . puni-mode)
   :preface
   (defun puni-rewrap-with (ldelim rdelim)
@@ -946,6 +922,7 @@
 (use-package forge)
 
 (use-package code-review
+  :disabled
   :straight
   (:host github
    :repo "wandersoncferreira/code-review"
@@ -970,7 +947,7 @@
    '((:propertize (:eval (file-directory)) face font-lock-variable-name-face)
      (:propertize (:eval (file-or-buffer-name)) face font-lock-keyword-face))
    mini-modeline-r-format
-   '((:eval (breadcrumb-imenu-crumbs))
+   '(;; (:eval (breadcrumb-imenu-crumbs))
      "%5l:%c"
      (:eval (s-repeat (- 4 (length (number-to-string (current-column)))) " "))
      (:propertize (:eval (file-read-write-indicator)) face font-lock-warning-face)
@@ -1274,7 +1251,7 @@
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
-  ;; (eldoc-echo-area-usen-multiline-p t)
+  ;; (eldoc-echo-area-use-multiline-p t)
   (eldoc-echo-area-prefer-doc-buffer 'maybe)
   (eldoc-echo-area-display-truncation-message nil))
 
@@ -1365,8 +1342,7 @@
   (lsp-inlay-hint-enable t)
   (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
-  (lsp-headerline-breadcrumb-icons-enable nil)
-  (lsp-enable-semantic-highlighting t)
+  (lsp-semantic-tokens-enable nil)
   (read-process-output-max (* 1024 1024 10))
   (lsp-file-watch-threshold 512)
   (lsp-diagnostics-flycheck-default-level 'warning)
@@ -1562,11 +1538,15 @@
 
 (use-package yaml-mode)
 
+(use-package yuck-mode)
+
 (use-package dockerfile-mode)
 
 (use-package nginx-mode)
 
 (use-package zig-mode)
+
+(use-package lua-mode)
 
 (use-package elixir-mode)
 
