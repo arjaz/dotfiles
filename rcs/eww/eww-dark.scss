@@ -1,0 +1,58 @@
+$background: #111111;
+$background-alt: #3d3934;
+$foreground: #fffefc;
+$primary: #74b62d;
+$secondary: #fcf4a3;
+$alert: #bb544a;
+$disabled: #4d4c5d;
+
+* {
+    all: unset;
+    font-family: feather, Iosevka;
+}
+
+.bar {
+    background-color: $background;
+    color: $foreground;
+    padding: 10px;
+}
+
+.metric scale trough highlight {
+    all: unset;
+    background-color: $primary;
+    color: $background-alt;
+    border-radius: 10px;
+}
+.metric scale trough {
+    all: unset;
+    background-color: $background-alt;
+    border-radius: 50px;
+    min-height: 3px;
+    min-width: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.timestuff {
+    all: unset;
+    font-size: 13;
+}
+
+.workspaces {
+    all: unset;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    font-size: 13;
+}
+.workspaces button {
+    padding: 0px 7px 0px 7px;
+    color: $foreground;
+}
+.workspaces button.disabled {
+    color: $disabled;
+}
+.workspaces button.active-workspace {
+    background-color: $background-alt;
+    color: $foreground;
+    border-bottom: 1px solid $primary;
+}

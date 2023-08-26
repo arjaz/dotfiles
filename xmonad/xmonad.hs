@@ -167,15 +167,14 @@ myLayoutHook = -- layoutHints
 startupCommands :: [String]
 startupCommands =
     [ -- TODO: use eww
-      "~/dotfiles/scripts/polybar.sh"
+    "~/.screenlayout/1.sh &"
+    -- , "~/dotfiles/scripts/polybar.sh"
+    , "eww open bar &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
-    -- , "~/dotfiles/scripts/2monitors.sh &"
     , "redshift -l 50.4461248:30.5214979 &"
     , "wired &"
     , "picom --config ~/.config/compton.conf &"
     ]
 
--- TODO: action to bring a window to the current workspace
--- https://hackage.haskell.org/package/xmonad-contrib-0.17.1/docs/XMonad-Actions-WindowBringer.html
 myStartupHook :: X ()
 myStartupHook = mapM_ spawnOnce startupCommands
