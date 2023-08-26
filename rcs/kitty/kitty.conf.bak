@@ -18,6 +18,6 @@ cursor_shape underline
 
 
 # BEGIN_KITTY_THEME
-# Modus Operandi
+# Modus Vivendi
 include current-theme.conf
 # END_KITTY_THEME

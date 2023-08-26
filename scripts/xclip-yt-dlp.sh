@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-cd ~/videos
+cd ~/videos/download
 url=$(xclip -o -selection clipboard)
 # TODO: check if valid url
 notify-send Downloading $url
