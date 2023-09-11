@@ -1,16 +1,17 @@
 (defpoll volume :interval "0.01s"
   "scripts/getvol")
-
-(defpoll time :interval "0.5s"
+(defpoll short-date :interval "0.5s" :run-while {!use-long-date}
   "date '+%l:%M %P'")
-
+(defpoll long-date :interval "0.5s" :run-while use-long-date
+  "date '+%l:%M %P, %a, %d.%m.%Y'")
 ;; That can be a listener instead
 (defpoll active-workspace :interval "0.01s"
   "scripts/active-workspace")
-
 ;; That can be a listener instead
 (defpoll used-workspaces :interval "0.01s"
   "scripts/used-workspaces")
+
+(defvar use-long-date false)
 
 (defwidget bar []
   (centerbox :orientation "h"
@@ -25,8 +26,13 @@
             :onchange "amixer -D pulse sset Master {}%")))
 
 (defwidget timestuff []
-  (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
-    time))
+  ;; Maybe use a revealer instead?
+  ;; (eventbox :onhover "eww update use-long-date=true"
+  ;;           :onhoverlost "eww update use-long-date=false"
+  (eventbox :onhover "eww open calendar"
+            :onhoverlost "eww close calendar"
+    (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
+     {use-long-date ? long-date : short-date})))
 
 (defwidget workspaces []
   (box :class "workspaces"
@@ -34,16 +40,26 @@
        :space-evenly true
        :halign "start"
        :spacing 0
-    (button :class {active-workspace == 0 ? "active-workspace" : used-workspaces =~ "0" ? "" : "disabled-workspace"} :onclick "wmctrl -s 0" 1)
-    (button :class {active-workspace == 1 ? "active-workspace" : used-workspaces =~ "1" ? "" : "disabled-workspace"} :onclick "wmctrl -s 1" 2)
-    (button :class {active-workspace == 2 ? "active-workspace" : used-workspaces =~ "2" ? "" : "disabled-workspace"} :onclick "wmctrl -s 2" 3)
-    (button :class {active-workspace == 3 ? "active-workspace" : used-workspaces =~ "3" ? "" : "disabled-workspace"} :onclick "wmctrl -s 3" 4)
-    (button :class {active-workspace == 4 ? "active-workspace" : used-workspaces =~ "4" ? "" : "disabled-workspace"} :onclick "wmctrl -s 4" 5)
-    (button :class {active-workspace == 5 ? "active-workspace" : used-workspaces =~ "5" ? "" : "disabled-workspace"} :onclick "wmctrl -s 5" 6)
-    (button :class {active-workspace == 6 ? "active-workspace" : used-workspaces =~ "6" ? "" : "disabled-workspace"} :onclick "wmctrl -s 6" 7)
-    (button :class {active-workspace == 7 ? "active-workspace" : used-workspaces =~ "7" ? "" : "disabled-workspace"} :onclick "wmctrl -s 7" 8)
-    (button :class {active-workspace == 8 ? "active-workspace" : used-workspaces =~ "8" ? "" : "disabled-workspace"} :onclick "wmctrl -s 8" 9)
-    (button :class {active-workspace == 9 ? "active-workspace" : used-workspaces =~ "9" ? "" : "disabled-workspace"} :onclick "wmctrl -s 9" 0)))
+    (button :class {active-workspace == 0 ? "active-workspace" : used-workspaces =~ "0" ? "" : "disabled-workspace"} :onclick "wmctrl -s 0"
+      {used-workspaces =~ 0 ? "" : ""})
+    (button :class {active-workspace == 1 ? "active-workspace" : used-workspaces =~ "1" ? "" : "disabled-workspace"} :onclick "wmctrl -s 1"
+      {used-workspaces =~ 1 ? "" : ""})
+    (button :class {active-workspace == 2 ? "active-workspace" : used-workspaces =~ "2" ? "" : "disabled-workspace"} :onclick "wmctrl -s 2"
+      {used-workspaces =~ 2 ? "" : ""})
+    (button :class {active-workspace == 3 ? "active-workspace" : used-workspaces =~ "3" ? "" : "disabled-workspace"} :onclick "wmctrl -s 3"
+      {used-workspaces =~ 3 ? "" : ""})
+    (button :class {active-workspace == 4 ? "active-workspace" : used-workspaces =~ "4" ? "" : "disabled-workspace"} :onclick "wmctrl -s 4"
+      {used-workspaces =~ 4 ? "" : ""})
+    (button :class {active-workspace == 5 ? "active-workspace" : used-workspaces =~ "5" ? "" : "disabled-workspace"} :onclick "wmctrl -s 5"
+      {used-workspaces =~ 5 ? "" : ""})
+    (button :class {active-workspace == 6 ? "active-workspace" : used-workspaces =~ "6" ? "" : "disabled-workspace"} :onclick "wmctrl -s 6"
+      {used-workspaces =~ 6 ? "" : ""})
+    (button :class {active-workspace == 7 ? "active-workspace" : used-workspaces =~ "7" ? "" : "disabled-workspace"} :onclick "wmctrl -s 7"
+      {used-workspaces =~ 7 ? "" : ""})
+    (button :class {active-workspace == 8 ? "active-workspace" : used-workspaces =~ "8" ? "" : "disabled-workspace"} :onclick "wmctrl -s 8"
+      {used-workspaces =~ 8 ? "" : ""})
+    (button :class {active-workspace == 9 ? "active-workspace" : used-workspaces =~ "9" ? "" : "disabled-workspace"} :onclick "wmctrl -s 9"
+      {used-workspaces =~ 9 ? "" : ""})))
 
 (defwidget metric [label value onchange]
   (box :orientation "h"
@@ -55,6 +71,24 @@
            :active {onchange != ""}
            :value value
            :onchange onchange)))
+
+(defpoll calendar_day :interval "20h" "date '+%d'")
+(defpoll calendar_year :interval "20h" "date '+%Y'")
+
+(defwidget cal []
+  (box :class "cal" :orientation "v"
+	(box :class "cal-in"
+	  (calendar :class "cal"
+			    :day calendar_day
+			    :year calendar_year))))
+
+(defwindow calendar
+  :geometry (geometry :x "-10px"
+					  :y "1%"
+                      :anchor "top center"
+					  :width "270px"
+					  :height "60px")
+  (cal))
 
 
 (defwindow bar
@@ -68,5 +102,5 @@
   :reserve (struts :side "top"
                    :distance "20px")
   :wm-ignore false
-  :stacking "fg"
+  :stacking "bg"
   (bar))

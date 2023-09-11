@@ -17,6 +17,34 @@ $disabled: #aaaaaa;
     padding: 10px;
 }
 
+.cal {
+    background-color: $background;
+    color: $foreground;
+}
+
+calender {
+    color: $foreground;
+}
+calendar:selected {
+    color: $alert;
+    font-weight: bold;
+    // background-color: $background-alt;
+}
+calendar.header {
+    color: $foreground;
+    font-weight: bold;
+}
+calendar.button {
+    color: $alert;
+}
+calendar.highlight {
+    color: $foreground;
+    font-weight: bold;
+}
+calendar:indeterminate {
+    color: $disabled;
+}
+
 .metric scale trough highlight {
     all: unset;
     background-color: $primary;
@@ -25,12 +53,15 @@ $disabled: #aaaaaa;
 }
 .metric scale trough {
     all: unset;
-    background-color: $disabled;
+    background-color: $foreground;
     border-radius: 50px;
     min-height: 3px;
     min-width: 50px;
     margin-left: 10px;
     margin-right: 10px;
+}
+.metric scale:hover trough {
+    background-color: $alert;
 }
 
 .timestuff {
@@ -46,7 +77,7 @@ $disabled: #aaaaaa;
 }
 .workspaces button {
     padding: 0px 7px 0px 7px;
-    color: $foreground;
+    color: $disabled;
 }
 .workspaces button.disabled-workspace {
     color: $disabled;
@@ -55,4 +86,9 @@ $disabled: #aaaaaa;
     background-color: $background-alt;
     color: $foreground;
     border-bottom: 1px solid $primary;
+}
+.workspaces button:hover {
+    background-color: $background-alt;
+    color: $foreground;
+    border-bottom: 1px solid $alert;
 }
