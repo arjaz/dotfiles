@@ -54,7 +54,7 @@ myConfig =
         `removeKeysP` ["M-,", "M-."]
 
 term :: String
-term = "kitty -e fish"
+term = "kitty -e nu"
 
 normalBorderColor' :: String
 normalBorderColor' = "#202328"
@@ -95,6 +95,8 @@ myAdditionalKeysP =
     , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
+    , ("M-o i", runOrRaise "discord" (className =? "Discord"))
+    , ("M-o h", runOrRaise "thunderbird" (className =? "Thunderbird"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
     , ("M-e", spawn "emacsclient -c -a=''")
     , ("M-o q q", io exitSuccess)
@@ -109,13 +111,19 @@ myAdditionalKeysP =
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
     , ("M-o S-s", spawn $ "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
     , ("M-o s", spawn $ "maim -s | xclip -selection clipboard -t image/png")
-    , ("M-o M-S-s", spawn $ "main " <> screenshotsFolder)
+    , ("M-o M-S-s", spawn $ "maim " <> screenshotsFolder)
     , ("M-o M-s", spawn $ "maim -s " <> screenshotsFolder)
     , ("S-M-h", sendMessage Expand)
     , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
     , ("M-x", kill)
-    , ("M-s", sendMessage (Toggle FULL) >> sendMessage ToggleStruts >> sendMessage ToggleGaps)
+    , ( "M-s"
+      , sendMessage (Toggle FULL) >>
+        sendMessage ToggleStruts >>
+        sendMessage ToggleGaps >>
+        -- FIXME: that is such a hack
+        spawn "eww close bar || eww open bar"
+      )
     ]
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
@@ -129,9 +137,8 @@ myManageHook =
         [ isFullscreen --> doFullFloat
         , className =? "firefox" --> viewShift "1"
         , title =? "Telegram" --> viewShift "9"
-        , title =? "Telegram" --> doRectFloat (W.RationalRect 0.15 0.1 0.4 0.8)
-        , isDialog --> doFloat
-        , fullscreenManageHook
+        , title =? "Telegram" --> doRectFloat (W.RationalRect 0.05 0.1 0.27 0.8)
+        , isDialog --> doCenterFloat
         , manageDocks
         , manageHook desktopConfig
         , fmap not isFloat >> fmap not (className =? "TelegramDesktop") --> doF W.swapDown
@@ -152,6 +159,7 @@ myLayoutHook = -- layoutHints
     fancy =
         avoidStruts
             . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
+            . smartBorders -- TODO: use lessBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
@@ -166,12 +174,11 @@ myLayoutHook = -- layoutHints
 
 startupCommands :: [String]
 startupCommands =
-    [ -- TODO: use eww
-    "~/.screenlayout/1.sh &"
+    [ "~/.screenlayout/1.sh &"
     -- , "~/dotfiles/scripts/polybar.sh"
     , "eww open bar &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
-    , "redshift -l 50.4461248:30.5214979 &"
+    , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
     , "picom --config ~/.config/compton.conf &"
     ]
