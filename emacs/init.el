@@ -109,13 +109,21 @@
 (use-package faces
   :straight (:type built-in)
   :config
-  (let ((font "Iosevka ss08-9"))
-  ;; (let ((font "Inconsolata-9.5"))
+  (let ((font "Iosevka ss08 Light-9"))
     (add-to-list 'initial-frame-alist `(font . ,font))
     (add-to-list 'default-frame-alist `(font . ,font))
     (set-face-attribute 'fixed-pitch nil :family font)
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 120)
-    (set-frame-font font)))
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 90)
+    (set-frame-font font)
+    (set-fontset-font t nil (font-spec :size 9 :name "Iosevka Nerd Font Mono"))))
+
+(use-package sublimity
+  ;; :custom
+  ;; (sublimity-scroll-weight 20.0)
+  ;; (sublimity-scroll-drift-length 0)
+  :config
+  (require 'sublimity-scroll)
+  (sublimity-mode))
 
 (use-package pixel-scroll
   :straight (:type built-in)
@@ -125,17 +133,18 @@
   (pixel-scroll-precision-momentum-seconds 1.75)
   (pixel-scroll-precision-use-momentum t)
   (pixel-scroll-precision-interpolate-page t)
-  :hook
-  (after-init-hook . pixel-scroll-precision-mode)
-  :bind
-  ("C-v" . (lambda ()
-             (interactive)
-             (pixel-scroll-interpolate-down)
-             (move-to-window-line nil)))
-  ("M-v" . (lambda ()
-             (interactive)
-             (pixel-scroll-interpolate-up)
-             (move-to-window-line nil))))
+  ;; :hook
+  ;; (after-init-hook . pixel-scroll-precision-mode)
+  ;; :bind
+  ;; ("C-v" . (lambda ()
+  ;;            (interactive)
+  ;;            (pixel-scroll-interpolate-down)
+  ;;            (move-to-window-line nil)))
+  ;; ("M-v" . (lambda ()
+  ;;            (interactive)
+  ;;            (pixel-scroll-interpolate-up)
+  ;;            (move-to-window-line nil)))
+  )
 
 (use-package cus-edit
   :straight (:type built-in)
@@ -292,6 +301,8 @@
 
 (use-package org
   :hook
+  (org-mode-hook . variable-pitch-mode)
+  (org-mode-hook . auto-fill-mode)
   (org-babel-after-execute-hook . org-redisplay-inline-images)
   :bind
   ("C-c a a" . org-agenda)
@@ -347,32 +358,40 @@
   (org-mode-hook . org-set-line-spacing)
   (org-agenda-finalize-hook . org-set-line-spacing)
   :custom
-  (org-modern-hide-stars nil))
+  (org-modern-hide-stars 'leading)
+  (org-modern-table nil)
+  (org-indent-indentation-per-level 1))
 
 (use-package org-modern-indent
   :straight (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent")
   :config ; add late to hook
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 
-(use-package consult-notes
-  :straight (:host github
-             :repo "mclear-tools/consult-notes")
-  :custom
-  (consult-notes-sources '(("Notes" ?n "~/documents/notes"))))
-
 (use-package dbus)
+
+(use-package spacious-padding
+  :demand
+  :bind
+  ("C-c o p" . spacious-padding-mode)
+  :config
+  (spacious-padding-mode))
 
 (use-package modus-themes
   :custom
   (modus-themes-common-palette-overrides
-   '((comment green-cooler)
+   '((bg-region bg-green-nuanced)
+     (fg-region unspecified)
+     (comment cyan-faint)
+     (docstring cyan-faint)
+     (string cyan-faint)
      (preprocessor fg-main)
      (constant fg-main)
      (variable fg-main)
      (type fg-main)
      (fnname fg-main)
-     (keyword fg-main)
+     (keyword green-faint)
      (builtin fg-main)))
+  (modus-themes-mixed-fonts t)
   :hook
   (after-init-hook . load-theme-on-startup)
   :preface
@@ -457,6 +476,7 @@
   :custom
   (dirvish-attributes '(all-the-icons collapse file-time file-size))
   (dirvish-use-mode-line nil)
+  (dirvish-subtree-prefix "  ")
   :config
   (dirvish-override-dired-mode)
   (require 'dirvish-icons)
@@ -648,15 +668,13 @@
   ([remap other-window] . ace-window))
 
 (use-package rotate
+  :custom
+  (rotate-functions
+   '(rotate:even-horizontal
+     rotate:even-vertical))
   :bind
   (("C-x C-o" . rotate-window)
    ("C-x M-o" . rotate-layout)))
-
-(use-package popper
-  :config
-  (popper-mode)
-  :bind
-  ("C-c p" . popper-toggle-latest))
 
 (use-package undo-fu
   :bind
@@ -853,9 +871,17 @@
   :config
   (eshell-syntax-highlighting-global-mode t))
 
+(use-package mistty
+  :straight (:host github
+             :repo "szermatt/mistty")
+  :custom
+  (explicit-shell-file-name "nu")
+  :bind
+  ("C-c o s" . mistty))
+
 (use-package vterm
   :custom
-  (vterm-shell "fish")
+  (vterm-shell "nu")
   :bind
   ("C-c o v" . vterm))
 
@@ -917,7 +943,9 @@
     '("#" "Custom Magit" th/magit-aux-commands))
   (define-key magit-mode-map (kbd "#") 'th/magit-aux-commands))
 
-(use-package magit-todos)
+(use-package magit-todos
+  :config
+  (magit-todos-mode))
 
 (use-package forge)
 
@@ -964,6 +992,10 @@
   :straight (:type built-in))
 
 ;; TODO: add projection
+(use-package projection
+  :disabled
+  :bind-keymap
+  ("C-x P" . projection-map))
 
 (use-package consult-project-extra
   :bind
@@ -1048,6 +1080,7 @@
   (smart-tabs-insinuate 'c 'c++))
 
 (use-package smart-tab
+  :disabled
   :config
   (global-smart-tab-mode))
 
@@ -1080,6 +1113,8 @@
   (:map mono-complete-mode-map
    ("C-<tab>" . mono-complete-expand)))
 
+
+;; TODO: I want rounded borders and the same background color
 (use-package corfu
   :straight
   (:host github
@@ -1102,14 +1137,24 @@
   (corfu-quit-at-boundary t)
   (corfu-quit-no-match t)
   (corfu-on-exact-match #'quit)
-  (corfu-preselect 'directory)
+  (corfu-preselect 'prompt)
   :demand
   :config
+  (set-face-attribute
+   'corfu-default nil
+   :background 'unspecified
+   :inherit 'default)
   (put 'completion-at-point-functions 'safe-local-variable #'listp)
   (global-corfu-mode)
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode)
   (set-face-attribute 'corfu-popupinfo nil :height 0.9))
+
+(use-package corfu-candidate-overlay
+  :bind
+  ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
+  :hook
+  (corfu-mode-hook . corfu-candidate-overlay-mode))
 
 (use-package cape
   :straight (:host github
@@ -1126,6 +1171,7 @@
 
 (use-package kind-icon
   :custom
+  (kind-icon-extra-space t)
   (kind-icon-default-face 'corfu-default)
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
@@ -1157,6 +1203,7 @@
     (message "TabNine disabled")))
 
 (use-package copilot
+  :disabled
   :straight (:host github
              :repo "zerolfx/copilot.el"
              :files ("dist" "*.el"))
@@ -1327,6 +1374,12 @@
           '(orderless)))
   :hook
   (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
+  (typescript-mode-hook . lsp-deferred)
+  (typescript-ts-mode-hook . lsp-deferred)
+  (zig-mode-hook . lsp-deferred)
+  (haskell-mode-hook . lsp-deferred)
+  (rust-mode-hook . lsp-deferred)
+  (rust-ts-mode-hook . lsp-deferred)
   :bind
   ("C-c l l" . lsp)
   :demand t
@@ -1365,9 +1418,11 @@
   (require 'dap-python)
   (require 'dap-variables)
   (require 'dap-gdb-lldb)
-  (require 'dap-cpptools)
   (dap-gdb-lldb-setup)
-  (dap-cpptools-setup))
+  (require 'dap-cpptools)
+  (dap-cpptools-setup)
+  (require 'dap-chrome)
+  (dap-chrome-setup))
 
 (use-package lsp-ui
   :straight (lsp-ui
@@ -1460,9 +1515,11 @@
   :config
   (setq-default sly-symbol-completion-mode nil))
 
-(use-package geiser)
+(use-package geiser
+  :disabled)
 
-(use-package geiser-guile)
+(use-package geiser-guile
+  :disabled)
 
 (use-package flycheck-clj-kondo)
 
@@ -1547,6 +1604,10 @@
 (use-package zig-mode)
 
 (use-package lua-mode)
+
+(use-package graphql-mode)
+
+(use-package solidity-mode)
 
 (use-package elixir-mode)
 
@@ -1657,6 +1718,7 @@
   (global-pretty-sha-path-mode))
 
 (use-package detached
+  :disabled
   :init
   (detached-init)
   :demand
