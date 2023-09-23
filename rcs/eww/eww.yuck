@@ -1,17 +1,16 @@
-(defpoll volume :interval "0.01s"
+(defpoll volume :interval "0.1s"
   "scripts/getvol")
-(defpoll short-date :interval "0.5s" :run-while {!use-long-date}
+(defpoll short-date :interval "0.5s"
   "date '+%l:%M %P'")
-(defpoll long-date :interval "0.5s" :run-while use-long-date
-  "date '+%l:%M %P, %a, %d.%m.%Y'")
 ;; That can be a listener instead
-(defpoll active-workspace :interval "0.01s"
+(defpoll active-workspace :interval "0.1s"
   "scripts/active-workspace")
 ;; That can be a listener instead
-(defpoll used-workspaces :interval "0.01s"
+(defpoll used-workspaces :interval "0.1s"
   "scripts/used-workspaces")
 
-(defvar use-long-date false)
+(defpoll calendar_day :interval "1h" "date '+%d'")
+(defpoll calendar_year :interval "1h" "date '+%Y'")
 
 (defwidget bar []
   (centerbox :orientation "h"
@@ -26,13 +25,10 @@
             :onchange "amixer -D pulse sset Master {}%")))
 
 (defwidget timestuff []
-  ;; Maybe use a revealer instead?
-  ;; (eventbox :onhover "eww update use-long-date=true"
-  ;;           :onhoverlost "eww update use-long-date=false"
   (eventbox :onhover "eww open calendar"
             :onhoverlost "eww close calendar"
     (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
-     {use-long-date ? long-date : short-date})))
+     short-date)))
 
 (defwidget workspaces []
   (box :class "workspaces"
@@ -71,9 +67,6 @@
            :active {onchange != ""}
            :value value
            :onchange onchange)))
-
-(defpoll calendar_day :interval "20h" "date '+%d'")
-(defpoll calendar_year :interval "20h" "date '+%Y'")
 
 (defwidget cal []
   (box :class "cal" :orientation "v"
