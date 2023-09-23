@@ -4,6 +4,7 @@
 -- import qualified XMonad.DBus                   as DBus
 import Control.Monad (liftM2)
 import Data.Semigroup (Endo)
+import Data.List (isInfixOf)
 import System.Exit
 import XMonad
 import XMonad.Hooks.RefocusLast (isFloat)
@@ -117,12 +118,11 @@ myAdditionalKeysP =
     , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
     , ("M-x", kill)
+    , ("M-b", spawn "eww close bar || eww open bar")
     , ( "M-s"
       , sendMessage (Toggle FULL) >>
         sendMessage ToggleStruts >>
-        sendMessage ToggleGaps >>
-        -- FIXME: that is such a hack
-        spawn "eww close bar || eww open bar"
+        sendMessage ToggleGaps
       )
     ]
 
@@ -142,6 +142,8 @@ myManageHook =
         , manageDocks
         , manageHook desktopConfig
         , fmap not isFloat >> fmap not (className =? "TelegramDesktop") --> doF W.swapDown
+        -- TODO: make that work
+        , fmap (isInfixOf "_NET_WM_STATE_BELOW") (stringProperty "_NET_WM_WINDOW_STATE") --> doF W.swapUp
         ]
   where
     viewShift = doF . liftM2 (.) W.greedyView W.shift
