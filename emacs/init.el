@@ -378,9 +378,7 @@
 (use-package spacious-padding
   :demand
   :bind
-  ("C-c o p" . spacious-padding-mode)
-  :config
-  (spacious-padding-mode))
+  ("C-c o p" . spacious-padding-mode))
 
 (use-package modus-themes
   :custom
