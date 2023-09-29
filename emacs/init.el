@@ -293,6 +293,11 @@
   :bind
   ([remap query-replace] . vr/replace))
 
+(use-package visual-regexp-steroids
+  :bind
+  ([remap isearch-forward] . vr/isearch-forward)
+  ([remap isearch-backward] . vr/isearch-backward))
+
 (use-package mermaid-mode)
 
 (use-package ob-mermaid
