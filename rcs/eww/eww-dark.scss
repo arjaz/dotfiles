@@ -44,6 +44,16 @@ calendar:indeterminate {
     color: $disabled;
 }
 
+.music {
+    min-width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.music label {
+    font-family: feather, Iosevka Aile;
+    font-size: 13;
+}
+
 .metric scale trough highlight {
     all: unset;
     background-color: $primary;

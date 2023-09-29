@@ -12,6 +12,9 @@
 (defpoll calendar_day :interval "1h" "date '+%d'")
 (defpoll calendar_year :interval "1h" "date '+%Y'")
 
+(deflisten music :initial ""
+  "playerctl --follow metadata --format '{{ artist }} - {{ title }}' || true")
+
 (defwidget bar []
   (centerbox :orientation "h"
     (workspaces)
@@ -20,6 +23,7 @@
 
 (defwidget sidestuff []
   (box :class "sidestuff" :orientation "h" :space-evenly false :halign "end"
+    (music)
     (metric :label ""
             :value volume
             :onchange "amixer -D pulse sset Master {}%")))
@@ -29,6 +33,14 @@
             :onhoverlost "eww close calendar"
     (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
      short-date)))
+
+(defwidget music []
+  (eventbox :onclick "playerctl play-pause"
+    (box :class "music"
+         :orientation "h"
+         :space-evenly false
+         :halign "center"
+      {music != "" ? "${music}" : ""})))
 
 (defwidget workspaces []
   (box :class "workspaces"
