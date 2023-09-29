@@ -1010,8 +1010,15 @@
   (wgrep-enable-key "e"))
 
 (use-package vertico
+  :straight (vertico :includes vertico-multiform
+                     :files (:defaults "extensions/vertico-multiform.el"))
   :config
   (vertico-mode))
+
+(use-package vertico-posframe
+  :after vertico
+  :config
+  (vertico-posframe-mode))
 
 (use-package orderless
   :custom
