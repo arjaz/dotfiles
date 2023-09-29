@@ -3,21 +3,21 @@
 -- import qualified DBus.Cliest                   as DBusClient
 -- import qualified XMonad.DBus                   as DBus
 import Control.Monad (liftM2)
-import Data.Semigroup (Endo)
 import Data.List (isInfixOf)
+import Data.Semigroup (Endo)
 import System.Exit
 import XMonad
-import XMonad.Hooks.RefocusLast (isFloat)
 import XMonad.Actions.WindowGo
 import XMonad.Config.Desktop
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.RefocusLast (isFloat)
 import XMonad.Layout.Fullscreen hiding (
     fullscreenEventHook,
  )
-import XMonad.Layout.LayoutHints
 import XMonad.Layout.Gaps
+import XMonad.Layout.LayoutHints
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
@@ -98,6 +98,7 @@ myAdditionalKeysP =
     , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o i", runOrRaise "discord" (className =? "Discord"))
     , ("M-o h", runOrRaise "thunderbird" (className =? "Thunderbird"))
+    , ("M-o m", runOrRaise "mpdevil" (className =? "Mpdevil"))
     , ("M-o e", runOrRaise "emacsclient -c -a=''" (className =? "Emacs"))
     , ("M-e", spawn "emacsclient -c -a=''")
     , ("M-o q q", io exitSuccess)
@@ -119,11 +120,12 @@ myAdditionalKeysP =
     , ("M-m", windows W.swapMaster)
     , ("M-x", kill)
     , ("M-b", spawn "eww close bar || eww open bar")
-    , ( "M-s"
-      , sendMessage (Toggle FULL) >>
-        sendMessage ToggleStruts >>
-        sendMessage ToggleGaps
-      )
+    ,
+        ( "M-s"
+        , sendMessage (Toggle FULL)
+            >> sendMessage ToggleStruts
+            >> sendMessage ToggleGaps
+        )
     ]
 
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
@@ -136,21 +138,24 @@ myManageHook =
     composeAll
         [ isFullscreen --> doFullFloat
         , className =? "firefox" --> viewShift "1"
+        , className =? "Mpdevil" --> viewShift "8"
+        , className =? "Mpdevil" --> doRectFloat (W.RationalRect 0.02 0.1 0.7 0.8)
         , title =? "Telegram" --> viewShift "9"
         , title =? "Telegram" --> doRectFloat (W.RationalRect 0.05 0.1 0.27 0.8)
         , isDialog --> doCenterFloat
         , manageDocks
         , manageHook desktopConfig
         , fmap not isFloat >> fmap not (className =? "TelegramDesktop") --> doF W.swapDown
-        -- TODO: make that work
-        , fmap (isInfixOf "_NET_WM_STATE_BELOW") (stringProperty "_NET_WM_WINDOW_STATE") --> doF W.swapUp
+        , -- TODO: make that work
+          fmap (isInfixOf "_NET_WM_STATE_BELOW") (stringProperty "_NET_WM_WINDOW_STATE") --> doF W.swapUp
         ]
   where
     viewShift = doF . liftM2 (.) W.greedyView W.shift
 
 myLayoutHook :: Choose _ _ Window
-myLayoutHook = -- layoutHints
-  fancy ||| console
+myLayoutHook =
+    -- layoutHints
+    fancy ||| console
   where
     console =
         avoidStruts
@@ -177,8 +182,8 @@ myLayoutHook = -- layoutHints
 startupCommands :: [String]
 startupCommands =
     [ "~/.screenlayout/1.sh &"
-    -- , "~/dotfiles/scripts/polybar.sh"
-    , "eww open bar &"
+    , -- , "~/dotfiles/scripts/polybar.sh"
+      "eww open bar &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
