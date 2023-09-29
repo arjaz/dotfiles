@@ -1091,7 +1091,9 @@
   (smart-tabs-insinuate 'c 'c++))
 
 (use-package smart-tab
-  :disabled
+  :custom
+  (smart-tab-user-provided-completion-function  'corfu-candidate-overlay-complete-at-point)
+  (smart-tab-completion-functions-alist nil)
   :config
   (global-smart-tab-mode))
 
@@ -1109,22 +1111,6 @@
   (prog-mode-hook . tempel-setup-capf)
   (text-mode-hook . tempel-setup-capf))
 
-(use-package mono-complete
-  :disabled
-  :config
-  (mono-complete-mode)
-  (set-face-attribute 'mono-complete-preview-face nil
-                      :inherit 'shadow
-                      :background (face-attribute 'shadow :background)
-                      :foreground (face-attribute 'shadow :foreground))
-  :custom
-  (mono-complete-preview-delay 0.235)
-  (mono-complete-backends '(capf dabbrev filesystem word-predict))
-  :bind
-  (:map mono-complete-mode-map
-   ("C-<tab>" . mono-complete-expand)))
-
-
 ;; TODO: I want rounded borders and the same background color
 (use-package corfu
   :straight
@@ -1141,14 +1127,14 @@
   (:map corfu-map
    ("M-s o" . corfu-move-to-minibuffer))
   :custom
-  (corfu-auto-prefix 3)
+  (corfu-auto-prefix 2)
   (corfu-cycle t)
   (corfu-auto nil)
   (corfu-separator ?\s)
-  (corfu-quit-at-boundary t)
-  (corfu-quit-no-match t)
-  (corfu-on-exact-match #'quit)
-  (corfu-preselect 'prompt)
+  (corfu-quit-at-boundary 'separator)
+  (corfu-quit-no-match 'separator)
+  (corfu-on-exact-match 'insert)
+  (corfu-preselect 'first)
   :demand
   :config
   (set-face-attribute
@@ -1162,10 +1148,11 @@
   (set-face-attribute 'corfu-popupinfo nil :height 0.9))
 
 (use-package corfu-candidate-overlay
+  :after corfu
   :bind
   ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
-  :hook
-  (corfu-mode-hook . corfu-candidate-overlay-mode))
+  :config
+  (corfu-candidate-overlay-mode))
 
 (use-package cape
   :straight (:host github
@@ -1174,9 +1161,13 @@
   :preface
   (defun cape-setup ()
     (setq-local completion-at-point-functions
-                (append (list #'cape-file #'cape-keyword #'cape-dabbrev)
-                        completion-at-point-functions)))
-  :hook (prog-mode-hook . cape-setup)
+                (delete-dups
+                 (append (list #'cape-file #'cape-keyword #'cape-dabbrev)
+                         completion-at-point-functions))))
+  ;; TODO: use lisp-complete-symbol for elisp
+  :hook
+  (prog-mode-hook . cape-setup)
+  (lsp-completion-mode-hook . cape-setup)
   :bind
   ("M-/" . cape-dabbrev))
 
