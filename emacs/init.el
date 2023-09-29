@@ -191,6 +191,7 @@
       (load path))))
 
 (use-package super-save
+  :disabled
   :custom
   (super-save-auto-save-when-idle t)
   (auto-save-default nil)
