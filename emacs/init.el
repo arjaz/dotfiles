@@ -934,18 +934,19 @@
   :hook (magit-mode-hook . magit-delta-mode))
 
 (use-package magit-difftastic
+  :disabled
   :straight nil
   :load-path "~/dotfiles/emacs/"
   :after magit
   :config
-  (transient-define-prefix th/magit-aux-commands ()
-    "My personal auxiliary magit commands."
+  (transient-define-prefix magit-aux-commands ()
+    "Some auxiliary magit commands."
     ["Auxiliary commands"
-     ("d" "Difftastic Diff (dwim)" th/magit-diff-with-difftastic)
-     ("s" "Difftastic Show" th/magit-show-with-difftastic)])
+     ("d" "Difftastic Diff (dwim)" magit-diff-with-difftastic)
+     ("s" "Difftastic Show" magit-show-with-difftastic)])
   (transient-append-suffix 'magit-dispatch "!"
-    '("#" "Custom Magit" th/magit-aux-commands))
-  (define-key magit-mode-map (kbd "#") 'th/magit-aux-commands))
+    '("#" "Custom Magit" magit-aux-commands))
+  (define-key magit-mode-map (kbd "#") 'magit-aux-commands))
 
 (use-package magit-todos
   :config

@@ -1,4 +1,4 @@
-(defun th/magit--with-difftastic (buffer command)
+(defun magit--with-difftastic (buffer command)
   "Run COMMAND with GIT_EXTERNAL_DIFF=difft then show result in BUFFER."
   (let ((process-environment
          (cons (concat "GIT_EXTERNAL_DIFF=difft --width="
@@ -46,7 +46,7 @@
                           (window-width
                            . ,(min width (frame-width))))))))))))
 
-(defun th/magit-show-with-difftastic (rev)
+(defun magit-show-with-difftastic (rev)
   "Show the result of \"git show REV\" with GIT_EXTERNAL_DIFF=difft."
   (interactive
    (list (or
@@ -61,11 +61,11 @@
           (magit-read-branch-or-commit "Revision"))))
   (if (not rev)
       (error "No revision specified")
-    (th/magit--with-difftastic
+    (magit--with-difftastic
      (get-buffer-create (concat "*git show difftastic " rev "*"))
      (list "git" "--no-pager" "show" "--ext-diff" rev))))
 
-(defun th/magit-diff-with-difftastic (arg)
+(defun magit-diff-with-difftastic (arg)
   "Show the result of \"git diff ARG\" with GIT_EXTERNAL_DIFF=difft."
   (interactive
    (list (or
@@ -87,7 +87,7 @@
   (let ((name (concat "*git diff difftastic"
                       (if arg (concat " " arg) "")
                       "*")))
-    (th/magit--with-difftastic
+    (magit--with-difftastic
      (get-buffer-create name)
      `("git" "--no-pager" "diff" "--ext-diff" ,@(when arg (list arg))))))
 
