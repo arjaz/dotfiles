@@ -912,21 +912,6 @@
 (use-package magit-delta
   :hook (magit-mode-hook . magit-delta-mode))
 
-(use-package magit-difftastic
-  :disabled
-  :straight nil
-  :load-path "~/dotfiles/emacs/"
-  :after magit
-  :config
-  (transient-define-prefix magit-aux-commands ()
-    "Some auxiliary magit commands."
-    ["Auxiliary commands"
-     ("d" "Difftastic Diff (dwim)" magit-diff-with-difftastic)
-     ("s" "Difftastic Show" magit-show-with-difftastic)])
-  (transient-append-suffix 'magit-dispatch "!"
-    '("#" "Custom Magit" magit-aux-commands))
-  (define-key magit-mode-map (kbd "#") 'magit-aux-commands))
-
 (use-package magit-todos
   :config
   (magit-todos-mode))
@@ -975,7 +960,6 @@
 (use-package project
   :straight (:type built-in))
 
-;; TODO: add projection
 (use-package projection
   :disabled
   :bind-keymap
@@ -1232,12 +1216,6 @@
   (ispell-local-dictionary "en_US")
   :config
   (global-jinx-mode))
-
-(use-package wucuo
-  :disabled
-  :hook
-  (text-mode-hook . wucuo-start)
-  (prog-mode-hook . wucuo-start))
 
 (use-package haskell-mode
   :config
@@ -1730,86 +1708,10 @@
   :custom
   (zoom-size '(0.618 . 0.618)))
 
-(use-package mpdel
-  :disabled
-  :config
-  (mpdel-mode)
-  :custom
-  (mpdel-prefix-key (kbd "C-c o n m")))
-
-(use-package mpdel-embark
-  :disabled
-  :straight
-  (:host github
-   :repo "mpdel/mpdel-embark")
-  :after (embark mpdel)
-  :config
-  (mpdel-embark-setup))
-
-(use-package ement
-  :disabled)
-
 (use-package alert
   :demand t
   :init
   (setq alert-default-style 'notifications))
-
-(use-package slack
-  :disabled
-  :custom
-  (slack-render-image-p t)
-  (slack-buffer-emojify t)
-  :bind-keymap
-  ("C-c o n s" . slack-prefix-map)
-  :config
-  (defvar slack-prefix-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "s") #'slack-start)
-      (define-key map (kbd "u") #'slack-select-unread-rooms)
-      (define-key map (kbd "m") #'slack-select-rooms)
-      map))
-  (slack-register-team
-   :name "blocklabs"
-   :token (auth-source-pick-first-password
-           :host "blocklabs.slack.com"
-           :user "arjaz")
-   :cookie (auth-source-pick-first-password
-           :host "blocklabs.slack.com"
-           :user "arjaz^cookie")))
-
-(use-package telega
-  :straight (:host github
-             :repo "zevlg/telega.el"
-             :branch "release-0.8.0"
-             :build (:not compile))
-  :disabled
-  :hook
-  ;; Make the text variable-pitch
-  (telega-root-mode-hook . buffer-face-mode)
-  (telega-chat-mode-hook . buffer-face-mode)
-  :bind-keymap
-  ("C-c o n t" . telega-prefix-map)
-  :custom
-  (telega-use-images t)
-  (telega-root-show-avatars t)
-  (telega-chat-show-avatars t)
-  (telega-completing-read-function #'completing-read)
-  :config
-  ;; make the avatars appear on separate lines
-  ;; to avoid stripes
-  ;; (setf (alist-get 2 telega-avatar-factors-alist) '(0.4 . 0.1))
-  ;; TODO: figure this one out
-  ;; (require 'telega-adblock)
-  ;; (require 'telega-transient)
-  ;; (telega-adblock-mode)
-  ;; (telega-transient-mode)
-  (telega-notifications-mode))
-
-(use-package mastodon
-  :disabled
-  :custom
-  (mastodon-instance-url "https://emacs.ch")
-  (mastodon-active-user "arjaz"))
 
 (provide 'init)
 ;;; init.el ends here
