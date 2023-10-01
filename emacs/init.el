@@ -518,32 +518,23 @@
   :hook (dired-mode-hook . diredfl-mode))
 
 (use-package macrursors
-  :disabled
   :straight (:host github
              :repo "corytertel/macrursors")
-  :custom
-  (macrursors-preapply-command
-   (lambda () (corfu-mode -1)))
-  (macrursors-postapply-command
-   (lambda () (corfu-mode)))
+  :hook
+  (macrursors-pre-finish-hook . corfu-mode)
+  (macrursors-post-finish-hook . corfu-mode)
   :init
   (define-prefix-command 'macrursors-mark-map)
   :bind
-  ("C->" . macrursors-mark-next-instance-of)
-  ("C-<" . macrursors-mark-previous-instance-of)
-  ;; (global-set-key (kbd "C-;") 'macrursors-mark-map)
-  ;; (define-key macrursors-mark-map (kbd "C-;") #'macrursors-mark-all-lines-or-instances)
-  ;; (define-key macrursors-mark-map (kbd ";") #'macrursors-mark-all-lines-or-instances)
-  ;; (define-key macrursors-mark-map (kbd "l") #'macrursors-mark-all-lists)
-  ;; (define-key macrursors-mark-map (kbd "s") #'macrursors-mark-all-symbols)
-  ;; (define-key macrursors-mark-map (kbd "e") #'macrursors-mark-all-sexps)
-  ;; (define-key macrursors-mark-map (kbd "f") #'macrursors-mark-all-defuns)
-  ;; (define-key macrursors-mark-map (kbd "n") #'macrursors-mark-all-numbers)
-  ;; (define-key macrursors-mark-map (kbd ".") #'macrursors-mark-all-sentences)
-  ;; (define-key macrursors-mark-map (kbd "r") #'macrursors-mark-all-lines)
-  )
+  (("C->" . macrursors-mark-next-line)
+   ("C-<" . macrursors-mark-previous-line)
+   ("C-M->" . macrursors-mark-next-instance-of)
+   ("C-M-<" . macrursors-mark-previous-instance-of)
+   :map macrursors-mode-map
+   ("RET" . macrursors-end)))
 
 (use-package multiple-cursors
+  :disabled
   :bind
   (("C-c m a" . mc/edit-beginnings-of-lines)
    ("C-c m e" . mc/edit-ends-of-lines)
