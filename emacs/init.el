@@ -247,7 +247,6 @@
 
 ;; TODO: have a separate keymap for this
 (use-package hideshow
-  :disabled
   :straight (:type built-in)
   :bind
   ("C-c t t" . hs-toggle-hiding)
@@ -258,17 +257,6 @@
   ("C-c t l" . hs-hide-level)
   :hook
   (prog-mode-hook . hs-minor-mode))
-
-(use-package origami
-  :bind
-  ("C-c t t" . origami-toggle-node)
-  ("C-c t h" . origami-close-node)
-  ("C-c t s" . origami-open-node)
-  ("C-c t C-h" . origami-close-all-nodes)
-  ("C-c t C-s" . origami-open-all-nodes)
-  ("C-c t l" . origami-recursively-toggle-node)
-  :config
-  (global-origami-mode))
 
 (use-package gcmh
   :demand
