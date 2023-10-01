@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 
-export EDITOR='emacs'
-export VISUAL='emacs'
+export EDITOR='emacsclient -c -a=""'
+export VISUAL='emacsclient -c -a=""'
 
 # Plugins
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
