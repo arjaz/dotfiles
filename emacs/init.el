@@ -245,16 +245,19 @@
   (unless (file-exists-p (concat user-emacs-directory "backups"))
     (make-directory (concat user-emacs-directory "backups") t)))
 
-;; TODO: have a separate keymap for this
 (use-package hideshow
   :straight (:type built-in)
-  :bind
-  ("C-c t t" . hs-toggle-hiding)
-  ("C-c t h" . hs-hide-block)
-  ("C-c t s" . hs-show-block)
-  ("C-c t C-h" . hs-hide-all)
-  ("C-c t C-s" . hs-show-all)
-  ("C-c t l" . hs-hide-level)
+  :init
+  (defvar-keymap hideshow-map
+    :doc "Keymap for hs-minor-mode"
+    "t"   'hs-toggle-hiding
+    "h"   'hs-hide-block
+    "s"   'hs-show-block
+    "C-h" 'hs-hide-all
+    "C-s" 'hs-show-all
+    "l"   'hs-hide-level)
+  :bind-keymap
+  ("C-c t" . hideshow-map)
   :hook
   (prog-mode-hook . hs-minor-mode))
 
