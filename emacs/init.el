@@ -190,16 +190,6 @@
     (when (file-exists-p path)
       (load path))))
 
-(use-package super-save
-  :disabled
-  :custom
-  (super-save-auto-save-when-idle t)
-  (auto-save-default nil)
-  (super-save-exclude '(".gpg"))
-  :config
-  (super-save-mode)
-  (add-to-list 'super-save-triggers 'ace-window))
-
 (use-package bookmark
   :straight (:type built-in)
   :custom
