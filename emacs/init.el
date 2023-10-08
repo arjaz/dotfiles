@@ -1030,6 +1030,10 @@
   :config
   (recentf-mode))
 
+(use-package consult-ls-git
+  :bind
+  ("M-s g" . consult-ls-git))
+
 (use-package consult-flycheck
   :after flycheck
   :straight (:host github
