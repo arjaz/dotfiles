@@ -538,10 +538,14 @@
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
-   ("C-M->" . macrursors-mark-next-instance-of)
-   ("C-M-<" . macrursors-mark-previous-instance-of)
+   ("C-c m >" . macrursors-mark-next-instance-of)
+   ("C-c m <" . macrursors-mark-previous-instance-of)
    :map macrursors-mode-map
-   ("RET" . macrursors-end)))
+   ("RET" . macrursors-end)
+   :map isearch-mode-map
+   ("M-s m" . macrursors-mark-from-isearch)
+   ("M-s n" . macrursors-mark-next-from-isearch)
+   ("M-s p" . macrursors-mark-previous-from-isearch)))
 
 (use-package multiple-cursors
   :disabled
