@@ -286,9 +286,16 @@
   ([remap query-replace] . vr/replace))
 
 (use-package visual-regexp-steroids
+  :custom
+  (vr/default-regexp-modifiers '(:I t :M t :S nil :U nil))
   :bind
   ([remap isearch-forward] . vr/isearch-forward)
-  ([remap isearch-backward] . vr/isearch-backward))
+  ([remap isearch-backward] . vr/isearch-backward)
+  :config
+  (defadvice vr--isearch (around add-case-insensitive (forward string &optional bound noerror count) activate)
+    (when (and (eq vr/engine 'python) case-fold-search)
+      (setq string (concat "(?i)" string)))
+    ad-do-it))
 
 (use-package mermaid-mode)
 
