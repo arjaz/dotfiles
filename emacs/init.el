@@ -342,7 +342,6 @@
 (use-package org-modern
   :preface
   (defun org-set-line-spacing ()
-    ;; TODO: Does it work with org-modern-indent and src?
     (setq-local line-specing 0.2))
   :config
   (set-face-attribute 'org-modern-label nil :height 1.0)
@@ -485,21 +484,6 @@
   :config
   (all-the-icons-completion-mode))
 
-(use-package hl-todo
-  :disabled
-  :custom
-  (hl-todo-keyword-faces
-   `(("TODO" warning bold)
-     ("FIXME" error bold)
-     ("HACK" font-lock-constant-face bold)
-     ("REVIEW" font-lock-keyword-face bold)
-     ("NOTE" success bold)
-     ("DEPRECATED" font-lock-doc-face bold)
-     ("BUG" error bold)
-     ("XXX" font-lock-constant-face bold)))
-  :config
-  (global-hl-todo-mode))
-
 (use-package dired
   :straight (:type built-in)
   :hook
@@ -536,17 +520,6 @@
    ("M-s m" . macrursors-mark-from-isearch)
    ("M-s n" . macrursors-mark-next-from-isearch)
    ("M-s p" . macrursors-mark-previous-from-isearch)))
-
-(use-package multiple-cursors
-  :disabled
-  :bind
-  (("C-c m a" . mc/edit-beginnings-of-lines)
-   ("C-c m e" . mc/edit-ends-of-lines)
-   ("C-c m c" . mc/edit-lines)
-   ("C-c m d" . mc/mark-all-dwim)
-   ("C-c m m a" . mc/mark-all-like-this)
-   ("C->" . mc/mark-next-like-this)
-   ("C-<" . mc/mark-previous-like-this)))
 
 (use-package expand-region
   :bind
@@ -941,7 +914,6 @@
 
 (use-package mini-modeline
   :config
-  ;; TODO: maybe rethink eldoc
   (setq
    mini-modeline-enhance-visual nil
    mini-modeline-display-gui-line nil
@@ -1495,12 +1467,6 @@
   :config
   (setq-default sly-symbol-completion-mode nil))
 
-(use-package geiser
-  :disabled)
-
-(use-package geiser-guile
-  :disabled)
-
 (use-package flycheck-clj-kondo)
 
 (use-package clojure-ts-mode
@@ -1619,8 +1585,6 @@
    :repo "renzmann/treesit-auto")
   :custom
   (treesit-auto-install t)
-  (treesit-auto-opt-out-list
-   '(clojure))
   :config
   (global-treesit-auto-mode))
 
