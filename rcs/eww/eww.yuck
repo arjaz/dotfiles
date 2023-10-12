@@ -1,10 +1,13 @@
 (defpoll volume :interval "0.1s"
   "scripts/getvol")
-(defpoll short-date :interval "0.5s"
+
+(defpoll date :interval "0.5s"
   "date '+%l:%M %P'")
+
 ;; That can be a listener instead
 (defpoll active-workspace :interval "0.1s"
   "scripts/active-workspace")
+
 ;; That can be a listener instead
 (defpoll used-workspaces :interval "0.1s"
   "scripts/used-workspaces")
@@ -29,10 +32,9 @@
             :onchange "amixer -D pulse sset Master {}%")))
 
 (defwidget timestuff []
-  (eventbox :onhover "eww open calendar"
-            :onhoverlost "eww close calendar"
+  (eventbox :onclick "eww close calendar || eww open calendar"
     (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
-     short-date)))
+     date)))
 
 (defwidget music []
   (eventbox :onclick "playerctl play-pause"
