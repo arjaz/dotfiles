@@ -349,38 +349,43 @@
   :config ; add late to hook
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 
-(use-package dbus)
+(use-package dbus
+  :hook
+  (after-init-hook . load-theme-on-startup)
+  :preface
+  (defun set-theme-from-dbus-value (value)
+    (if (equal value '1)
+        (run-hooks 'dbus-dark-theme-hook)
+      (run-hooks 'dbus-light-theme-hook)))
+  (defun dbus-on-theme-changed (path var value)
+    (when (and (string-equal path "org.freedesktop.appearance")
+               (string-equal var "color-scheme"))
+      (set-theme-from-dbus-value (car value))))
+  (defun load-theme-on-startup ()
+    (interactive)
+    (unless custom-enabled-themes
+      (dbus-call-method-asynchronously
+       :session "org.freedesktop.portal.Desktop"
+       "/org/freedesktop/portal/desktop"
+       "org.freedesktop.portal.Settings"
+       "Read"
+       (-compose #'set-theme-from-dbus-value #'caar)
+       "org.freedesktop.appearance"
+       "color-scheme")))
+  :init
+  (defvar dbus-light-theme-hook ())
+  (defvar dbus-dark-theme-hook ())
+  :config
+  (dbus-register-signal
+   :session "org.freedesktop.portal.Desktop"
+   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+   "SettingChanged"
+   #'dbus-on-theme-changed))
 
 (use-package spacious-padding
   :demand
   :bind
   ("C-c o p" . spacious-padding-mode))
-
-(use-package faces
-  :disabled
-  :straight (:type built-in)
-  :config
-  (let ((font "Iosevka ss08 Light-10"))
-    (add-to-list 'initial-frame-alist `(font . ,font))
-    (add-to-list 'default-frame-alist `(font . ,font))
-    (set-face-attribute 'fixed-pitch nil :family font)
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)
-    (set-frame-font font)
-    (set-fontset-font t nil (font-spec :size 10 :name "Iosevka Nerd Font Mono"))))
-
-(use-package fontaine
-  :config
-  (setq fontaine-presets
-        '((light
-           :default-family "Iosevka ss08"
-           :default-height 100
-           :default-weight light
-           :variable-pitch-family "Iosevka Aile")
-          (dark
-           :default-family "Iosevka ss08"
-           :default-height 100
-           :default-weight normal
-           :variable-pitch-family "Iosevka Aile"))))
 
 (use-package modus-themes
   :custom
@@ -399,55 +404,44 @@
      (builtin fg-main)))
   (modus-themes-mixed-fonts t)
   :hook
-  (after-init-hook . load-theme-on-startup)
+  (dbus-light-theme-hook . load-light-theme)
+  (dbus-dark-theme-hook . load-dark-theme)
   :preface
-  (defun run-after-load-theme-hooks (&rest r)
-    (run-hooks 'after-load-theme-hook))
-  ;; TODO: replace all of that with a plugin https://github.com/LionyxML/auto-dark-emacs
   (defun load-dark-theme ()
     "Load the saved dark theme."
     (interactive)
-    (message "Loading dark theme")
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t)
-    (fontaine-set-preset 'dark))
+    (load-theme dark-theme t))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
-    (message "Loading light theme")
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme light-theme t)
-    (fontaine-set-preset 'light))
-  (defun load-theme-on-startup ()
-    (interactive)
-    (unless custom-enabled-themes
-      (dbus-call-method-asynchronously
-       :session "org.freedesktop.portal.Desktop"
-       "/org/freedesktop/portal/desktop"
-       "org.freedesktop.portal.Settings"
-       "Read"
-       (-compose #'set-theme-from-dbus-value #'caar)
-       "org.freedesktop.appearance"
-       "color-scheme")))
-  (defun set-theme-from-dbus-value (value)
-    (if (equal value '1)
-        (load-dark-theme)
-      (load-light-theme)))
-  (defun dbus-on-theme-changed (path var value)
-    (when (and (string-equal path "org.freedesktop.appearance")
-               (string-equal var "color-scheme"))
-      (set-theme-from-dbus-value (car value))))
-  :config
-  (dbus-register-signal
-   :session "org.freedesktop.portal.Desktop"
-   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
-   "SettingChanged"
-   #'dbus-on-theme-changed)
+    (load-theme light-theme t))
   :init
-  (defvar after-load-theme-hook ())
   (defvar light-theme 'modus-operandi)
-  (defvar dark-theme 'modus-vivendi)
-  (advice-add #'load-theme :after #'run-after-load-theme-hooks))
+  (defvar dark-theme 'modus-vivendi))
+
+(use-package fontaine
+  :preface
+  (defun fontaine-load-light ()
+    (fontaine-set-preset 'light))
+  (defun fontaine-load-dark ()
+    (fontaine-set-preset 'dark))
+  :hook
+  (dbus-light-theme-hook . fontaine-load-light)
+  (dbus-dark-theme-hook . fontaine-load-dark)
+  :config
+  (setq fontaine-presets
+        '((light
+           :default-family "Iosevka ss08"
+           :default-height 100
+           :default-weight light
+           :variable-pitch-family "Iosevka Aile")
+          (dark
+           :default-family "Iosevka ss08"
+           :default-height 110
+           :default-weight semibold
+           :variable-pitch-family "Iosevka Aile"))))
 
 (use-package page-break-lines
   :config
