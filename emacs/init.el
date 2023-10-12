@@ -106,17 +106,6 @@
   (window-divider-mode)
   (blink-cursor-mode 0))
 
-(use-package faces
-  :straight (:type built-in)
-  :config
-  (let ((font "Iosevka ss08 Light-9"))
-    (add-to-list 'initial-frame-alist `(font . ,font))
-    (add-to-list 'default-frame-alist `(font . ,font))
-    (set-face-attribute 'fixed-pitch nil :family font)
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 90)
-    (set-frame-font font)
-    (set-fontset-font t nil (font-spec :size 9 :name "Iosevka Nerd Font Mono"))))
-
 (use-package sublimity
   ;; :custom
   ;; (sublimity-scroll-weight 20.0)
@@ -367,6 +356,32 @@
   :bind
   ("C-c o p" . spacious-padding-mode))
 
+(use-package faces
+  :disabled
+  :straight (:type built-in)
+  :config
+  (let ((font "Iosevka ss08 Light-10"))
+    (add-to-list 'initial-frame-alist `(font . ,font))
+    (add-to-list 'default-frame-alist `(font . ,font))
+    (set-face-attribute 'fixed-pitch nil :family font)
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)
+    (set-frame-font font)
+    (set-fontset-font t nil (font-spec :size 10 :name "Iosevka Nerd Font Mono"))))
+
+(use-package fontaine
+  :config
+  (setq fontaine-presets
+        '((light
+           :default-family "Iosevka ss08"
+           :default-height 100
+           :default-weight light
+           :variable-pitch-family "Iosevka Aile")
+          (dark
+           :default-family "Iosevka ss08"
+           :default-height 100
+           :default-weight normal
+           :variable-pitch-family "Iosevka Aile"))))
+
 (use-package modus-themes
   :custom
   (modus-themes-common-palette-overrides
@@ -394,13 +409,15 @@
     (interactive)
     (message "Loading dark theme")
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t))
+    (load-theme dark-theme t)
+    (fontaine-set-preset 'dark))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
     (message "Loading light theme")
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme light-theme t))
+    (load-theme light-theme t)
+    (fontaine-set-preset 'light))
   (defun load-theme-on-startup ()
     (interactive)
     (unless custom-enabled-themes
