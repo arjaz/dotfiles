@@ -538,13 +538,6 @@
    ("M-s n" . macrursors-mark-next-from-isearch)
    ("M-s p" . macrursors-mark-previous-from-isearch)))
 
-(use-package expand-region
-  :bind
-  ("C-M-SPC" . er/expand-region)
-  :custom
-  (expand-region-smart-cursor t)
-  (expand-region-contract-fast-key "C-M-SPC"))
-
 (use-package smart-comment
   :bind
   ("M-;" . smart-comment))
