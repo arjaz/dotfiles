@@ -1338,6 +1338,7 @@
   (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
   (typescript-mode-hook . lsp-deferred)
   (typescript-ts-mode-hook . lsp-deferred)
+  (tsx-ts-mode-hook . lsp-deferred)
   (zig-mode-hook . lsp-deferred)
   (haskell-mode-hook . lsp-deferred)
   (rust-mode-hook . lsp-deferred)
