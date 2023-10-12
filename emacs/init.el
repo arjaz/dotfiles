@@ -512,6 +512,7 @@
 (use-package diredfl
   :hook (dired-mode-hook . diredfl-mode))
 
+;; TODO: integrate with avy
 (use-package macrursors
   :straight (:host github
              :repo "corytertel/macrursors")
@@ -523,8 +524,8 @@
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
-   ("C-c m >" . macrursors-mark-next-instance-of)
-   ("C-c m <" . macrursors-mark-previous-instance-of)
+   ("C-c m n" . macrursors-mark-next-instance-of)
+   ("C-c m p" . macrursors-mark-previous-instance-of)
    :map macrursors-mode-map
    ("RET" . macrursors-end)
    :map isearch-mode-map
