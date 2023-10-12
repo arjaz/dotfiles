@@ -141,6 +141,7 @@ myManageHook =
     composeAll
         [ isFullscreen --> doFullFloat
         , className =? "firefox" --> viewShift "1"
+        , className =? "Slack" --> viewShift "7"
         , className =? "Mpdevil" --> viewShift "8"
         , className =? "Mpdevil" --> doRectFloat (W.RationalRect 0.02 0.1 0.7 0.8)
         , title =? "Telegram" --> viewShift "9"
@@ -184,13 +185,14 @@ myLayoutHook =
 
 startupCommands :: [String]
 startupCommands =
-    [ "~/.screenlayout/1.sh &"
-    , -- , "~/dotfiles/scripts/polybar.sh"
-      "eww open bar &"
-    , "~/dotfiles/scripts/to-light-theme.sh &"
+    [ "eww open bar"
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
     , "picom --config ~/.config/compton.conf &"
+    , -- TODO: why do I have to do that?
+      --       systemd's --user service doesn't work for some reason
+      "/usr/lib/xdg-desktop-portal --replace &"
+    , "~/dotfiles/scripts/to-light-theme.sh &"
     ]
 
 myStartupHook :: X ()
