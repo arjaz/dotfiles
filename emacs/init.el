@@ -294,14 +294,12 @@
    ("C-c a d" . org-archive-all-done))
   :demand
   :custom
-  (org-todo-keywords
-   '((sequence "TODO" "IN-PROGRESS" "DONE")))
   (org-confirm-babel-evaluate nil)
   (org-directory "~/documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
   (org-hide-leading-stars t)
   (org-startup-indented t)
-  (org-agenda-files (list org-default-notes-file))
+  (org-agenda-files (list org-default-notes-file "~/android-sync/Notes/Notes.org"))
   (org-columns-default-format "%50ITEM(Task) %TODO %10CLOCKSUM %16TIMESTAMP_IA")
   (org-capture-templates
    `(("t" "Todo" entry (file+headline ,org-default-notes-file "Tasks")
@@ -331,7 +329,7 @@
 (use-package org-modern
   :preface
   (defun org-set-line-spacing ()
-    (setq-local line-specing 0.2))
+    (setq-local line-spacing 0.05))
   :config
   (set-face-attribute 'org-modern-label nil :height 1.0)
   :hook
