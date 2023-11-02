@@ -83,8 +83,8 @@ myWorkspaces =
     , (xK_0, "0")
     ]
 
-screenshotsFolder :: String
-screenshotsFolder = "\"~/pictures/screenshots/screen-%Y-%m-%d-%T.png\""
+screenshotFilename :: String
+screenshotFilename = "\"~/pictures/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
@@ -116,8 +116,8 @@ myAdditionalKeysP =
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
     , ("M-o S-s", spawn $ "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
     , ("M-o s", spawn $ "maim -s | xclip -selection clipboard -t image/png")
-    , ("M-o M-S-s", spawn $ "maim " <> screenshotsFolder)
-    , ("M-o M-s", spawn $ "maim -s " <> screenshotsFolder)
+    , ("M-o M-S-s", spawn $ "maim " <> screenshotFilename)
+    , ("M-o M-s", spawn $ "maim -s " <> screenshotFilename)
     , ("S-M-h", sendMessage Expand)
     , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
@@ -189,10 +189,13 @@ startupCommands =
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
     , "picom --config ~/.config/compton.conf &"
-    , -- TODO: why do I have to do that?
+      -- ,
+      -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
-      "/usr/lib/xdg-desktop-portal --replace &"
+      -- UPD: and now this doesn't work anymore, holy shit
+      -- "/usr/lib/xdg-desktop-portal --replace &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
+    , "~/screenlayout/1.sh &"
     ]
 
 myStartupHook :: X ()
