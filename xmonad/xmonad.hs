@@ -13,11 +13,7 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.RefocusLast (isFloat)
-import XMonad.Layout.Fullscreen hiding (
-    fullscreenEventHook,
- )
 import XMonad.Layout.Gaps
-import XMonad.Layout.LayoutHints
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
@@ -189,11 +185,9 @@ startupCommands =
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
     , "picom --config ~/.config/compton.conf &"
-      -- ,
-      -- TODO: why do I have to do that?
+    , -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
-      -- UPD: and now this doesn't work anymore, holy shit
-      -- "/usr/lib/xdg-desktop-portal --replace &"
+      "/usr/lib/xdg-desktop-portal --replace &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
     , "~/screenlayout/1.sh &"
     ]
