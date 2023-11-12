@@ -962,6 +962,7 @@
   (vertico-mode))
 
 (use-package vertico-posframe
+  :disabled
   :after vertico
   :config
   (vertico-posframe-mode))
