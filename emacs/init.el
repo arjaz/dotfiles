@@ -58,6 +58,7 @@
   (history-length t)
   (history-delete-duplicates t)
   (enable-recursive-minibuffers t)
+  (sentence-end-double-space nil)
   :preface
   (defun allow-garbage ()
     (setq gc-cons-threshold 536870912 ; 512mb
