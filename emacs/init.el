@@ -1048,7 +1048,7 @@
 
 (use-package smart-tab
   :custom
-  (smart-tab-user-provided-completion-function  'corfu-candidate-overlay-complete-at-point)
+  (smart-tab-user-provided-completion-function 'corfu-candidate-overlay-complete-at-point)
   (smart-tab-completion-functions-alist nil)
   :config
   (global-smart-tab-mode))
@@ -1123,7 +1123,7 @@
   ;; TODO: use lisp-complete-symbol for elisp
   :hook
   (prog-mode-hook . cape-setup)
-  (lsp-completion-mode-hook . cape-setup)
+  ;; (lsp-completion-mode-hook . cape-setup)
   :bind
   ("M-/" . cape-dabbrev))
 
@@ -1211,6 +1211,7 @@
   :custom
   (ispell-program-name "hunspell")
   (ispell-local-dictionary "en_US")
+  (jinx-languages "en_US uk_UA")
   :config
   (global-jinx-mode))
 
@@ -1361,7 +1362,7 @@
   (lsp-completion-provider :none) ; use corfu instead
   ;; (lsp-completion-provider :capf)
   (lsp-idle-delay 0.75)
-  (lsp-inlay-hint-enable t)
+  (lsp-inlay-hint-enable nil)
   (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
   (lsp-semantic-tokens-enable nil)
@@ -1379,6 +1380,7 @@
    ("C-c l c f" . consult-lsp-file-symbols)))
 
 (use-package dap-mode
+  :disabled
   :custom
   (dap-auto-configure-features '(sessions locals controls tooltip))
   :hook
@@ -1615,21 +1617,23 @@
       ">=>" "<=<" "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>" "<!---"
       "(*" "*)" "[|" "|]" "{|" "|}" "<." "<.>" ".>"
       ":-->"
+      "</>" "</" "/>"
       "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!==" ">>=" "=<<" "<>" ":>"
       ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++"))
   (ligature-set-ligatures 'prog-mode iosevka-ligatures)
-  ;; (global-ligature-mode)
-  )
+  (global-ligature-mode))
 
 (use-package xah-math-input
   :bind
   ("C-c m i" . xah-math-input-change-to-symbol))
 
+(use-package nov)
+
 (use-package pdf-tools
-  :mode
-  ("\\.pdf\\'" . pdf-view-mode)
-  :custom
-  (pdf-view-display-page 'fit-page))
+  ;; :custom
+  ;; (pdf-view-display-page 'fit-page)
+  :config
+  (pdf-tools-install))
 
 (use-package tex-site
   :straight auctex
