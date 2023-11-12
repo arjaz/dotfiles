@@ -904,12 +904,11 @@
   :disabled
   :straight
   (:host github
-   :repo "wandersoncferreira/code-review"
-   :build (:not compile))
-  :demand t
-  :config
-  (transient-append-suffix 'forge-dispatch '(0 2 -1)
-    '("b c" "code-review pr at point" code-review-forge-pr-at-point)))
+   :repo "doomelpa/code-review")
+  :custom
+  (code-review-auth-login-marker 'forge))
+
+(use-package blamer)
 
 (use-package breadcrumb
   :straight
