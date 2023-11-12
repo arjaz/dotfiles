@@ -294,7 +294,13 @@
   (:map org-mode-map
    ("C-c a d" . org-archive-all-done))
   :demand
+  :preface
+  (defun open-org-agenda ()
+    (org-agenda nil "n")
+    (delete-other-windows)
+    (get-buffer "*Org Agenda*"))
   :custom
+  (initial-buffer-choice #'open-org-agenda)
   (org-confirm-babel-evaluate nil)
   (org-directory "~/documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
@@ -664,6 +670,7 @@
   (which-key-mode))
 
 (use-package dashboard
+  :disabled
   :preface
   (defun dashboard-buffer ()
     (get-buffer-create "*dashboard*"))
