@@ -913,7 +913,9 @@
 (use-package breadcrumb
   :straight
   (:host github
-   :repo "joaotavora/breadcrumb"))
+   :repo "joaotavora/breadcrumb")
+  :config
+  (breadcrumb-mode))
 
 (use-package mini-modeline
   :config
