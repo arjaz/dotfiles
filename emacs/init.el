@@ -1678,6 +1678,15 @@
   :config
   (global-pretty-sha-path-mode))
 
+(use-package wallabag
+  :straight (:host github :repo "chenyanming/wallabag.el" :files ("*.el" "*.alist" "*.css"))
+  :custom
+  (wallabag-download-dir "~/downloads")
+  :config
+  (let ((path "~/dotfiles/emacs/wallabag-custom.el"))
+    (when (file-exists-p path)
+      (load path))))
+
 (use-package detached
   :disabled
   :init
