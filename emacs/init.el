@@ -973,6 +973,11 @@
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
+(use-package goto-chg
+  :bind
+  ("C-," . goto-last-change)
+  ("C-." . goto-last-change-reverse))
+
 ;; TODO: I think the previews can be better
 (use-package consult
   :custom
