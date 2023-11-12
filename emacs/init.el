@@ -394,18 +394,26 @@
 
 (use-package modus-themes
   :custom
+  (modus-operandi-palette-overrides
+   '((comment green-faint)
+     (docstring green-faint)
+     (string green-faint)))
+  (modus-vivendi-palette-overrides
+   '((comment olive)
+     (docstring olive)
+     (string olive)))
   (modus-themes-common-palette-overrides
    '((bg-region bg-green-nuanced)
      (fg-region unspecified)
-     (comment cyan-faint)
-     (docstring cyan-faint)
-     (string cyan-faint)
+     (comment olive)
+     (docstring olive)
+     (string olive)
      (preprocessor fg-main)
      (constant fg-main)
      (variable fg-main)
      (type fg-main)
      (fnname fg-main)
-     (keyword green-faint)
+     (keyword fg-main)
      (builtin fg-main)))
   (modus-themes-mixed-fonts t)
   :hook
@@ -416,12 +424,16 @@
     "Load the saved dark theme."
     (interactive)
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t))
+    (load-theme dark-theme t)
+    (set-face-attribute font-lock-keyword-face nil
+                        :weight 'semibold))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme light-theme t))
+    (load-theme light-theme t)
+    (set-face-attribute font-lock-keyword-face nil
+                        :weight 'semibold))
   :init
   (defvar light-theme 'modus-operandi)
   (defvar dark-theme 'modus-vivendi))
@@ -429,30 +441,42 @@
 (use-package fontaine
   :preface
   (defun fontaine-load-light ()
-    (fontaine-set-preset 'light))
+    (fontaine-set-preset '110-normal))
   (defun fontaine-load-dark ()
-    (fontaine-set-preset 'dark))
+    (fontaine-set-preset '110-normal))
   :hook
   (dbus-light-theme-hook . fontaine-load-light)
   (dbus-dark-theme-hook . fontaine-load-dark)
   :config
   (setq fontaine-presets
-        '((light
-           :default-family "Iosevka ss08"
-           :default-height 100
+        '((90-light
+           :default-family "Iosevka Comfy Motion"
+           :default-height 90
            :default-weight light
-           :variable-pitch-family "Iosevka Aile")
-          (dark
-           :default-family "Iosevka ss08"
+           :variable-pitch-family "Iosevka Comfy Motion Duo")
+          (100-semilight
+           :inherit 90-light
+           :default-weight semilight
+           :default-height 100)
+          (110-normal
+           :inherit 90-light
            :default-height 110
-           :default-weight semibold
-           :variable-pitch-family "Iosevka Aile"))))
-
-(use-package page-break-lines
-  :config
-  (page-break-lines-mode))
+           :default-weight normal)
+          (120-normal
+           :inherit 90-light
+           :default-height 120
+           :default-weight normal)
+          (100-normal
+           :inherit 90-light
+           :default-height 100
+           :default-weight normal)
+          (90-normal
+           :inherit 90-light
+           :default-height 90
+           :default-weight normal))))
 
 (use-package indent-bars
+  :disabled
   :straight
   (:host github
    :repo "jdtsmith/indent-bars")
@@ -1659,13 +1683,13 @@
 
 (use-package rainbow-mode)
 
-;; TODO: something's wrong with the font sizes
+;; TODO: something's wrong with the font sizes, only 9 works
 (use-package screenshot
   :straight (:host github
              :repo "tecosaur/screenshot"
              :build (:not compile))
   :custom
-  (screenshot-max-width 130))
+  (screenshot-max-width 140))
 
 (use-package nix-mode)
 
