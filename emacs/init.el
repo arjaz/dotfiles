@@ -555,8 +555,6 @@
    ("C-<" . macrursors-mark-previous-line)
    ("C-c m n" . macrursors-mark-next-instance-of)
    ("C-c m p" . macrursors-mark-previous-instance-of)
-   :map macrursors-mode-map
-   ("RET" . macrursors-end)
    :map isearch-mode-map
    ("M-s m" . macrursors-mark-from-isearch)
    ("M-s n" . macrursors-mark-next-from-isearch)
