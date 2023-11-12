@@ -220,7 +220,7 @@
   (kept-new-versions 6 "oldest versions to keep when a new numbered backup is made")
   (kept-old-versions 2 "newest versions to keep when a new numbered backup is made")
   (backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
-  (auto-save-default t "auto-save every buffer that visits a file")
+  (auto-save-default nil "stop creating those ugly #name# files")
   :config
   (unless (file-exists-p (concat user-emacs-directory "backups"))
     (make-directory (concat user-emacs-directory "backups") t)))
