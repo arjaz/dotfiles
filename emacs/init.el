@@ -1127,7 +1127,12 @@
   :bind
   ("M-/" . cape-dabbrev))
 
+(use-package nerd-icons-corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
 (use-package kind-icon
+  :disabled
   :custom
   (kind-icon-extra-space t)
   (kind-icon-default-face 'corfu-default)
