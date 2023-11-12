@@ -851,7 +851,8 @@
 
 (use-package eshell-vterm
   :config
-  (eshell-vterm-mode))
+  (eshell-vterm-mode)
+  (push "btm" eshell-visual-commands))
 
 (use-package org-mime)
 
