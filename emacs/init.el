@@ -107,14 +107,6 @@
   (window-divider-mode)
   (blink-cursor-mode 0))
 
-(use-package sublimity
-  ;; :custom
-  ;; (sublimity-scroll-weight 20.0)
-  ;; (sublimity-scroll-drift-length 0)
-  :config
-  (require 'sublimity-scroll)
-  (sublimity-mode))
-
 (use-package pixel-scroll
   :straight (:type built-in)
   :custom
@@ -123,18 +115,8 @@
   (pixel-scroll-precision-momentum-seconds 1.75)
   (pixel-scroll-precision-use-momentum t)
   (pixel-scroll-precision-interpolate-page t)
-  ;; :hook
-  ;; (after-init-hook . pixel-scroll-precision-mode)
-  ;; :bind
-  ;; ("C-v" . (lambda ()
-  ;;            (interactive)
-  ;;            (pixel-scroll-interpolate-down)
-  ;;            (move-to-window-line nil)))
-  ;; ("M-v" . (lambda ()
-  ;;            (interactive)
-  ;;            (pixel-scroll-interpolate-up)
-  ;;            (move-to-window-line nil)))
-  )
+  :hook
+  (after-init-hook . pixel-scroll-precision-mode))
 
 (use-package cus-edit
   :straight (:type built-in)
