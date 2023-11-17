@@ -224,6 +224,12 @@
   :hook
   (prog-mode-hook . hs-minor-mode))
 
+(use-package glasses
+  :straight (:type built-in)
+  :custom
+  (glasses-separator "·")
+  (glasses-face nil))
+
 (use-package gcmh
   :demand
   :custom
