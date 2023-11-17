@@ -82,6 +82,7 @@
 
 (use-package paren
   :custom
+  (show-paren-when-point-in-periphery t)
   (show-paren-context-when-offscreen 'overlay))
 
 (use-package loaddefs
