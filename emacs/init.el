@@ -1249,6 +1249,8 @@
 
 (use-package eldoc-box
   :hook (eldoc-mode-hook . eldoc-box-hover-mode)
+  :custom
+  (eldoc-box-clear-with-C-g t)
   :config
   ;; (set-face-attribute
   ;;  'eldoc-box-body nil
