@@ -388,15 +388,13 @@
      (docstring green-faint)
      (string green-faint)))
   (modus-vivendi-palette-overrides
-   '((comment olive)
+   '((keyword olive)
+     (comment olive)
      (docstring olive)
      (string olive)))
   (modus-themes-common-palette-overrides
    '((bg-region bg-green-nuanced)
      (fg-region unspecified)
-     (comment olive)
-     (docstring olive)
-     (string olive)
      (preprocessor fg-main)
      (constant fg-main)
      (variable fg-main)
