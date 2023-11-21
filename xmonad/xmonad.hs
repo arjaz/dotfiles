@@ -184,7 +184,7 @@ startupCommands =
     [ "eww open bar"
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
-    -- , "picom --config ~/.config/compton.conf &"
+    , "picom --config ~/.config/compton.conf &"
     , -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
       "/usr/lib/xdg-desktop-portal --replace &"
