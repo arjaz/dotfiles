@@ -385,11 +385,15 @@
 (use-package modus-themes
   :custom
   (modus-operandi-palette-overrides
-   '((comment green-faint)
+   '((preprocessor red-faint)
+     (comment green-faint)
      (docstring green-faint)
      (string green-faint)))
   (modus-vivendi-palette-overrides
-   '((keyword olive)
+   '((preprocessor rust)
+     (fnname maroon)
+     (type rust)
+     (keyword olive)
      (comment olive)
      (docstring olive)
      (string olive)))
@@ -412,15 +416,15 @@
     "Load the saved dark theme."
     (interactive)
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t)
-    (set-face-attribute font-lock-keyword-face nil
-                        :weight 'semibold))
+    (load-theme dark-theme t))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
     (mapcar #'disable-theme custom-enabled-themes)
     (load-theme light-theme t)
     (set-face-attribute font-lock-keyword-face nil
+                        :weight 'semibold)
+    (set-face-attribute font-lock-function-name-face nil
                         :weight 'semibold))
   :init
   (defvar light-theme 'modus-operandi)
@@ -429,9 +433,9 @@
 (use-package fontaine
   :preface
   (defun fontaine-load-light ()
-    (fontaine-set-preset '110-normal))
+    (fontaine-set-preset '100-light))
   (defun fontaine-load-dark ()
-    (fontaine-set-preset '110-normal))
+    (fontaine-set-preset '100-normal))
   :hook
   (dbus-light-theme-hook . fontaine-load-light)
   (dbus-dark-theme-hook . fontaine-load-dark)
@@ -442,25 +446,31 @@
            :default-height 90
            :default-weight light
            :variable-pitch-family "Iosevka Comfy Motion Duo")
+          (90-normal
+           :inherit 90-light
+           :default-height 90
+           :default-weight normal)
           (100-semilight
            :inherit 90-light
            :default-weight semilight
            :default-height 100)
-          (110-normal
+          (100-light
            :inherit 90-light
-           :default-height 110
-           :default-weight normal)
-          (120-normal
-           :inherit 90-light
-           :default-height 120
-           :default-weight normal)
+           :default-height 100)
           (100-normal
            :inherit 90-light
            :default-height 100
            :default-weight normal)
-          (90-normal
+          (110-normal
            :inherit 90-light
-           :default-height 90
+           :default-height 110
+           :default-weight normal)
+          (110-light
+           :inherit 90-light
+           :default-height 110)
+          (120-normal
+           :inherit 90-light
+           :default-height 120
            :default-weight normal))))
 
 (use-package indent-bars
