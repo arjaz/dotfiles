@@ -6,16 +6,13 @@ bold_italic_font auto
 font_size 13.0
 disable_ligatures never
 
+window_padding_width 0.5
+
 enable_audio_bell no
 
 cursor_blink_interval -1
 shell_integration no_cursor
 cursor_shape underline
-# cursor #605a52
-# cursor_text_color #605a52
-# foreground #605a52
-# background #f7f3ee
-
 
 # BEGIN_KITTY_THEME
 # Modus Vivendi
