@@ -659,6 +659,10 @@
 (use-package isearch
   :straight
   (:type built-in)
+  :custom
+  (isearch-lazy-count t)
+  (search-ring-max 200)
+  (regexp-search-ring-max 200)
   :preface
   (defun isearch-forward-other-window (prefix)
     "Function to isearch-forward in other-window."
@@ -681,6 +685,10 @@
   :bind
   ("C-M-s" . isearch-forward-other-window)
   ("C-M-r" . isearch-backward-other-window))
+
+(use-package isearch-mb
+  :config
+  (isearch-mb-mode))
 
 (use-package avy
   :preface
