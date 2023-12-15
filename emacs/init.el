@@ -1261,6 +1261,16 @@
   :config
   (global-jinx-mode))
 
+;; TODO: Set this up for my layout
+(use-package reverse-im
+  :disabled
+  :custom
+  (reverse-im-char-fold t) ; use lax matching
+  (reverse-im-read-char-advice-function #'reverse-im-read-char-include)
+  (reverse-im-input-methods '("ukrainian-computer"))
+  :config
+  (reverse-im-mode))
+
 (use-package haskell-mode
   :config
   (remove-hook 'haskell-mode-hook #'interactive-haskell-mode)
