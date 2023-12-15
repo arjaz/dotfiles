@@ -1305,20 +1305,23 @@
   (eldoc-echo-area-display-truncation-message nil))
 
 (use-package eldoc-box
-  :hook (eldoc-mode-hook . eldoc-box-hover-mode)
+  ;; :disabled
+  :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode)
   :custom
   (eldoc-box-clear-with-C-g t)
-  :config
+  ;; (eldoc-box-offset '(16 16 32))
+  ;; :config
   ;; (set-face-attribute
   ;;  'eldoc-box-body nil
   ;;  :background 'unspecified
   ;;  :foreground 'unspecified
   ;;  :inherit 'default)
-  (set-face-attribute
-   'eldoc-box-border nil
-   :background 'unspecified
-   :foreground 'unspecified
-   :inherit 'default))
+  ;; (set-face-attribute
+  ;;  'eldoc-box-border ni
+  ;;  :background 'unspecified
+  ;;  :foreground 'unspecified
+  ;;  :inherit 'default)
+  )
 
 (use-package eglot
   :disabled
