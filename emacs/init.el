@@ -1131,6 +1131,7 @@
 ;;   (envrc-global-mode))
 
 (use-package smart-tabs-mode
+  :disabled
   :config
   (setq-mode-local c-mode indent-tabs-mode t)
   (setq-mode-local c++-mode indent-tabs-mode t)
