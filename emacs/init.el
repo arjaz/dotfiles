@@ -511,7 +511,8 @@
   :custom
   (dirvish-attributes '(all-the-icons collapse file-time file-size))
   (dirvish-use-mode-line nil)
-  (dirvish-subtree-prefix "  ")
+  (dirvish-subtree-prefix " ")
+  (dirvish-all-the-icons-height 0.7)
   :config
   (dirvish-override-dired-mode)
   (require 'dirvish-icons)
