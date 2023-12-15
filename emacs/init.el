@@ -1741,6 +1741,8 @@
   :custom
   (screenshot-max-width 140))
 
+(use-package dotenv-mode)
+
 (use-package nix-mode)
 
 (use-package pretty-sha-path
