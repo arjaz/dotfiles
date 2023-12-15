@@ -1279,25 +1279,23 @@
     [16 48 112 240 112 48 16] nil nil 'center))
 
 (use-package flycheck-posframe
-  :hook
-  (flycheck-mode-hook . flycheck-posframe-mode)
+  ;; :hook
+  ;; (flycheck-mode-hook . flycheck-posframe-mode)
   :custom
-  (flycheck-posframe-position 'window-bottom-right-corner)
+  (flycheck-posframe-position 'point-bottom-left-corner)
   (flycheck-posframe-border-width 1)
   :config
   (flycheck-posframe-configure-pretty-defaults))
 
 (use-package flycheck-inline
-  ;; :disabled
-  ;; :hook (flycheck-mode-hook . flycheck-inline-mode)
-  )
+  :disabled
+  :hook (flycheck-mode-hook . flycheck-inline-mode))
 
 (use-package flycheck-pos-tip
-  :disabled
-  :custom
-  (flycheck-pos-tip-timeout 0)
-  :config
-  (flycheck-pos-tip-mode t))
+  ;; :disabled
+  ;; :custom
+  ;; (flycheck-pos-tip-timeout 0)
+  :hook (flycheck-mode-hook . flycheck-pos-tip-mode))
 
 (use-package eldoc
   :custom
