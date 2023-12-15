@@ -277,7 +277,6 @@
 (use-package org
   :hook
   (org-mode-hook . variable-pitch-mode)
-  (org-mode-hook . auto-fill-mode)
   (org-babel-after-execute-hook . org-redisplay-inline-images)
   :bind
   ("C-c a a" . org-agenda)
