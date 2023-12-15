@@ -1649,6 +1649,12 @@
 
 (use-package solidity-mode)
 
+(use-package code-cells)
+
+(use-package comint-mime
+  :hook
+  (inferior-python-mode-hook . comint-mime-mode))
+
 (use-package elixir-mode)
 
 ;; (setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
