@@ -811,19 +811,17 @@
 
 (use-package olivetti
   :custom
-  (olivetti-body-width 180)
-  ;; :hook
-  ;; (compilation-mode-hook . olivetti-mode)
-  :bind
-  ("C-c o o" . olivetti-mode))
+  (olivetti-body-width 180) )
 
 (use-package auto-olivetti
   :straight
   (auto-olivetti
    :host sourcehut
    :repo "ashton314/auto-olivetti")
-  :config
-  (auto-olivetti-mode)
+  ;; :config
+  ;; (auto-olivetti-mode)
+  :bind
+  ("C-c o o" . auto-olivetti-mode)
   :custom
   (auto-olivetti-enabled-modes '(text-mode prog-mode)))
 
