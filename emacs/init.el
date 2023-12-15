@@ -1232,32 +1232,6 @@
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-(use-package tabnine-capf
-  :after cape
-  :straight (:host github
-             :repo "50ways2sayhard/tabnine-capf"
-             :files ("*.el" "*.sh"))
-  :hook
-  (kill-emacs-hook . tabnine-capf-kill-process)
-  ;; (prog-mode-hook . enable-tabnine)
-  :preface
-  (defun enable-tabnine ()
-    (setq-local completion-at-point-functions (cons #'tabnine-completion-at-point completion-at-point-functions)))
-  (defun disable-tabnine ()
-    (setq-local completion-at-point-functions (delete #'tabnine-completion-at-point completion-at-point-functions)))
-  (defun turn-on-tabnine ()
-    (interactive)
-    (enable-tabnine)
-    (add-hook 'lsp-completion-mode-hook #'enable-tabnine)
-    (add-hook 'prog-mode-hook #'enable-tabnine)
-    (message "TabNine enabled"))
-  (defun turn-off-tabnine ()
-    (interactive)
-    (disable-tabnine)
-    (remove-hook 'lsp-completion-mode-hook #'enable-tabnine)
-    (remove-hook 'prog-mode-hook #'enable-tabnine)
-    (message "TabNine disabled")))
-
 (use-package copilot
   ;; :disabled
   :straight (:host github
@@ -1268,27 +1242,6 @@
   :hook
   (prog-mode-hook . copilot-mode)
   )
-
-(use-package codeium
-  :straight (:host github
-             :repo "Exafunction/codeium.el")
-  :preface
-  (defun enable-codeium ()
-    (setq-local completion-at-point-functions (cons #'codeium-completion-at-point completion-at-point-functions)))
-  (defun disable-codeium ()
-    (setq-local completion-at-point-functions (delete #'codeium-completion-at-point completion-at-point-functions)))
-  (defun turn-on-codeium ()
-    (interactive)
-    (enable-codeium)
-    (add-hook 'lsp-completion-mode-hook #'enable-codeium)
-    (add-hook 'prog-mode-hook #'enable-codeium)
-    (message "Codeium enabled"))
-  (defun turn-off-codeium ()
-    (interactive)
-    (disable-codeium)
-    (remove-hook 'lsp-completion-mode-hook #'enable-codeium)
-    (remove-hook 'prog-mode-hook #'enable-codeium)
-    (message "Codeium disabled")))
 
 (use-package dumb-jump
   :hook
