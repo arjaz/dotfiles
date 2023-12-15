@@ -115,11 +115,85 @@
   :custom
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
-  (pixel-scroll-precision-momentum-seconds 1.75)
-  (pixel-scroll-precision-use-momentum t)
+  (pixel-scroll-precision-interpolation-total-time 0.07)
   (pixel-scroll-precision-interpolate-page t)
+  (auto-window-vscroll nil)
   :hook
-  (after-init-hook . pixel-scroll-precision-mode))
+  (after-init-hook . pixel-scroll-precision-mode)
+  :bind
+  ([remap recenter-top-bottom] . smooth-recenter-top-bottom-pixel)
+  ([remap scroll-up-command] . smooth-scroll-up)
+  ([remap scroll-down-command] . smooth-scroll-down)
+  :preface
+  (defun smooth-recenter (&optional arg redisplay)
+    "Like `recenter' but use smooth scroll."
+    (pcase arg
+      (`nil
+       ;; Scroll smoothly, with line precision.
+       (ignore-errors
+         (pixel-scroll-precision-interpolate
+          (* (line-pixel-height)
+             (- (/ (count-screen-lines (window-start) (window-end)) 2)
+                (count-screen-lines (window-start) (point))))
+          nil 1))
+       ;; Call original recenter for final adjustment.
+       (recenter arg redisplay))
+      ((pred (not numberp))
+       (recenter arg redisplay))
+      ((pred (<= 0))
+       ;; Scroll smoothly, with line precision.
+       (ignore-errors
+         (pixel-scroll-precision-interpolate
+          (* -1 (line-pixel-height)
+             (max 0 (- (count-screen-lines (window-start) (point)) 2 arg)))
+          nil 1))
+       ;; Call original recenter for final adjustment.
+       (recenter arg redisplay))
+      ((pred (> 0))
+       ;; Scroll smoothly, with line precision.
+       (ignore-errors
+         (pixel-scroll-precision-interpolate
+          (* (line-pixel-height)
+             (max 0 (- (count-screen-lines (point) (window-end)) 3 arg)))
+          nil 1))
+       ;; Call original recenter for final adjustment.
+       (recenter arg redisplay))))
+  (defun smooth-recenter-top-bottom-pixel (&optional arg)
+    "Like `recenter-top-bottom' but use smooth scrolling."
+    (interactive "P")
+    (cond
+     (arg (smooth-recenter arg t))                 ; Always respect ARG.
+     (t
+      (setq recenter-last-op
+	        (if (eq this-command last-command)
+	            (car (or (cdr (member recenter-last-op recenter-positions))
+		                 recenter-positions))
+	          (car recenter-positions)))
+      (let ((this-scroll-margin
+	         (min (max 0 scroll-margin)
+		          (truncate (/ (window-body-height) 4.0)))))
+        (cond ((eq recenter-last-op 'middle)
+	           (smooth-recenter nil t))
+	          ((eq recenter-last-op 'top)
+	           (smooth-recenter this-scroll-margin t))
+	          ((eq recenter-last-op 'bottom)
+	           (smooth-recenter (- -1 this-scroll-margin) t))
+	          ((integerp recenter-last-op)
+	           (smooth-recenter recenter-last-op t))
+	          ((floatp recenter-last-op)
+	           (smooth-recenter (round (* recenter-last-op (window-height))) t)))))))
+  (defun smooth-scroll-up (&optional arg)
+    "Scroll smoothly up ARG lines. If ARG is nil, scroll a half page."
+    (interactive)
+    (let ((arg (or arg (/ (window-body-height) 2))))
+      (next-line (- arg))
+      (smooth-recenter)))
+  (defun smooth-scroll-down (&optional arg)
+    "Scroll smoothly down ARG lines. If ARG is nil, scroll a half page."
+    (interactive)
+    (let ((arg (or arg (/ (window-body-height) 2))))
+      (previous-line (- arg))
+      (smooth-recenter))))
 
 (use-package cus-edit
   :straight (:type built-in)
