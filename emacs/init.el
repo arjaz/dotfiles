@@ -490,6 +490,12 @@
   (indent-bars-color-by-depth nil)
   (indent-bars-display-on-blank-lines t))
 
+(use-package selection-highlight-mode
+  :straight (selection-highlight-mode :type git
+                                      :host github
+                                      :repo "balloneij/selection-highlight-mode")
+  :config (selection-highlight-mode))
+
 (use-package gdscript-mode)
 
 (use-package all-the-icons)
