@@ -1422,12 +1422,12 @@
   (lsp-keymap-prefix "C-c l")
   (lsp-enable-symbol-highlighting t)
   (lsp-modeline-code-actions-enable nil)
-  ;; (lsp-lens-place-position 'above-line)
+  (lsp-lens-place-position 'above-line)
   (lsp-prefer-capf t)
   (lsp-completion-provider :none) ; use corfu instead
   ;; (lsp-completion-provider :capf)
   (lsp-idle-delay 0.75)
-  (lsp-inlay-hint-enable nil)
+  ;; (lsp-inlay-hint-enable nil)
   (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
   (lsp-semantic-tokens-enable nil)
@@ -1468,17 +1468,16 @@
              :host github
              :repo "emacs-lsp/lsp-ui"
              :build (:not compile))
-  :disabled
   :bind
   (:map lsp-ui-mode-map
    ("C-c l t s" . lsp-ui-sideline-toggle-symbols-info)
    ("C-c l h o" . lsp-ui-open-docs-link-hack))
   :custom
-  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-enable nil)
   (lsp-ui-doc-position 'bottom)
   (lsp-ui-doc-delay 1)
-  (lsp-ui-peek-enable t)
-  (lsp-ui-sideline-enable t)
+  (lsp-ui-peek-enable nil)
+  (lsp-ui-sideline-enable nil)
   (lsp-ui-sideline-show-diagnostics nil)
   (lsp-ui-sideline-diagnostic-max-lines 10)
   (lsp-ui-sideline-show-hover nil)
