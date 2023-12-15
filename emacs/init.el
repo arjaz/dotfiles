@@ -728,7 +728,7 @@
   :custom
   (avy-style 'post)
   (avy-background t)
-  (avy-keys '(?r ?s ?n ?t ?a ?e ?i ?h))
+  (avy-keys '(?c ?s ?n ?t ?a ?e ?i ?h))
   (avy-dispatch-alist
    '((?\o . avy-action-embark)
      (?\M-t . avy-action-teleport)
