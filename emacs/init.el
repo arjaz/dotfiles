@@ -1387,6 +1387,12 @@
   (:map eglot-mode-map
    ("C-c l c" . consult-eglot-symbols)))
 
+(use-package direnv)
+
+;; This is to make `lsp-mode' work with `direnv' and pick up the correct
+;; version of GHC.
+;; (advice-add 'lsp :before #'direnv-update-environment)
+
 (use-package lsp-mode
   :straight (lsp-mode
              :type git
