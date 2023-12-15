@@ -110,8 +110,8 @@ myAdditionalKeysP =
     , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
     , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
-    , ("M-o S-s", spawn $ "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
-    , ("M-o s", spawn $ "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-o S-s", spawn "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
+    , ("M-o s", spawn "maim -s | xclip -selection clipboard -t image/png")
     , ("M-o M-S-s", spawn $ "maim " <> screenshotFilename)
     , ("M-o M-s", spawn $ "maim -s " <> screenshotFilename)
     , ("S-M-h", sendMessage Expand)
@@ -165,7 +165,7 @@ myLayoutHook =
             $ OneBig (4 / 5) (4 / 5)
     fancy =
         avoidStruts
-            -- . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
+            . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
             . smartBorders -- TODO: use lessBorders
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
@@ -184,7 +184,7 @@ startupCommands =
     [ "eww open bar"
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
-    , "picom --config ~/.config/compton.conf &"
+    , "compfy --config ~/.config/compton.conf &"
     , -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
       "/usr/lib/xdg-desktop-portal --replace &"
