@@ -1397,7 +1397,7 @@
   (:map eglot-mode-map
    ("C-c l c" . consult-eglot-symbols)))
 
-(use-package direnv)
+(use-package buffer-env)
 
 ;; This is to make `lsp-mode' work with `direnv' and pick up the correct
 ;; version of GHC.
