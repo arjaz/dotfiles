@@ -1543,12 +1543,10 @@
 
 (use-package sly
   :demand
-  :bind
-  (:map sly-mode-map
-   ("C-c M-i" . sly-inspect))
   :custom
-  (sly-complete-symbol-function 'sly-simple-completions)
-  (inferior-lisp-program "ros -Q run")
+  ;; (sly-complete-symbol-function 'completion-at-point)
+  ;; (inferior-lisp-program "ros -Q run")
+  (inferior-lisp-program "sbcl --dynamic-space-size 8Gb")
   :config
   (setq-default sly-symbol-completion-mode nil))
 
@@ -1616,6 +1614,7 @@
   (clojure-mode-hook . setup-clj-refactor))
 
 (use-package aggressive-indent-mode
+  :disabled
   :hook (lisp-mode-hook . aggressive-indent-mode))
 
 (use-package rust-mode)
