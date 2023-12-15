@@ -633,7 +633,7 @@
 (use-package diredfl
   :hook (dired-mode-hook . diredfl-mode))
 
-;; TODO: integrate with avy
+;; TODO: integrate with avy, I also need something like mark-beginning-of-line-in-region
 (use-package macrursors
   :straight (:host github
              :repo "corytertel/macrursors")
@@ -645,8 +645,8 @@
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
-   ("C-c m n" . macrursors-mark-next-instance-of)
-   ("C-c m p" . macrursors-mark-previous-instance-of)
+   ("C-M->" . macrursors-mark-next-instance-of)
+   ("C-M-<" . macrursors-mark-previous-instance-of)
    :map isearch-mode-map
    ("M-s m" . macrursors-mark-from-isearch)
    ("M-s n" . macrursors-mark-next-from-isearch)
