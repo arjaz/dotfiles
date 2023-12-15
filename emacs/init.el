@@ -101,12 +101,14 @@
   (frame-resize-pixelwise t)
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
-  (cursor-type 'hbar)
+  (cursor-type 'bar)
+  (blink-cursor-delay 1.5)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
   (unbind-key (kbd "C-z") 'global-map)
   (window-divider-mode)
-  (blink-cursor-mode 0))
+  ;; (blink-cursor-mode 0)
+  )
 
 (use-package pixel-scroll
   :straight (:type built-in)
