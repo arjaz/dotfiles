@@ -1315,6 +1315,8 @@
   ;; (flycheck-pos-tip-timeout 0)
   :hook (flycheck-mode-hook . flycheck-pos-tip-mode))
 
+(use-package devdocs)
+
 (use-package eldoc
   :custom
   (eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
