@@ -1139,7 +1139,8 @@
 
 (use-package smart-tab
   :custom
-  (smart-tab-user-provided-completion-function 'corfu-candidate-overlay-complete-at-point)
+  (smart-tab-user-provided-completion-function
+   'corfu-candidate-overlay-complete-at-point)
   (smart-tab-completion-functions-alist nil)
   :config
   (global-smart-tab-mode))
@@ -1195,11 +1196,12 @@
   (set-face-attribute 'corfu-popupinfo nil :height 0.9))
 
 (use-package corfu-candidate-overlay
-  :after corfu
+  :demand
   :bind
   ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
-  :config
-  (corfu-candidate-overlay-mode))
+  ;; :config
+  ;; (corfu-candidate-overlay-mode)
+  )
 
 (use-package cape
   :straight (:host github
@@ -1257,14 +1259,14 @@
     (message "TabNine disabled")))
 
 (use-package copilot
-  :disabled
+  ;; :disabled
   :straight (:host github
              :repo "zerolfx/copilot.el"
              :files ("dist" "*.el"))
   :bind
   ("M-\\" . copilot-accept-completion)
-  ;; :hook
-  ;; (prog-mode-hook . copilot-mode)
+  :hook
+  (prog-mode-hook . copilot-mode)
   )
 
 (use-package codeium
