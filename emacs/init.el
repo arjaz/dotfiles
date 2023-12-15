@@ -1500,6 +1500,8 @@
               (quit-windows-on lsp-help-buf-name)))
         (lsp--info "No content at point.")))))
 
+(use-package dape)
+
 (use-package treemacs
   :custom
   (treemacs-is-never-other-window t)
