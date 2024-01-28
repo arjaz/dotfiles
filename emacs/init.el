@@ -233,6 +233,11 @@
   :config
   (global-auto-revert-mode t))
 
+(use-package eww
+  :straight (:type built-in)
+  :custom
+  (eww-default-download-directory "~/downloads/"))
+
 (use-package window
   :straight (:type built-in)
   :demand
