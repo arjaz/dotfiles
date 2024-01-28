@@ -42,8 +42,6 @@
   :custom
   (tab-always-indent 'complete)
   (inhibit-compacting-font-caches t)
-  (gc-cons-threshold most-positive-fixnum "2^61 bytes")
-  (gc-cons-percentage 0.6)
   (bidi-paragraph-direction 'left-to-right)
   (bidi-inhibit-bpa t)
   (x-gtk-use-system-tooltips nil)
@@ -59,6 +57,8 @@
   (history-delete-duplicates t)
   (enable-recursive-minibuffers t)
   (sentence-end-double-space nil)
+  (gc-cons-threshold most-positive-fixnum "2^61 bytes")
+  (gc-cons-percentage 0.6)
   :preface
   (defun allow-garbage ()
     (setq gc-cons-threshold 536870912 ; 512mb
