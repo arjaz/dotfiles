@@ -57,7 +57,7 @@ normalBorderColor' :: String
 normalBorderColor' = "#202328"
 
 focusedBorderColor' :: String
-focusedBorderColor' = "#955f5f"
+focusedBorderColor' = "#ffffff"
 
 mask :: KeyMask
 mask = mod4Mask
@@ -91,7 +91,6 @@ myAdditionalKeysP =
     , ("M-<Return>", spawn term)
     , ("M-o w", runOrRaise "firefox" (className =? "firefox"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
-    , ("M-o l", runOrRaise "slack" (className =? "Slack"))
     , ("M-o i", runOrRaise "discord" (className =? "Discord"))
     , ("M-o h", runOrRaise "thunderbird" (className =? "Thunderbird"))
     , ("M-o m", runOrRaise "mpdevil" (className =? "Mpdevil"))
@@ -110,10 +109,10 @@ myAdditionalKeysP =
     , ("<XF86AudioLowerVolume>", spawn "pactl -- set-sink-volume 0 -5%")
     , ("<XF86AudioRaiseVolume>", spawn "pactl -- set-sink-volume 0 +5%")
     , ("<XF86AudioMute>", spawn "pactl set-sink-mute 0 toggle")
-    , ("M-o S-s", spawn "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
+    , ("M-o M-s", spawn "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
     , ("M-o s", spawn "maim -s | xclip -selection clipboard -t image/png")
     , ("M-o M-S-s", spawn $ "maim " <> screenshotFilename)
-    , ("M-o M-s", spawn $ "maim -s " <> screenshotFilename)
+    , ("M-o S-s", spawn $ "maim -s " <> screenshotFilename)
     , ("S-M-h", sendMessage Expand)
     , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
@@ -155,7 +154,7 @@ myManageHook =
 myLayoutHook :: Choose _ _ Window
 myLayoutHook =
     -- layoutHints
-    fancy ||| console
+    fancy ||| fancyCentral ||| console
   where
     console =
         avoidStruts
@@ -170,6 +169,14 @@ myLayoutHook =
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
+    fancyCentral =
+        avoidStruts
+            . gaps [(L, leftGap * 10), (R, rightGap * 10), (U, topGap), (D, bottomGap)]
+            . smartBorders -- TODO: use lessBorders
+            . smartSpacing spacingSize
+            . mkToggle (NOBORDERS ?? FULL ?? EOT)
+            $ ResizableTall nmaster delta ratio []
+
     leftGap = 30
     rightGap = 30
     topGap = 10
