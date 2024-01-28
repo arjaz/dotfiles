@@ -340,8 +340,6 @@
 
 (use-package gcmh
   :demand
-  :custom
-  (gcmh-high-cons-threshold (/ 1073741824 2))
   :config
   (gcmh-mode))
 
