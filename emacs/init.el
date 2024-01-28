@@ -244,16 +244,6 @@
   :custom
   (switch-to-buffer-in-dedicated-window 'pop)
   (switch-to-buffer-obey-display-actions t)
-  (display-buffer-alist
-   `(("\\*compilation\\*"
-      display-buffer-in-side-window
-      (side . right)
-      (window-width . 120))
-     (,(rx (or "*ansi-term*" "*term*" "*vterm*" "*shell*" "*eshell*" "*sly-mrepl for sbcl*"))
-      display-buffer-in-direction
-      (window . root)
-      (direction . left)
-      (window-width . 0.3))))
   :preface
   (defun split-window-right+switch ()
     (interactive)
