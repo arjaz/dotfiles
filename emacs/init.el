@@ -80,6 +80,26 @@
   :config
   (savehist-mode))
 
+(use-package misc
+  :straight (:type built-in)
+  :bind
+  ("C-M-y" . duplicate-line-next-line)
+  ("C-o" . open-line-from-end)
+  :preface
+  (defun duplicate-line-next-line ()
+    (interactive)
+    (duplicate-line)
+    (next-line))
+  (defun open-line-from-end (arg)
+    (interactive "P")
+    (cond
+     (arg
+      (beginning-of-line)
+      (open-line 1))
+     (t
+      (end-of-line)
+      (newline)))))
+
 (use-package paren
   :custom
   (show-paren-when-point-in-periphery t)
