@@ -489,18 +489,18 @@
 (use-package modus-themes
   :custom
   (modus-operandi-palette-overrides
-   '((preprocessor red-faint)
+   '((preprocessor green-faint)
      (comment green-faint)
      (docstring green-faint)
      (string green-faint)))
   (modus-vivendi-palette-overrides
-   '((preprocessor rust)
-     (fnname maroon)
-     (type rust)
-     (keyword olive)
-     (comment olive)
-     (docstring olive)
-     (string olive)))
+   '((preprocessor green-faint)
+     ;; (type red-faint)
+     ;; (fnname red-faint)
+     ;; (keyword green-faint)
+     (comment green-faint)
+     (docstring green-faint)
+     (string green-faint)))
   (modus-themes-common-palette-overrides
    '((bg-region bg-green-nuanced)
      (fg-region unspecified)
@@ -520,7 +520,11 @@
     "Load the saved dark theme."
     (interactive)
     (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t))
+    (load-theme dark-theme t)
+    (set-face-attribute font-lock-keyword-face nil
+                        :weight 'semibold)
+    (set-face-attribute font-lock-function-name-face nil
+                        :weight 'semibold))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
@@ -537,16 +541,16 @@
 (use-package fontaine
   :preface
   (defun fontaine-load-light ()
-    (fontaine-set-preset '100-light))
+    (fontaine-set-preset '115-normal))
   (defun fontaine-load-dark ()
-    (fontaine-set-preset '100-normal))
+    (fontaine-set-preset '115-normal))
   :hook
   (dbus-light-theme-hook . fontaine-load-light)
   (dbus-dark-theme-hook . fontaine-load-dark)
   :config
   (setq fontaine-presets
         '((90-light
-           :default-family "Iosevka Comfy Motion"
+           :default-family "Iosevka ss08"
            :default-height 90
            :default-weight light
            :variable-pitch-family "Iosevka Comfy Motion Duo")
@@ -572,6 +576,10 @@
           (110-light
            :inherit 90-light
            :default-height 110)
+          (115-normal
+           :inherit 90-light
+           :default-height 115
+           :default-weight normal)
           (120-normal
            :inherit 90-light
            :default-height 120
