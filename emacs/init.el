@@ -112,6 +112,11 @@
 
 (use-package display-fill-column-indicator
   :straight (:type built-in)
+  :hook
+  (asm-mode-hook . display-fill-column-indicator-mode)
+  (nasm-mode-hook . display-fill-column-indicator-mode)
+  (c-mode-hook . display-fill-column-indicator-mode)
+  (c-ts-mode-hook . display-fill-column-indicator-mode)
   :config
   (setq-default fill-column 100))
 
