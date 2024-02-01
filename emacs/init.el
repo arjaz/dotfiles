@@ -1133,6 +1133,11 @@
 ;;   :config
 ;;   (envrc-global-mode))
 
+(use-package c-ts-mode
+  :straight (:type built-in)
+  :custom
+  (c-ts-mode-indent-offset 4))
+
 (use-package smart-tabs-mode
   :disabled
   :config
