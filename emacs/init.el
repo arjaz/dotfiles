@@ -1283,22 +1283,22 @@
 
 (use-package eldoc-box
   ;; :disabled
-  :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode)
+  ;; :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode)
+  :hook (eldoc-mode-hook . eldoc-box-hover-mode)
   :custom
   (eldoc-box-clear-with-C-g t)
   ;; (eldoc-box-offset '(16 16 32))
-  ;; :config
-  ;; (set-face-attribute
-  ;;  'eldoc-box-body nil
-  ;;  :background 'unspecified
-  ;;  :foreground 'unspecified
-  ;;  :inherit 'default)
-  ;; (set-face-attribute
-  ;;  'eldoc-box-border ni
-  ;;  :background 'unspecified
-  ;;  :foreground 'unspecified
-  ;;  :inherit 'default)
-  )
+  :config
+  (set-face-attribute
+   'eldoc-box-body nil
+   :background 'unspecified
+   :foreground 'unspecified
+   :inherit 'default)
+  (set-face-attribute
+   'eldoc-box-border nil
+   :background 'unspecified
+   :foreground 'unspecified
+   :inherit 'child-frame-border))
 
 (use-package eglot
   :disabled
