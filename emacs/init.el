@@ -265,7 +265,7 @@
 
 (use-package lisp-mode
   :straight (:type built-in)
-  :demand t
+  :demand
   :config
   (let ((path "~/dotfiles/emacs/elisp-fix-indent.el"))
     (when (file-exists-p path)
@@ -350,7 +350,6 @@
 (use-package dash)
 
 (use-package helpful
-  :demand
   :bind
   ([remap describe-key] . helpful-key)
   ([remap describe-function] . helpful-callable)
