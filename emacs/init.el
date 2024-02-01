@@ -599,21 +599,13 @@
   (indent-bars-color-by-depth nil)
   (indent-bars-display-on-blank-lines t))
 
-(use-package selection-highlight-mode
-  :straight (selection-highlight-mode :type git
-                                      :host github
-                                      :repo "balloneij/selection-highlight-mode")
-  :config (selection-highlight-mode))
-
 (use-package gdscript-mode)
 
 (use-package all-the-icons)
 
 (use-package vscode-icon)
 
-(use-package all-the-icons-dired
-  ;; :hook (dired-mode-hook . all-the-icons-dired-mode)
-  )
+(use-package all-the-icons-dired)
 
 (use-package dirvish
   :demand
@@ -631,12 +623,6 @@
   (("C-c o t" . dirvish-side)
    :map dirvish-mode-map
    ("<tab>" . dirvish-subtree-toggle)))
-
-(use-package all-the-icons-completion
-  :hook
-  (marginalia-mode-hook . all-the-icons-completion-marginalia-setup)
-  :config
-  (all-the-icons-completion-mode))
 
 (use-package dired
   :straight (:type built-in)
@@ -662,8 +648,6 @@
   :hook
   (macrursors-pre-finish-hook . corfu-mode)
   (macrursors-post-finish-hook . corfu-mode)
-  :init
-  (define-prefix-command 'macrursors-mark-map)
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
@@ -803,11 +787,10 @@
   :config
   (ws-butler-global-mode))
 
+;; TODO: maybe bind hungry-delete-* to keys?
 (use-package hungry-delete
   :custom
-  (hungry-delete-join-reluctantly t)
-  :config
-  (global-hungry-delete-mode))
+  (hungry-delete-join-reluctantly t))
 
 (use-package which-key
   :config
@@ -828,9 +811,7 @@
   (dashboard-startup-banner (concat user-emacs-directory "emacs-dash.png"))
   (dashboard-items '((agenda . 15)))
   (dashboard-banner-logo-title "Eendracht Maakt Macht")
-  ;; (dashboard-agenda-release-buffers t)
   (initial-buffer-choice #'dashboard-buffer)
-  ;; (dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
   :init
   (require 'linum)
   (dashboard-setup-startup-hook)
@@ -841,15 +822,13 @@
 
 (use-package olivetti
   :custom
-  (olivetti-body-width 180) )
+  (olivetti-body-width 180))
 
 (use-package auto-olivetti
   :straight
   (auto-olivetti
    :host sourcehut
    :repo "ashton314/auto-olivetti")
-  ;; :config
-  ;; (auto-olivetti-mode)
   :bind
   ("C-c o o" . auto-olivetti-mode)
   :custom
@@ -857,6 +836,7 @@
 
 (use-package elec-pair
   :straight (:type built-in)
+  :disabled
   :hook (prog-mode-hook . electric-pair-mode))
 
 (use-package parinfer-rust-mode)
@@ -1020,14 +1000,6 @@
 
 (use-package forge)
 
-(use-package code-review
-  :disabled
-  :straight
-  (:host github
-   :repo "doomelpa/code-review")
-  :custom
-  (code-review-auth-login-marker 'forge))
-
 (use-package blamer)
 
 (use-package breadcrumb
@@ -1098,7 +1070,6 @@
   ("C-," . goto-last-change)
   ("C-." . goto-last-change-reverse))
 
-;; TODO: I think the previews can be better
 (use-package consult
   :custom
   (consult-locate-args "plocate --ignore-case --existing --regexp")
@@ -1189,7 +1160,6 @@
   (prog-mode-hook . tempel-setup-capf)
   (text-mode-hook . tempel-setup-capf))
 
-;; TODO: I want rounded borders and the same background color
 (use-package corfu
   :straight
   (:host github
@@ -1229,9 +1199,8 @@
   :demand
   :bind
   ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
-  ;; :config
-  ;; (corfu-candidate-overlay-mode)
-  )
+  :config
+  (corfu-candidate-overlay-mode))
 
 (use-package cape
   :straight (:host github
@@ -1254,52 +1223,11 @@
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
-(use-package kind-icon
-  :disabled
-  :custom
-  (kind-icon-extra-space t)
-  (kind-icon-default-face 'corfu-default)
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-
-(use-package copilot
-  ;; :disabled
-  :straight (:host github
-             :repo "zerolfx/copilot.el"
-             :files ("dist" "*.el"))
-  :bind
-  ("M-\\" . copilot-accept-completion)
-  :hook
-  (prog-mode-hook . copilot-mode)
-  )
-
 (use-package dumb-jump
   :hook
   (xref-backend-functions . dumb-jump-xref-activate)
   :custom
   (xref-show-definitions-function #'xref-show-definitions-completing-read))
-
-(use-package jinx
-  :straight
-  (:host github
-   :repo "minad/jinx"
-   :files ("*"))
-  :custom
-  (ispell-program-name "hunspell")
-  (ispell-local-dictionary "en_US")
-  (jinx-languages "en_US uk_UA")
-  :config
-  (global-jinx-mode))
-
-;; TODO: Set this up for my layout
-(use-package reverse-im
-  :disabled
-  :custom
-  (reverse-im-char-fold t) ; use lax matching
-  (reverse-im-read-char-advice-function #'reverse-im-read-char-include)
-  (reverse-im-input-methods '("ukrainian-computer"))
-  :config
-  (reverse-im-mode))
 
 (use-package haskell-mode
   :config
@@ -1577,8 +1505,8 @@
   :demand
   :custom
   ;; (sly-complete-symbol-function 'completion-at-point)
-  ;; (inferior-lisp-program "ros -Q run")
-  (inferior-lisp-program "sbcl --dynamic-space-size 8Gb")
+  (inferior-lisp-program "ros -Q run")
+  ;; (inferior-lisp-program "sbcl --dynamic-space-size 8Gb")
   :config
   (setq-default sly-symbol-completion-mode nil))
 
@@ -1669,7 +1597,6 @@
 
 (use-package graphql-mode)
 
-(use-package solidity-mode)
 
 (use-package code-cells)
 
@@ -1723,8 +1650,7 @@
       "</>" "</" "/>"
       "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!==" ">>=" "=<<" "<>" ":>"
       ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++"))
-  (ligature-set-ligatures 'prog-mode iosevka-ligatures)
-  (global-ligature-mode))
+  (ligature-set-ligatures 'prog-mode iosevka-ligatures))
 
 (use-package xah-math-input
   :bind
