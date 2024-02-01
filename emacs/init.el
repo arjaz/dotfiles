@@ -903,8 +903,12 @@
   (("C-c o e" . eshell)
    ("C-c o n e" . eshell-new)
    :map eshell-mode-map
-   ("C-c C-l" . eshell/clear-buffer))
+   ("C-c C-l" . eshell/clear-buffer)
+   :map eshell-hist-mode-map
+   ("<up>" . previous-line)
+   ("<down>" . next-line))
   :config
+  (require 'em-hist)
   (add-hook 'eshell-preoutput-filter-functions 'xterm-color-filter)
   ;; (remove-hook 'eshell-preoutput-filter-functions 'eshell-handle-ansi-color)
   (setenv "TERM" "xterm-256color"))
