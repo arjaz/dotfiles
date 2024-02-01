@@ -1586,6 +1586,8 @@
 
 (use-package rust-mode)
 
+(use-package nasm-mode)
+
 (use-package typescript-mode)
 
 (use-package markdown-mode)
@@ -1604,6 +1606,7 @@
 
 (use-package graphql-mode)
 
+(use-package forth-mode)
 
 (use-package code-cells)
 
@@ -1752,6 +1755,8 @@
   :demand t
   :init
   (setq alert-default-style 'notifications))
+
+(use-package explain-pause-mode)
 
 (provide 'init)
 ;;; init.el ends here
