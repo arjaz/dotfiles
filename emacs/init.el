@@ -494,9 +494,6 @@
      (string green-faint)))
   (modus-vivendi-palette-overrides
    '((preprocessor green-faint)
-     ;; (type red-faint)
-     ;; (fnname red-faint)
-     ;; (keyword green-faint)
      (comment green-faint)
      (docstring green-faint)
      (string green-faint)))
@@ -540,7 +537,7 @@
 (use-package fontaine
   :preface
   (defun fontaine-load-light ()
-    (fontaine-set-preset '115-normal))
+    (fontaine-set-preset '110-normal))
   (defun fontaine-load-dark ()
     (fontaine-set-preset '115-normal))
   :hook
