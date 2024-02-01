@@ -1046,14 +1046,18 @@
   (wgrep-enable-key "e"))
 
 (use-package vertico
-  :straight (vertico :includes vertico-multiform
-                     :files (:defaults "extensions/vertico-multiform.el"))
+  :straight (vertico
+             :includes vertico-multiform
+             :files (:defaults "extensions/vertico-multiform.el"))
   :config
   (vertico-mode))
 
 (use-package vertico-posframe
-  :disabled
-  :after vertico
+  :custom
+  (vertico-posframe-border-width 1)
+  (vertico-posframe-parameters
+   '((left-fringe . 8)
+     (right-fringe . 8)))
   :config
   (vertico-posframe-mode))
 
