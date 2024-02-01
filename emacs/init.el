@@ -481,6 +481,7 @@
    #'dbus-on-theme-changed))
 
 (use-package spacious-padding
+  ;; TODO: set the eldoc-box-border face to something nicer
   :demand
   :bind
   ("C-c o p" . spacious-padding-mode))
