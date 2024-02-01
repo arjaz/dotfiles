@@ -1002,24 +1002,18 @@
 
 (use-package blamer)
 
-(use-package breadcrumb
-  :straight
-  (:host github
-   :repo "joaotavora/breadcrumb")
-  :config
-  (breadcrumb-mode))
-
+(setq-default
+ header-line-format
+ '((:propertize (:eval (file-directory)) face font-lock-variable-name-face)
+   "「 "
+   (:propertize (:eval (file-or-buffer-name)) face font-lock-keyword-face)
+   " 」"))
 (use-package mini-modeline
-  :config
-  (setq
-   mini-modeline-enhance-visual nil
-   mini-modeline-display-gui-line nil
-   mini-modeline-l-format
-   '((:propertize (:eval (file-directory)) face font-lock-variable-name-face)
-     (:propertize (:eval (file-or-buffer-name)) face font-lock-keyword-face))
-   mini-modeline-r-format
-   '(;; (:eval (breadcrumb-imenu-crumbs))
-     "%5l:%c"
+  :custom
+  (mini-modeline-enhance-visual nil)
+  (mini-modeline-display-gui-line nil)
+  (mini-modeline-r-format
+   '("%5l:%c"
      (:eval (s-repeat (- 4 (length (number-to-string (current-column)))) " "))
      (:propertize (:eval (file-read-write-indicator)) face font-lock-warning-face)
      "  "
@@ -1027,6 +1021,7 @@
       (:eval (unless (file-remote-p default-directory)
                (git-branch)))
       face magit-dimmed)))
+  :config
   (mini-modeline-mode))
 
 (use-package browse-at-remote)
