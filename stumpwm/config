@@ -20,8 +20,8 @@
       swm-gaps:*inner-gaps-size* 5
       swm-gaps:*outer-gaps-top-size* 10
       swm-gaps:*outer-gaps-bottom-size* 30
-      swm-gaps:*outer-gaps-left-size* 200
-      swm-gaps:*outer-gaps-right-size* 200)
+      swm-gaps:*outer-gaps-left-size* 30
+      swm-gaps:*outer-gaps-right-size* 30)
 (swm-gaps:toggle-gaps)
 
 (setf *mouse-focus-policy* :click
@@ -88,22 +88,12 @@
   (setf *c-map* map))
 (define-key *root-map* (kbd "c") '*c-map*)
 
-(defvar comfy-gaps-per-group (make-hash-table))
 (defcommand toggle-comfy-gaps () ()
-  (let ((comfyp (gethash (group-number (current-group)) comfy-gaps-per-group)))
-    (if comfyp
-        (progn
-          (setf (gethash (group-number (current-group)) comfy-gaps-per-group) nil)
-          (mapcar
-           #'stumpwm::maximize-window
-           (stumpwm::only-tile-windows (stumpwm:group-windows (current-group)))))
-        (progn
-          (setf (gethash (group-number (current-group)) comfy-gaps-per-group) t)
-          (let ((swm-gaps:*outer-gaps-left-size* 200)
-                (swm-gaps:*outer-gaps-right-size* 200))
-            (mapcar
-             #'stumpwm::maximize-window
-             (stumpwm::only-tile-windows (stumpwm:group-windows (current-group)))))))))
+  (let ((swm-gaps:*outer-gaps-left-size* 200)
+        (swm-gaps:*outer-gaps-right-size* 200))
+    (mapcar
+     #'stumpwm::maximize-window
+     (stumpwm::only-tile-windows (stumpwm:group-windows (current-group))))))
 
 (defcommand raise-telegram () ()
   (run-or-raise "telegram-desktop" '(:class "TelegramDesktop")))
