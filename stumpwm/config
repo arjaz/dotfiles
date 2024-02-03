@@ -38,6 +38,7 @@
       *maxsize-border-width* 1
       *normal-border-width* 1
       *transient-border-width* 1
+      *float-window-title-height* 1
       *message-window-gravity* :center
       *input-window-gravity* :center)
 
@@ -83,6 +84,12 @@
 (define-key *root-map* (kbd "s") "maim-region")
 (define-key *root-map* (kbd "s-s") "maim-app")
 (define-key *root-map* (kbd "p") "exec pass clip -r")
+
+(defcommand toggle-float-this () ()
+  (if (typep (current-window) 'float-window)
+      (unfloat-this)
+      (float-this)))
+(define-key *root-map* (kbd "f") "toggle-float-this")
 
 (defvar *c-map*)
 (let ((map (make-sparse-keymap)))
