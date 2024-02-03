@@ -2,14 +2,23 @@
 
 (in-package :stumpwm)
 
+(init-load-path #p"~/code/lisp/")
+(load-module "swm-gaps")
+(load-module "ttf-fonts")
+
 (require :slynk)
 (slynk:create-server
   :port 43232
   :style slynk:*communication-style*
   :dont-close t)
 
-(init-load-path #p"~/code/lisp/")
-(load-module "swm-gaps")
+(xft:cache-fonts)
+(set-font (make-instance 'xft:font
+                         :family "Iosevka Comfy Motion Duo"
+                         :subfamily "Regular"
+                         :size 12))
+
+;; TODO: use global windows
 
 ;; Head gaps run along the 4 borders of the monitor(s)
 ;; Inner gaps run along all the 4 borders of a window
@@ -31,8 +40,6 @@
       *transient-border-width* 1
       *message-window-gravity* :center
       *input-window-gravity* :center)
-
-;; TODO: setup the fonts
 
 (defvar *arjaz/workspaces* '("1" "2" "3" "4" "5" "6" "7" "8" "9" "0"))
 (defvar *arjaz/workspaces-switch-keys* '("!" "@" "#" "$" "%" "^" "&" "*" "(" ")"))
