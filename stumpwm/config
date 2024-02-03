@@ -73,8 +73,8 @@
 (define-key *root-map* (kbd "w") "raise-firefox")
 (define-key *root-map* (kbd "e") "raise-emacs")
 (define-key *root-map* (kbd "t") "raise-telegram")
-(define-key *root-map* (kbd "s") "exec maim -s | xclip -selection clipboard -t image/png")
-(define-key *root-map* (kbd "s-s") "exec maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png")
+(define-key *root-map* (kbd "s") "maim-region")
+(define-key *root-map* (kbd "s-s") "maim-app")
 (define-key *root-map* (kbd "p") "exec pass clip -r")
 
 (defvar *c-map*)
@@ -87,6 +87,12 @@
   (define-key map (kbd "t") "toggle-comfy-gaps")
   (setf *c-map* map))
 (define-key *root-map* (kbd "c") '*c-map*)
+
+(defcommand maim-region () ()
+  (run-shell-command "maim -s | xclip -selection clipboard -t image/png"))
+
+(defcommand maim-app () ()
+  (run-shell-command "maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png"))
 
 (defcommand toggle-comfy-gaps () ()
   (let ((swm-gaps:*outer-gaps-left-size* 200)
