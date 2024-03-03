@@ -98,7 +98,7 @@
       (open-line 1))
      (t
       (end-of-line)
-      (newline)))))
+      (default-indent-new-line nil t)))))
 
 (use-package paren
   :custom
@@ -467,7 +467,7 @@
        "/org/freedesktop/portal/desktop"
        "org.freedesktop.portal.Settings"
        "Read"
-       (-compose #'set-theme-from-dbus-value #'caar)
+       (lambda (x) (set-theme-from-dbus-value (caar x)))
        "org.freedesktop.appearance"
        "color-scheme")))
   :init
@@ -486,18 +486,26 @@
   :bind
   ("C-c o p" . spacious-padding-mode))
 
+(use-package doom-themes)
+(use-package solaire-mode)
 (use-package modus-themes
   :custom
   (modus-operandi-palette-overrides
-   '((preprocessor green-faint)
+   '((bg-paren-match bg-green-nuanced)
+     (preprocessor green-faint)
      (comment green-faint)
      (docstring green-faint)
      (string green-faint)))
+  (modus-operandi-tinted-palette-overrides modus-operandi-palette-overrides)
   (modus-vivendi-palette-overrides
-   '((preprocessor green-faint)
-     (comment green-faint)
-     (docstring green-faint)
-     (string green-faint)))
+   '((fg-main "#fffff8")
+     (bg-main "#111111")
+     (bg-paren-match bg-yellow-subtle)
+     (preprocessor yellow-faint)
+     (comment yellow-faint)
+     (docstring yellow-faint)
+     (string yellow-faint)))
+  (modus-vivendi-tinted-palette-overrides modus-vivendi-palette-overrides)
   (modus-themes-common-palette-overrides
    '((bg-region bg-green-nuanced)
      (fg-region unspecified)
@@ -521,7 +529,9 @@
     (set-face-attribute font-lock-keyword-face nil
                         :weight 'semibold)
     (set-face-attribute font-lock-function-name-face nil
-                        :weight 'semibold))
+                        :weight 'semibold)
+    (my-modus-themes-custom-faces)
+    (solaire-global-mode t))
   (defun load-light-theme ()
     "Load the saved light theme."
     (interactive)
@@ -530,7 +540,15 @@
     (set-face-attribute font-lock-keyword-face nil
                         :weight 'semibold)
     (set-face-attribute font-lock-function-name-face nil
-                        :weight 'semibold))
+                        :weight 'semibold)
+    (solaire-global-mode -1))
+  (defun my-modus-themes-custom-faces ()
+    (modus-themes-with-colors
+      (custom-set-faces
+       `(solaire-default-face ((,c :inherit default :background ,bg-dim :foreground ,fg-main)))
+       ;; `(solaire-line-number-face ((,c :inherit solaire-default-face :foreground ,fg-unfocused)))
+       `(solaire-hl-line-face ((,c :background ,bg-active)))
+       `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
   :init
   (defvar light-theme 'modus-operandi)
   (defvar dark-theme 'modus-vivendi))
@@ -538,16 +556,16 @@
 (use-package fontaine
   :preface
   (defun fontaine-load-light ()
-    (fontaine-set-preset '110-normal))
+    (fontaine-set-preset '120-normal))
   (defun fontaine-load-dark ()
-    (fontaine-set-preset '115-normal))
+    (fontaine-set-preset '120-normal))
   :hook
   (dbus-light-theme-hook . fontaine-load-light)
   (dbus-dark-theme-hook . fontaine-load-dark)
   :config
   (setq fontaine-presets
         '((90-light
-           :default-family "Iosevka ss08"
+           :default-family "Iosevka ss18"
            :default-height 90
            :default-weight light
            :variable-pitch-family "Iosevka Comfy Motion Duo")
@@ -583,16 +601,16 @@
            :default-weight normal))))
 
 (use-package indent-bars
-  :disabled
+  ;; :disabled
   :straight
   (:host github
    :repo "jdtsmith/indent-bars")
-  :hook
-  (prog-mode-hook . indent-bars-mode)
+  ;; :hook
+  ;; (prog-mode-hook . indent-bars-mode)
   :custom
-  (indent-bars-color '(highlight :face-bg t :blend 0.3))
-  (indent-bars-highlight-current-depth '(:face default :blend 0.3))
-  (indent-bars-pattern ".")
+  (indent-bars-color '(highlight :face-bg t :blend 0.4))
+  (indent-bars-highlight-current-depth '(:face default :blend 0.4))
+  (indent-bars-pattern ". * . * . *")
   (indent-bars-width-frac 0.1)
   (indent-bars-pad-frac 0.1)
   (indent-bars-zigzag nil)
@@ -614,7 +632,7 @@
   (dirvish-use-mode-line nil)
   (dirvish-subtree-prefix " ")
   :config
-  (dirvish-override-dired-mode)
+  ;; (dirvish-override-dired-mode)
   (require 'dirvish-icons)
   (require 'dirvish-side)
   (require 'dirvish-subtree)
@@ -637,6 +655,11 @@
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'top))
 
+(use-package dired-hacks
+  :bind
+  (:map dired-mode-map
+   ("<tab>" . dired-subtree-toggle)))
+
 (use-package diredfl
   :hook (dired-mode-hook . diredfl-mode))
 
@@ -650,8 +673,8 @@
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
-   ("C-M->" . macrursors-mark-next-instance-of)
-   ("C-M-<" . macrursors-mark-previous-instance-of)
+   ("C-c m n" . macrursors-mark-next-instance-of)
+   ("C-c m p" . macrursors-mark-previous-instance-of)
    :map isearch-mode-map
    ("M-s m" . macrursors-mark-from-isearch)
    ("M-s n" . macrursors-mark-next-from-isearch)
@@ -734,7 +757,7 @@
       (ring-ref avy-ring 0)))
     t)
   :bind
-  (("M-t" . avy-goto-char-2)
+  (("M-t" . avy-goto-char-in-line)
    ("C-t" . avy-goto-word-1)
    :map isearch-mode-map
    ("M-t" . avy-isearch))
@@ -794,30 +817,6 @@
 (use-package which-key
   :config
   (which-key-mode))
-
-(use-package dashboard
-  :disabled
-  :preface
-  (defun dashboard-buffer ()
-    (get-buffer-create "*dashboard*"))
-  :custom
-  (show-week-agenda-p t)
-  (dashboard-set-heading-icons t)
-  (dashboard-startup-banner 3)
-  (dashboard-set-navigator t)
-  (dashboard-set-file-icons t)
-  (dashboard-center-content t)
-  (dashboard-startup-banner (concat user-emacs-directory "emacs-dash.png"))
-  (dashboard-items '((agenda . 15)))
-  (dashboard-banner-logo-title "Eendracht Maakt Macht")
-  (initial-buffer-choice #'dashboard-buffer)
-  :init
-  (require 'linum)
-  (dashboard-setup-startup-hook)
-  :bind
-  (:map dashboard-mode-map
-   ("n" . dashboard-next-line)
-   ("p" . dashboard-previous-line)))
 
 (use-package olivetti
   :custom
@@ -1038,8 +1037,9 @@
   ("C-x P" . projection-map))
 
 (use-package consult-project-extra
-  :bind
-  ([remap project-find-file] . consult-project-extra-find))
+  ;; :bind
+  ;; ([remap project-find-file] . consult-project-extra-find)
+  )
 
 (use-package wgrep
   :custom
@@ -1053,6 +1053,7 @@
   (vertico-mode))
 
 (use-package vertico-posframe
+  :disabled
   :custom
   (vertico-posframe-border-width 1)
   (vertico-posframe-parameters
@@ -1062,8 +1063,15 @@
   (vertico-posframe-mode))
 
 (use-package orderless
+  :config
+  (defun orderless-fast-dispatch (word index total)
+    (and (= index 0) (= total 1) (length< word 4)
+         `(orderless-regexp . ,(concat "^" (regexp-quote word)))))
+  (orderless-define-completion-style orderless-fast
+    (orderless-style-dispatchers '(orderless-fast-dispatch))
+    (orderless-matching-styles '(orderless-literal orderless-regexp)))
   :custom
-  (completion-styles '(orderless partial-completion basic))
+  (completion-styles '(orderless-fast partial-completion basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
@@ -1076,7 +1084,7 @@
   :custom
   (consult-locate-args "plocate --ignore-case --existing --regexp")
   :bind
-  (([remap switch-to-buffer] . consult-buffer)
+  (;; ([remap switch-to-buffer] . consult-buffer)
    ("M-s l"   . consult-line)
    ("M-s M-l" . consult-line-multi)
    ("M-s r"   . consult-ripgrep)
@@ -1109,7 +1117,7 @@
   :config
   (marginalia-mode)
   :custom
-  (marginalia-align 'center))
+  (marginalia-align 'right))
 
 (use-package embark
   :config
@@ -1205,6 +1213,7 @@
 (use-package corfu-candidate-overlay
   :demand
   :bind
+  ;; TODO: maybe replace?
   ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
   :config
   (corfu-candidate-overlay-mode))
@@ -1226,7 +1235,16 @@
   :bind
   ("M-/" . cape-dabbrev))
 
+(use-package kind-icon
+  :disabled
+  :custom
+  (kind-icon-blend-background t)
+  (kind-icon-default-face 'corfu-default) ; only needed with blend-background
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
 (use-package nerd-icons-corfu
+  :disabled
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
@@ -1248,26 +1266,49 @@
 (use-package flycheck
   :custom
   (flycheck-indication-mode 'right-fringe)
+  (flycheck-check-syntax-automatically '(save idle-change mode-enable))
   :demand t
   :config
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [16 48 112 240 112 48 16] nil nil 'center))
 
 (use-package flycheck-posframe
-  ;; :hook
-  ;; (flycheck-mode-hook . flycheck-posframe-mode)
+  :hook
+  (flycheck-mode-hook . flycheck-posframe-mode)
+  :preface
+  (defun used-window-side ()
+    ;; Calculate the left and right distances to the frame edge of the
+    ;; active window.  If the left distance is less than or equal to the
+    ;; right distance, it indicates that the active window is on the left.
+    ;; Otherwise, it is on the right.
+    (let* ((window-left (nth 0 (window-absolute-pixel-edges)))
+           (window-right (nth 2 (window-absolute-pixel-edges)))
+           (frame-left (nth 0 (frame-edges)))
+           (frame-right (nth 2 (frame-edges)))
+           (distance-left (- window-left frame-left))
+           (distance-right (- frame-right window-right)))
+      ;; When `distance-left' equals `distance-right', it means there is
+      ;; only one window in current frame, or the current active window
+      ;; occupies the entire frame horizontally, return left.
+      (if (<= distance-left distance-right) 'left 'right)))
+  (defun posframe-poshandler-frame-bottom-opposite-corner (info)
+    (pcase (used-window-side)
+      ('right (posframe-poshandler-frame-bottom-left-corner info))
+      ('left (posframe-poshandler-frame-bottom-right-corner info))))
   :custom
-  (flycheck-posframe-position 'point-bottom-left-corner)
+  ;; I want it to be shown on a bottom corner the most removed from the pos
+  (flycheck-posframe-position 'frame-bottom-opposite-corner)
   (flycheck-posframe-border-width 1)
   :config
   (flycheck-posframe-configure-pretty-defaults))
 
 (use-package flycheck-inline
-  :disabled
-  :hook (flycheck-mode-hook . flycheck-inline-mode))
+  ;; :disabled
+  ;; :hook (flycheck-mode-hook . flycheck-inline-mode)
+  )
 
 (use-package flycheck-pos-tip
-  ;; :disabled
+  :disabled
   ;; :custom
   ;; (flycheck-pos-tip-timeout 0)
   :hook (flycheck-mode-hook . flycheck-pos-tip-mode))
@@ -1289,16 +1330,18 @@
   (eldoc-box-clear-with-C-g t)
   ;; (eldoc-box-offset '(16 16 32))
   :config
-  (set-face-attribute
-   'eldoc-box-body nil
-   :background 'unspecified
-   :foreground 'unspecified
-   :inherit 'default)
+  ;; (set-face-attribute
+  ;;  'eldoc-box-body nil
+  ;;  :background 'unspecified
+  ;;  :foreground 'unspecified
+  ;;  :inherit 'default)
+  ;;  TODO: do this on theme change
   (set-face-attribute
    'eldoc-box-border nil
    :background 'unspecified
    :foreground 'unspecified
-   :inherit 'child-frame-border))
+   :inherit 'border)
+  )
 
 (use-package eglot
   :disabled
@@ -1384,10 +1427,23 @@
   (rust-ts-mode-hook . lsp-deferred)
   :bind
   ("C-c l l" . lsp)
+  :config
+  (setq lsp-eslint-auto-fix-on-save t)
+  (defun lsp--eslint-before-save (orig-fun)
+    "Run lsp-eslint-apply-all-fixes and then run the original lsp--before-save."
+    (when lsp-eslint-auto-fix-on-save (lsp-eslint-fix-all))
+    (funcall orig-fun))
+  (advice-add 'lsp--before-save :around #'lsp--eslint-before-save)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
+                    :multi-root t
+                    ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
+                    :activation-fn (lsp-activate-on "elixir")
+                    :server-id 'next-ls))
   :demand t
   :custom
   (lsp-keymap-prefix "C-c l")
-  (lsp-enable-symbol-highlighting t)
+  (lsp-enable-symbol-highlighting nil)
   (lsp-modeline-code-actions-enable nil)
   (lsp-lens-place-position 'above-line)
   (lsp-prefer-capf t)
@@ -1402,7 +1458,36 @@
   (lsp-file-watch-threshold 512)
   (lsp-diagnostics-flycheck-default-level 'warning)
   (lsp-eldoc-enable-hover t)
-  (lsp-eldoc-render-all t))
+  (lsp-eldoc-render-all nil))
+
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package consult-lsp
   :bind
@@ -1428,6 +1513,7 @@
   (dap-chrome-setup))
 
 (use-package lsp-ui
+  :disabled
   :straight (lsp-ui
              :type git
              :flavor melpa
@@ -1441,11 +1527,13 @@
    ("C-c l h o" . lsp-ui-open-docs-link-hack))
   :custom
   (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-show-with-cursor t)
   (lsp-ui-doc-position 'bottom)
   (lsp-ui-doc-delay 1)
   (lsp-ui-peek-enable nil)
   (lsp-ui-sideline-enable nil)
-  (lsp-ui-sideline-show-diagnostics nil)
+  (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-diagnostic-max-lines 10)
   (lsp-ui-sideline-show-hover nil)
   :preface
@@ -1467,9 +1555,10 @@
               (quit-windows-on lsp-help-buf-name)))
         (lsp--info "No content at point.")))))
 
-(use-package dape)
+(use-package dape :disabled)
 
 (use-package treemacs
+  :disabled
   :custom
   (treemacs-is-never-other-window t)
   (treemacs-width 32)
@@ -1478,12 +1567,15 @@
 
 ;; TODO: no icons for directories
 (use-package treemacs-all-the-icons
+  :disabled
   :config
   (treemacs-load-theme "all-the-icons"))
 
-(use-package treemacs-magit)
+(use-package treemacs-magit
+  :disabled)
 
 (use-package lsp-treemacs
+  :disabled
   :config
   (lsp-treemacs-sync-mode))
 
@@ -1614,15 +1706,21 @@
   :hook
   (inferior-python-mode-hook . comint-mime-mode))
 
-(use-package elixir-mode)
+(use-package elixir-mode
+  :hook (elixir-mode-hook . lsp-deferred))
+;; (use-package alchemist
+;;   :hook
+;;   (elixir-ts-mode-hook . alchemist-mode)
+;;   (elixir-mode-hook . alchemist-mode))
 
-;; (setq load-path (cons "/usr/lib/erlang/lib/tools-3.5.3/emacs" load-path))
-;; (use-package erlang-start
-;;   :straight (:type built-in)
-;;   :config
-;;   (setq erlang-root-dir "/usr/lib/erlang/")
-;;   (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
-;;   (setq erlang-man-root-dir "/usr/lib/erlang/man"))
+;; (use-package erlang)
+(setq load-path (cons "/usr/lib/erlang/lib/tools-3.6/emacs" load-path))
+(use-package erlang-start
+  :straight (:type built-in)
+  :custom
+  (erlang-root-dir "/usr/lib/erlang/")
+  (exec-path (cons "/usr/lib/erlang/bin" exec-path))
+  (erlang-man-root-dir "/usr/lib/erlang/man"))
 
 (use-package visible-mark
   :config
@@ -1694,12 +1792,15 @@
   (typescript-mode-hook . apheleia-mode)
   (typescript-ts-mode-hook . apheleia-mode)
   (tsx-ts-mode-hook . apheleia-mode)
+  (erlang-mode-hook . apheleia-mode)
   :demand
   :config
-  (setf (alist-get 'cljstyle     apheleia-formatters) '("cljstyle" "pipe"))
-  (setf (alist-get 'clojure-mode apheleia-mode-alist) 'cljstyle)
-  (setf (alist-get 'fourmolu     apheleia-formatters) '("fourmolu" file))
-  (setf (alist-get 'haskell-mode apheleia-mode-alist) 'fourmolu))
+  (setf (alist-get 'cljstyle      apheleia-formatters) '("cljstyle" "pipe"))
+  (setf (alist-get 'clojure-mode  apheleia-mode-alist) 'cljstyle)
+  (setf (alist-get 'fourmolu      apheleia-formatters) '("fourmolu" file))
+  (setf (alist-get 'haskell-mode  apheleia-mode-alist) 'fourmolu)
+  (setf (alist-get 'rebar3-format apheleia-formatters) '("apheleia-from-project-root" "rebar.config" "rebar3" "format" filepath))
+  (setf (alist-get 'erlang-mode   apheleia-mode-alist) 'rebar3-format))
 
 (use-package editorconfig
   :config
@@ -1755,6 +1856,8 @@
   :demand t
   :init
   (setq alert-default-style 'notifications))
+
+(use-package rmsbolt)
 
 (use-package explain-pause-mode)
 
