@@ -5,55 +5,49 @@
 ;;; My Emacs configuration
 
 ;;; Code:
+;; (setq esup-depth 0)
+;; (use-package esup)
 
-(defvar comp-deferred-compilation-deny-list ())
-(defvar native-comp-deferred-compilation-deny-list ())
 (defvar bootstrap-version)
-(defvar straight-repository-branch "develop")
+(setq straight-check-for-modifications '(watch-files))
 (let ((bootstrap-file (expand-file-name
                        "straight/repos/straight.el/bootstrap.el"
                        user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
+      (bootstrap-version 7))
   (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'org)
 (defvar use-package-enable-imenu-support t)
 (straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
+
+;; (setq use-package-compute-statistics t)
 
 (use-package use-package-core
   :straight (:type built-in)
   :custom
   (use-package-hook-name-suffix nil))
 
-(use-package straight
-  :custom
-  (straight-use-package-by-default t)
-  (straight-check-for-modifications '(watch-files vfind-when-checking)))
+(use-package benchmark-init
+  :disabled
+  :hook (after-init-hook . benchmark-init/deactivate)
+  :demand)
 
 (use-package emacs
   :straight (:type built-in)
   :custom
-  (tab-always-indent 'complete)
+  (tab-always-indent t)
   (inhibit-compacting-font-caches t)
   (bidi-paragraph-direction 'left-to-right)
   (bidi-inhibit-bpa t)
   (x-gtk-use-system-tooltips nil)
   (inhibit-startup-message t "disable startup message and gtk pop-ups")
-  (vc-follow-symlinks t)
+  (vc-follow-symlinks 120)
   (auto-save-timeout 20 "number of seconds idle time before auto-save")
   (auto-save-interval 200 "number of keystrokes between auto-saves")
   (vc-make-backup-files t "make backups for version-controlled files as well")
   (create-lockfiles nil)
   (use-dialog-box nil)
   (use-short-answers t)
-  (history-length t)
+  (history-length 100)
   (history-delete-duplicates t)
   (enable-recursive-minibuffers t)
   (sentence-end-double-space nil)
@@ -66,10 +60,6 @@
   :hook
   (after-init-hook . allow-garbage)
   :config
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (tooltip-mode -1)
-  (scroll-bar-mode -1)
   (setq-default tab-width 4))
 
 (use-package savehist
@@ -80,12 +70,205 @@
   :config
   (savehist-mode))
 
+(use-package solaire-mode
+  :commands (solaire-global-mode))
+(use-package doom-themes
+  :defer t
+  :custom
+  (doom-themes-enable-bold nil)
+  (doom-themes-enable-italic nil))
+
+(use-package modus-themes
+  :defer t
+  :custom
+  (modus-operandi-palette-overrides
+   '((bg-paren-match bg-green-nuanced)
+     (preprocessor green-faint)
+     (string green-faint)
+     ;; (keyword cyan-faint)
+     ;; (fnname cyan-faint)
+     ))
+  (modus-vivendi-tinted-palette-overrides
+   '(;; (fg-main "#fffff8")
+     ;; (bg-main "#1d1f21")
+     (fg-main "#e5e8e6")
+     (bg-main "#161719")
+     (bg-paren-match bg-yellow-subtle)
+     (preprocessor fg)
+     (string yellow-faint)
+     (keyword cyan-faint)
+     (fnname cyan-faint)))
+  (modus-themes-common-palette-overrides
+   '((border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (fringe unspecified)
+     (bg-mode-line-active bg-dim)
+     (bg-mode-line-inactive bg-dim)
+     (bg-hover bg-magenta-nuanced)
+     (bg-search-current bg-yellow-nuanced)
+     (bg-search-lazy bg-cyan-nuanced)
+     (bg-search-replace bg-red-nuanced)
+     (bg-search-rx-group-0 bg-blue-nuanced)
+     (bg-search-rx-group-1 bg-green-nuanced)
+     (bg-search-rx-group-2 bg-red-subtle)
+     (bg-search-rx-group-3 bg-magenta-subtle)
+     (bg-region bg-green-nuanced)
+     (fg-region unspecified)
+     (docstring fg-dim)
+     (comment fg-dim)
+     (preprocessor fg-main)
+     (constant fg-main)
+     (variable fg-main)
+     (type fg-main)
+     (fnname fg-main)
+     (keyword fg-main)
+     (builtin fg-main)))
+  (modus-themes-mixed-fonts t)
+  ;; :preface
+  ;; (defun my-modus-themes-custom-faces ()
+  ;;   (modus-themes-with-colors
+  ;;     (custom-set-faces
+  ;;      `(solaire-default-face ((,c :inherit default :background ,bg-dim :foreground ,fg-main)))
+  ;;      `(solaire-line-number-face ((,c :inherit solaire-default-face :foreground ,fg-main)))
+  ;;      `(solaire-hl-line-face ((,c :background ,bg-active)))
+  ;;      `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
+  )
+
+(setq light-theme 'modus-operandi)
+(setq dark-theme 'modus-vivendi)
+(defun load-dark-theme ()
+  "Load the saved dark theme."
+  (interactive)
+  (setq use-dark-theme-p t)
+  (mapcar #'disable-theme custom-enabled-themes)
+  (load-theme dark-theme t)
+  ;; (my-modus-themes-custom-faces)
+  (solaire-global-mode t))
+(defun load-light-theme ()
+  "Load the saved light theme."
+  (interactive)
+  (setq use-dark-theme-p nil)
+  (mapcar #'disable-theme custom-enabled-themes)
+  (load-theme light-theme t)
+  ;; (set-face-attribute font-lock-keyword-face nil
+  ;;                     :weight 'semibold)
+  ;; (my-modus-themes-custom-faces)
+  (solaire-global-mode -1))
+(defvar use-dark-theme-p t)
+
+(push 'use-dark-theme-p savehist-additional-variables)
+(if use-dark-theme-p
+    (load-dark-theme)
+  (load-light-theme))
+
+;; The following is a setup for smart kerneling font fonts that support those
+;; BUG: this messes up how avy works unfortunately
+(defun set-safe-composition-table ()
+  (interactive)
+  (set-char-table-range composition-function-table t `(["[,-.;A-Z_a-z]+" 0 font-shape-gstring])))
+
+(defun unset-safe-composition-table ()
+  (interactive)
+  (set-char-table-range composition-function-table t `(["" 0 font-shape-gstring])))
+
+(defun toggle-safe-composition-table--around (old-fn &rest args)
+  "Disable the composition table around a function invocation. Useful to prevent weird avy artifacts."
+  (let ((visible-buffers (mapcar #'window-buffer (window-list))))
+    (dolist (b visible-buffers)
+      (with-current-buffer b
+        (unset-safe-composition-table)))
+    (let ((res (apply old-fn args)))
+      (dolist (b visible-buffers)
+        (with-current-buffer b
+          (set-safe-composition-table)))
+      res)))
+
+(add-hook 'minibufer-setup-hook 'set-safe-composition-table)
+(add-hook 'special-mode-hook 'set-safe-composition-table)
+(add-hook 'text-mode-hook 'set-safe-composition-table)
+(add-hook 'fundamental-mode-hook 'set-safe-composition-table)
+(add-hook 'prog-mode-hook 'set-safe-composition-table)
+
+(advice-add 'avy-jump
+            :around
+            #'toggle-safe-composition-table--around)
+
+(use-package fontaine
+  :init
+  (defvar fontaine-my-preset '100-normal)
+  (push 'fontaine-my-preset savehist-additional-variables)
+  :config
+  (advice-add 'fontaine-set-preset
+              :around
+              #'fontaine-set-preset--around)
+  :preface
+  (defun fontaine-load ()
+    (fontaine-set-preset fontaine-my-preset))
+  (defun fontaine-set-preset--around (old-fn preset &rest args)
+    (setq fontaine-my-preset preset)
+    (apply old-fn preset args))
+  :hook
+  (after-init-hook . fontaine-load)
+  :custom
+  (fontaine-presets
+   '((90-light
+      :default-family "Commit Mono"
+      :fixed-pitch-family "Commit Mono"
+      :line-number-family "Commit Mono"
+      :variable-pitch-family "Commit Mono"
+      ;; :default-family "Iosevka"
+      ;; :fixed-pitch-family "Iosevka"
+      ;; :line-number-family "Iosevka"
+      ;; :variable-pitch-family "Iosevka Comfy Duo"
+      :default-height 90
+      :default-weight light)
+     (90-normal
+      :inherit 90-light
+      :default-height 90
+      :default-weight normal)
+     (100-semilight
+      :inherit 90-light
+      :default-weight semilight
+      :default-height 100)
+     (100-light
+      :inherit 90-light
+      :default-height 100)
+     (100-normal
+      :inherit 90-light
+      :default-height 100
+      :default-weight normal)
+     (110-normal
+      :inherit 90-light
+      :default-height 110
+      :default-weight normal)
+     (110-light
+      :inherit 90-light
+      :default-height 110)
+     (115-normal
+      :inherit 90-light
+      :default-height 115
+      :default-weight normal)
+     (120-normal
+      :inherit 90-light
+      :default-height 120
+      :default-weight normal)
+     (120-light
+      :inherit 90-light
+      :default-height 120))))
+
 (use-package misc
   :straight (:type built-in)
   :bind
   ("C-M-y" . duplicate-line-next-line)
   ("C-o" . open-line-from-end)
+  ("C-M-o" . split-line-tab)
   :preface
+  (defun split-line-tab ()
+    (interactive)
+    (default-indent-new-line nil t)
+    (default-indent-new-line nil t)
+    (previous-line)
+    (indent-according-to-mode))
   (defun duplicate-line-next-line ()
     (interactive)
     (duplicate-line)
@@ -102,8 +285,7 @@
 
 (use-package paren
   :custom
-  (show-paren-when-point-in-periphery t)
-  (show-paren-context-when-offscreen 'overlay))
+  (show-paren-when-point-in-periphery t))
 
 (use-package loaddefs
   :straight (:type built-in)
@@ -112,13 +294,8 @@
 
 (use-package display-fill-column-indicator
   :straight (:type built-in)
-  :hook
-  (asm-mode-hook . display-fill-column-indicator-mode)
-  (nasm-mode-hook . display-fill-column-indicator-mode)
-  (c-mode-hook . display-fill-column-indicator-mode)
-  (c-ts-mode-hook . display-fill-column-indicator-mode)
   :config
-  (setq-default fill-column 100))
+  (setq-default fill-column 120))
 
 (use-package frame
   :straight (:type built-in)
@@ -130,16 +307,17 @@
   (blink-cursor-delay 1.5)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
-  (unbind-key (kbd "C-z") 'global-map)
   (window-divider-mode)
   (blink-cursor-mode 0))
 
 (use-package pixel-scroll
   :straight (:type built-in)
   :custom
+  (scroll-margin 0)
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
-  (pixel-scroll-precision-interpolation-total-time 0.07)
+  (pixel-scroll-precision-interpolation-total-time 0.1)
+  (pixel-scroll-precision-interpolation-factor 0.75)
   (pixel-scroll-precision-interpolate-page t)
   (auto-window-vscroll nil)
   :hook
@@ -220,11 +398,12 @@
       (smooth-recenter))))
 
 (use-package cus-edit
+  :defer 3
   :straight (:type built-in)
   :custom
   (custom-file (concat user-emacs-directory "garbage.el"))
   :config
-  (load custom-file))
+  (load custom-file nil 'nomessage))
 
 (use-package autorevert
   :straight (:type built-in)
@@ -234,13 +413,13 @@
   (global-auto-revert-mode t))
 
 (use-package eww
+  :defer t
   :straight (:type built-in)
   :custom
   (eww-default-download-directory "~/downloads/"))
 
 (use-package window
   :straight (:type built-in)
-  :demand
   :custom
   (switch-to-buffer-in-dedicated-window 'pop)
   (switch-to-buffer-obey-display-actions t)
@@ -253,8 +432,12 @@
     (interactive)
     (split-window-below)
     (other-window 1))
+  (defun switch-to-last-buffer ()
+    (interactive)
+    (switch-to-buffer nil))
   :bind
-  (("C-x 2" . split-window-below+switch)
+  (("C-x C-b" . switch-to-last-buffer)
+   ("C-x 2" . split-window-below+switch)
    ("C-x 3" . split-window-right+switch)
    :map ctl-x-map
    ([remap split-window-below] . split-window-below+switch)
@@ -263,29 +446,17 @@
 (use-package mode-local
   :straight (:type built-in))
 
-(use-package lisp-mode
-  :straight (:type built-in)
-  :demand
-  :config
-  (let ((path "~/dotfiles/emacs/elisp-fix-indent.el"))
-    (when (file-exists-p path)
-      (load path))))
-
-(use-package bookmark
-  :straight (:type built-in)
-  :custom
-  (bookmark-fontify nil))
-
 (use-package simple
   :straight (:type built-in)
   :bind
   (:map ctl-x-map
-   ("k" . kill-current-buffer))
+        ("k" . kill-current-buffer))
   :config
   (setq-default indent-tabs-mode nil))
 
 (use-package cc-vars
   :straight (:type built-in)
+  :defer 1
   :custom
   (c-basic-offset 4)
   :config
@@ -332,12 +503,6 @@
   :hook
   (prog-mode-hook . hs-minor-mode))
 
-(use-package glasses
-  :straight (:type built-in)
-  :custom
-  (glasses-separator "·")
-  (glasses-face nil))
-
 (use-package gcmh
   :demand
   :config
@@ -346,8 +511,6 @@
 (use-package so-long
   :config
   (global-so-long-mode))
-
-(use-package dash)
 
 (use-package helpful
   :bind
@@ -360,24 +523,28 @@
   ([remap query-replace] . vr/replace))
 
 (use-package visual-regexp-steroids
+  :disabled
   :custom
   (vr/default-regexp-modifiers '(:I t :M t :S nil :U nil))
-  :bind
-  ([remap isearch-forward] . vr/isearch-forward)
-  ([remap isearch-backward] . vr/isearch-backward)
+  ;; :bind
+  ;; ([remap isearch-forward] . vr/isearch-forward)
+  ;; ([remap isearch-backward] . vr/isearch-backward)
   :config
   (defadvice vr--isearch (around add-case-insensitive (forward string &optional bound noerror count) activate)
     (when (and (eq vr/engine 'python) case-fold-search)
       (setq string (concat "(?i)" string)))
     ad-do-it))
 
-(use-package mermaid-mode)
+(use-package mermaid-mode
+  :defer t)
 
 (use-package ob-mermaid
+  :defer t
   :custom
   (ob-mermaid-cli-path "/usr/bin/mmdc"))
 
 (use-package org
+  :defer t
   :hook
   (org-mode-hook . variable-pitch-mode)
   (org-babel-after-execute-hook . org-redisplay-inline-images)
@@ -385,15 +552,13 @@
   ("C-c a a" . org-agenda)
   ("C-c a c" . org-capture)
   (:map org-mode-map
-   ("C-c a d" . org-archive-all-done))
-  :demand
+        ("C-c a d" . org-archive-all-done))
   :preface
   (defun open-org-agenda ()
     (org-agenda nil "n")
     (delete-other-windows)
     (get-buffer "*Org Agenda*"))
   :custom
-  (initial-buffer-choice #'open-org-agenda)
   (org-confirm-babel-evaluate nil)
   (org-directory "~/documents/org/")
   (org-default-notes-file (concat org-directory "todo.org"))
@@ -416,13 +581,14 @@
      (python     . t))))
 
 (use-package org-super-agenda
+  :defer t
   :custom
   (org-super-agenda-groups
    '((:name "Work"
-      :tag "work")
+            :tag "work")
      (:name "Today"
-      :time-grid t
-      :scheduled today)))
+            :time-grid t
+            :scheduled today)))
   :config
   (org-super-agenda-mode))
 
@@ -442,204 +608,47 @@
   (org-modern-table nil)
   (org-indent-indentation-per-level 1))
 
-(use-package org-modern-indent
-  :straight (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent")
-  :config ; add late to hook
-  (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
-
-(use-package dbus
-  :hook
-  (after-init-hook . load-theme-on-startup)
-  :preface
-  (defun set-theme-from-dbus-value (value)
-    (if (equal value '1)
-        (run-hooks 'dbus-dark-theme-hook)
-      (run-hooks 'dbus-light-theme-hook)))
-  (defun dbus-on-theme-changed (path var value)
-    (when (and (string-equal path "org.freedesktop.appearance")
-               (string-equal var "color-scheme"))
-      (set-theme-from-dbus-value (car value))))
-  (defun load-theme-on-startup ()
-    (interactive)
-    (unless custom-enabled-themes
-      (dbus-call-method-asynchronously
-       :session "org.freedesktop.portal.Desktop"
-       "/org/freedesktop/portal/desktop"
-       "org.freedesktop.portal.Settings"
-       "Read"
-       (lambda (x) (set-theme-from-dbus-value (caar x)))
-       "org.freedesktop.appearance"
-       "color-scheme")))
-  :init
-  (defvar dbus-light-theme-hook ())
-  (defvar dbus-dark-theme-hook ())
-  :config
-  (dbus-register-signal
-   :session "org.freedesktop.portal.Desktop"
-   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
-   "SettingChanged"
-   #'dbus-on-theme-changed))
-
 (use-package spacious-padding
-  ;; TODO: set the eldoc-box-border face to something nicer
+  :disabled
+  :straight (:host github :repo "protesilaos/spacious-padding")
   :demand
   :bind
-  ("C-c o p" . spacious-padding-mode))
-
-(use-package doom-themes)
-(use-package solaire-mode)
-(use-package modus-themes
-  :custom
-  (modus-operandi-palette-overrides
-   '((bg-paren-match bg-green-nuanced)
-     (preprocessor green-faint)
-     (comment green-faint)
-     (docstring green-faint)
-     (string green-faint)))
-  (modus-operandi-tinted-palette-overrides modus-operandi-palette-overrides)
-  (modus-vivendi-palette-overrides
-   '((fg-main "#fffff8")
-     (bg-main "#111111")
-     (bg-paren-match bg-yellow-subtle)
-     (preprocessor yellow-faint)
-     (comment yellow-faint)
-     (docstring yellow-faint)
-     (string yellow-faint)))
-  (modus-vivendi-tinted-palette-overrides modus-vivendi-palette-overrides)
-  (modus-themes-common-palette-overrides
-   '((bg-region bg-green-nuanced)
-     (fg-region unspecified)
-     (preprocessor fg-main)
-     (constant fg-main)
-     (variable fg-main)
-     (type fg-main)
-     (fnname fg-main)
-     (keyword fg-main)
-     (builtin fg-main)))
-  (modus-themes-mixed-fonts t)
-  :hook
-  (dbus-light-theme-hook . load-light-theme)
-  (dbus-dark-theme-hook . load-dark-theme)
-  :preface
-  (defun load-dark-theme ()
-    "Load the saved dark theme."
-    (interactive)
-    (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme dark-theme t)
-    (set-face-attribute font-lock-keyword-face nil
-                        :weight 'semibold)
-    (set-face-attribute font-lock-function-name-face nil
-                        :weight 'semibold)
-    (my-modus-themes-custom-faces)
-    (solaire-global-mode t))
-  (defun load-light-theme ()
-    "Load the saved light theme."
-    (interactive)
-    (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme light-theme t)
-    (set-face-attribute font-lock-keyword-face nil
-                        :weight 'semibold)
-    (set-face-attribute font-lock-function-name-face nil
-                        :weight 'semibold)
-    (solaire-global-mode -1))
-  (defun my-modus-themes-custom-faces ()
-    (modus-themes-with-colors
-      (custom-set-faces
-       `(solaire-default-face ((,c :inherit default :background ,bg-dim :foreground ,fg-main)))
-       ;; `(solaire-line-number-face ((,c :inherit solaire-default-face :foreground ,fg-unfocused)))
-       `(solaire-hl-line-face ((,c :background ,bg-active)))
-       `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
-  :init
-  (defvar light-theme 'modus-operandi)
-  (defvar dark-theme 'modus-vivendi))
-
-(use-package fontaine
-  :preface
-  (defun fontaine-load-light ()
-    (fontaine-set-preset '120-normal))
-  (defun fontaine-load-dark ()
-    (fontaine-set-preset '120-normal))
-  :hook
-  (dbus-light-theme-hook . fontaine-load-light)
-  (dbus-dark-theme-hook . fontaine-load-dark)
+  ("C-c o p" . spacious-padding-mode)
   :config
-  (setq fontaine-presets
-        '((90-light
-           :default-family "Iosevka ss18"
-           :default-height 90
-           :default-weight light
-           :variable-pitch-family "Iosevka Comfy Motion Duo")
-          (90-normal
-           :inherit 90-light
-           :default-height 90
-           :default-weight normal)
-          (100-semilight
-           :inherit 90-light
-           :default-weight semilight
-           :default-height 100)
-          (100-light
-           :inherit 90-light
-           :default-height 100)
-          (100-normal
-           :inherit 90-light
-           :default-height 100
-           :default-weight normal)
-          (110-normal
-           :inherit 90-light
-           :default-height 110
-           :default-weight normal)
-          (110-light
-           :inherit 90-light
-           :default-height 110)
-          (115-normal
-           :inherit 90-light
-           :default-height 115
-           :default-weight normal)
-          (120-normal
-           :inherit 90-light
-           :default-height 120
-           :default-weight normal))))
+  (spacious-padding-mode))
 
 (use-package indent-bars
-  ;; :disabled
-  :straight
-  (:host github
-   :repo "jdtsmith/indent-bars")
-  ;; :hook
-  ;; (prog-mode-hook . indent-bars-mode)
+  :disabled
+  :straight (indent-bars :type git :host github :repo "jdtsmith/indent-bars")
+  :hook
+  (prog-mode-hook . indent-bars-mode)
   :custom
   (indent-bars-color '(highlight :face-bg t :blend 0.4))
   (indent-bars-highlight-current-depth '(:face default :blend 0.4))
-  (indent-bars-pattern ". * . * . *")
+  (indent-bars-pattern ".")
   (indent-bars-width-frac 0.1)
   (indent-bars-pad-frac 0.1)
   (indent-bars-zigzag nil)
   (indent-bars-color-by-depth nil)
-  (indent-bars-display-on-blank-lines t))
+  (indent-bars-display-on-blank-lines nil)
+  ;; (indent-bars-treesit-support t)
+  ;; (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator)))
+  )
 
-(use-package gdscript-mode)
+(use-package gdscript-mode
+  :defer t)
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :disabled
+  :defer 1)
 
-(use-package vscode-icon)
+(use-package all-the-icons-dired
+  :disabled
+  :hook (dired-mode-hook . all-the-icons-dired-mode))
 
-(use-package all-the-icons-dired)
-
-(use-package dirvish
-  :demand
-  :custom
-  (dirvish-attributes '(collapse file-time file-size))
-  (dirvish-use-mode-line nil)
-  (dirvish-subtree-prefix " ")
-  :config
-  ;; (dirvish-override-dired-mode)
-  (require 'dirvish-icons)
-  (require 'dirvish-side)
-  (require 'dirvish-subtree)
-  :bind
-  (("C-c o t" . dirvish-side)
-   :map dirvish-mode-map
-   ("<tab>" . dirvish-subtree-toggle)))
+(use-package vscode-icon
+  :disabled
+  :defer 1)
 
 (use-package dired
   :straight (:type built-in)
@@ -656,29 +665,36 @@
   (dired-recursive-deletes 'top))
 
 (use-package dired-hacks
+  :after dired
   :bind
   (:map dired-mode-map
-   ("<tab>" . dired-subtree-toggle)))
+        ("<tab>" . dired-subtree-toggle)))
 
 (use-package diredfl
+  :disabled
   :hook (dired-mode-hook . diredfl-mode))
 
-;; TODO: integrate with avy, I also need something like mark-beginning-of-line-in-region
+;; live previews? kmacro-x?
 (use-package macrursors
   :straight (:host github
-             :repo "corytertel/macrursors")
+                   :repo "corytertel/macrursors")
   :hook
   (macrursors-pre-finish-hook . corfu-mode)
   (macrursors-post-finish-hook . corfu-mode)
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
-   ("C-c m n" . macrursors-mark-next-instance-of)
-   ("C-c m p" . macrursors-mark-previous-instance-of)
-   :map isearch-mode-map
-   ("M-s m" . macrursors-mark-from-isearch)
-   ("M-s n" . macrursors-mark-next-from-isearch)
-   ("M-s p" . macrursors-mark-previous-from-isearch)))
+   ;; TODO: disable active region after this
+   ("C-M->" . macrursors-mark-next-instance-of)
+   ("C-M-<" . macrursors-mark-previous-instance-of)
+   :map macrursors-mode-map
+   ("C-," . macrursors-end)))
+
+(use-package selection-highlight-mode
+  :straight (selection-highlight-mode :type git
+                                      :host github
+                                      :repo "balloneij/selection-highlight-mode")
+  :config (selection-highlight-mode))
 
 (use-package smart-comment
   :bind
@@ -714,10 +730,6 @@
   ("C-M-s" . isearch-forward-other-window)
   ("C-M-r" . isearch-backward-other-window))
 
-(use-package isearch-mb
-  :config
-  (isearch-mb-mode))
-
 (use-package avy
   :preface
   (defun avy-action-embark (pt)
@@ -728,59 +740,49 @@
       (select-window
        (cdr (ring-ref avy-ring 0))))
     t)
-  (defun avy-action-mark-to-char (pt)
-    (activate-mark)
-    (goto-char pt))
-  (defun avy-action-teleport-whole-line (pt)
-    (avy-action-kill-whole-line pt)
-    (save-excursion (yank)) t)
-  (defun avy-action-copy-whole-line (pt)
-    (save-excursion
-      (goto-char pt)
-      (cl-destructuring-bind (start . end)
-          (bounds-of-thing-at-point 'line)
-        (copy-region-as-kill start end)))
-    (select-window
-     (cdr
-      (ring-ref avy-ring 0)))
-    t)
-  (defun avy-action-yank-whole-line (pt)
-    (avy-action-copy-whole-line pt)
-    (save-excursion (yank))
-    t)
-  (defun avy-action-kill-whole-line (pt)
-    (save-excursion
-      (goto-char pt)
-      (kill-whole-line))
-    (select-window
-     (cdr
-      (ring-ref avy-ring 0)))
-    t)
+  (defun avy-action-zap-to-including-char (pt)
+    (if (> pt (point))
+        (kill-region (point) (1+ pt))
+      (kill-region pt (point))))
+  (defun avy-action-zap-to-excluding-char (pt)
+    (if (> pt (point))
+        (kill-region (point) pt)
+      (kill-region (1+ pt) (point))))
+  :config
+  (defun avy-zap-up-to-char-in-line (char)
+    (interactive (list (read-char "char: " t)))
+    (avy-with avy-goto-char
+      (avy-jump
+       (regexp-quote (string char))
+       :beg (line-beginning-position)
+       :end (line-end-position)
+       :action #'avy-action-zap-to-excluding-char)))
+  (defun avy-zap-to-char-in-line (char)
+    (interactive (list (read-char "char: " t)))
+    (avy-with avy-goto-char
+      (avy-jump
+       (regexp-quote (string char))
+       :beg (line-beginning-position)
+       :end (line-end-position)
+       :action #'avy-action-zap-to-including-char)))
   :bind
   (("M-t" . avy-goto-char-in-line)
    ("C-t" . avy-goto-word-1)
-   :map isearch-mode-map
-   ("M-t" . avy-isearch))
+   ("M-z" . avy-zap-to-char-in-line)
+   ("C-z" . avy-zap-up-to-char-in-line)
+   ;; :map dired-mode-map
+   ;; ("C-t" . nil)
+   )
   :custom
-  (avy-style 'post)
-  (avy-background t)
+  (avy-style 'de-bruijn)
   (avy-keys '(?c ?s ?n ?t ?a ?e ?i ?h))
-  (avy-dispatch-alist
-   '((?\o . avy-action-embark)
-     (?\M-t . avy-action-teleport)
-     (?\M-T . avy-action-teleport-whole-line)
-     (?m . avy-action-mark)
-     (?  . avy-action-mark-to-char)
-     (?z . avy-action-zap-to-char)
-     (?w . avy-action-copy)
-     (?W . avy-action-copy-whole-line)
-     (?y . avy-action-yank)
-     (?Y . avy-action-yank-whole-line)
-     (?k . avy-action-kill-stay)
-     (?K . avy-action-kill-whole-line))))
+  (avy-dispatch-alist '((?\w . avy-action-copy)
+                        (?\o . avy-action-embark))))
 
 (use-package ace-window
+  :disabled
   :custom
+  (aw-background nil)
   (aw-scope 'frame)
   (aw-keys avy-keys)
   (aw-ignore-current t)
@@ -788,8 +790,9 @@
   ([remap other-window] . ace-window))
 
 (use-package rotate
-  :custom
-  (rotate-functions
+  :config
+  (setq
+   rotate-functions
    '(rotate:even-horizontal
      rotate:even-vertical))
   :bind
@@ -798,8 +801,8 @@
 
 (use-package undo-fu
   :bind
-  (([remap undo] . undo-fu-only-undo)
-   ([remap undo-redo] . undo-fu-only-redo)))
+  ([remap undo] . undo-fu-only-undo)
+  ([remap undo-redo] . undo-fu-only-redo))
 
 (use-package undo-fu-session
   :config
@@ -809,39 +812,19 @@
   :config
   (ws-butler-global-mode))
 
-;; TODO: maybe bind hungry-delete-* to keys?
-(use-package hungry-delete
-  :custom
-  (hungry-delete-join-reluctantly t))
-
-(use-package which-key
-  :config
-  (which-key-mode))
-
-(use-package olivetti
-  :custom
-  (olivetti-body-width 180))
-
-(use-package auto-olivetti
-  :straight
-  (auto-olivetti
-   :host sourcehut
-   :repo "ashton314/auto-olivetti")
-  :bind
-  ("C-c o o" . auto-olivetti-mode)
-  :custom
-  (auto-olivetti-enabled-modes '(text-mode prog-mode)))
-
 (use-package elec-pair
   :straight (:type built-in)
   :disabled
   :hook (prog-mode-hook . electric-pair-mode))
 
-(use-package parinfer-rust-mode)
+(use-package wrap-region
+  :config
+  (wrap-region-global-mode))
 
 (use-package puni
   :bind
-  (("M-r"   . puni-raise)
+  (("M-'"   . puni-expand-region)
+   ("M-r"   . puni-raise)
    ("C-M-s" . puni-splice)
    ("M-S"   . puni-split)
    ("C-M-t" . puni-transpose)
@@ -863,20 +846,15 @@
 
 (use-package xterm-color)
 
-(use-package coterm
-  :config
-  (coterm-mode))
-
 (use-package shell
   :straight (:type built-in)
-  :demand
   :bind
   (:map shell-mode-map
-   ("C-l" . comint-clear-buffer)))
+        ("C-l" . comint-clear-buffer)))
 
 (use-package esh-mode
+  :defer t
   :straight (:type built-in)
-  :demand
   :hook
   (eshell-before-prompt-hook
    .
@@ -903,60 +881,37 @@
    ("C-c o n e" . eshell-new)
    :map eshell-mode-map
    ("C-c C-l" . eshell/clear-buffer)
-   :map eshell-hist-mode-map
-   ("<up>" . previous-line)
-   ("<down>" . next-line))
+   ;; :map eshell-hist-mode-map
+   ;; ("<up>" . previous-line)
+   ;; ("<down>" . next-line)
+   )
   :config
   (require 'em-hist)
   (add-hook 'eshell-preoutput-filter-functions 'xterm-color-filter)
   ;; (remove-hook 'eshell-preoutput-filter-functions 'eshell-handle-ansi-color)
   (setenv "TERM" "xterm-256color"))
 
-(use-package eshell-up)
-
-(use-package pcmpl-args
-  :config
-  (require 'pcmpl-gnu))
-
-(use-package bash-completion)
-
 (use-package fish-completion
+  :straight (:host github
+                   :repo "LemonBreezes/emacs-fish-completion")
+  :hook
+  (eshell-mode-hook . turn-on-fish-completion-mode)
   :custom
   (fish-completion-fallback-on-bash-p t)
   :config
   (global-fish-completion-mode))
 
-(use-package eshell-prompt-extras
-  :demand
-  :custom
-  (eshell-prompt-function 'epe-theme-dakrone)
-  (eshell-highlight-prompt t))
-
-(use-package eshell-syntax-highlighting
-  :demand
-  :config
-  (eshell-syntax-highlighting-global-mode t))
-
-(use-package mistty
-  :straight (:host github
-             :repo "szermatt/mistty")
-  :custom
-  (explicit-shell-file-name "nu")
-  :bind
-  ("C-c o s" . mistty))
-
 (use-package vterm
   :custom
-  (vterm-shell "nu")
+  (vterm-shell "fish")
   :bind
   ("C-c o v" . vterm))
 
-(use-package eshell-vterm
-  :config
-  (eshell-vterm-mode)
-  (push "btm" eshell-visual-commands))
+(use-package detached
+  :disabled)
 
-(use-package org-mime)
+(use-package org-mime
+  :defer t)
 
 (use-package hledger-mode
   :mode "\\.journal\\'"
@@ -984,94 +939,106 @@
     (if (and (buffer-file-name)
              (file-remote-p (buffer-file-name)))
         ""
-      (when-let ((branch (magit-get-current-branch))
+      (when-let ((_ (fboundp 'magit-get-current-branch))
+                 (branch (magit-get-current-branch))
                  (fancy (when (char-displayable-p ?) " ")))
         (concat fancy branch))))
   :config
-  (magit-wip-mode)
   (setq magit-git-environment
-         (append magit-git-environment
-            (list "OVERCOMMIT_COLOR=0"))))
+        (append magit-git-environment
+                (list "OVERCOMMIT_COLOR=0"))))
 
 (use-package magit-delta
+  :disabled
   :hook (magit-mode-hook . magit-delta-mode))
 
-(use-package magit-todos
+(use-package forge
+  :disabled
+  :defer t)
+
+(use-package blamer
+  :defer t
+  :custom
+  (blamer-show-avatar-p nil)
   :config
-  (magit-todos-mode))
+  (set-face-attribute 'blamer-face nil
+                      :foreground 'unspecified
+                      :inherit 'custom-comment))
 
-(use-package forge)
-
-(use-package blamer)
-
+(defun string-repeat (num s)
+  "Make a string of S repeated NUM times."
+  (declare (pure t) (side-effect-free t))
+  (let (ss)
+    (while (> num 0)
+      (setq ss (cons s ss))
+      (setq num (1- num)))
+    (apply 'concat ss)))
+(defun string-pad-left (len padding s)
+  "If S is shorter than LEN, pad it with PADDING on the left."
+  (let ((extra (max 0 (- len (length s)))))
+    (concat (make-string extra (string-to-char padding)) s)))
 (setq-default
  header-line-format
  '((:propertize (:eval (file-directory)) face font-lock-variable-name-face)
    "「 "
    (:propertize (:eval (file-or-buffer-name)) face font-lock-keyword-face)
    " 」"))
+(setq my-mode-line-format
+      '("%5l:%c"
+        (:eval (string-repeat (- 4 (length (number-to-string (current-column)))) " "))
+        (:propertize (:eval (file-read-write-indicator)) face font-lock-warning-face)
+        "  "
+        (:propertize
+         (:eval (unless (file-remote-p default-directory)
+                  (git-branch)))
+         face magit-dimmed)))
+(setq-default mode-line-format
+              '((:eval (string-pad-left (window-width) " " (format-mode-line my-mode-line-format)))))
 (use-package mini-modeline
+  ;; :disabled
+  ;; :defer 0.1
+  :hook
+  (after-init-hook . mini-modeline-mode)
+  :preface
   :custom
   (mini-modeline-enhance-visual nil)
   (mini-modeline-display-gui-line nil)
   (mini-modeline-r-format
    '("%5l:%c"
-     (:eval (s-repeat (- 4 (length (number-to-string (current-column)))) " "))
+     (:eval (string-repeat (- 4 (length (number-to-string (current-column)))) " "))
      (:propertize (:eval (file-read-write-indicator)) face font-lock-warning-face)
      "  "
      (:propertize
       (:eval (unless (file-remote-p default-directory)
                (git-branch)))
-      face magit-dimmed)))
-  :config
-  (mini-modeline-mode))
+      face magit-dimmed))))
 
-(use-package browse-at-remote)
-
-(use-package project
-  :straight (:type built-in))
-
-(use-package projection
-  :disabled
-  :bind-keymap
-  ("C-x P" . projection-map))
-
-(use-package consult-project-extra
-  ;; :bind
-  ;; ([remap project-find-file] . consult-project-extra-find)
-  )
+(use-package browse-at-remote
+  :commands (browse-at-remote))
 
 (use-package wgrep
+  :defer t
   :custom
   (wgrep-enable-key "e"))
 
 (use-package vertico
-  :straight (vertico
-             :includes vertico-multiform
-             :files (:defaults "extensions/vertico-multiform.el"))
-  :config
-  (vertico-mode))
-
-(use-package vertico-posframe
-  :disabled
   :custom
-  (vertico-posframe-border-width 1)
-  (vertico-posframe-parameters
-   '((left-fringe . 8)
-     (right-fringe . 8)))
+  (vertico-resize nil)
   :config
-  (vertico-posframe-mode))
+  (vertico-mode)
+  ;; (vertico-flat-mode)
+  )
 
 (use-package orderless
   :config
   (defun orderless-fast-dispatch (word index total)
     (and (= index 0) (= total 1) (length< word 4)
-         `(orderless-regexp . ,(concat "^" (regexp-quote word)))))
+         (cons 'orderless-literal-prefix word)))
   (orderless-define-completion-style orderless-fast
     (orderless-style-dispatchers '(orderless-fast-dispatch))
     (orderless-matching-styles '(orderless-literal orderless-regexp)))
   :custom
-  (completion-styles '(orderless-fast partial-completion basic))
+  (completion-styles '(orderless-fast basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
@@ -1083,8 +1050,10 @@
 (use-package consult
   :custom
   (consult-locate-args "plocate --ignore-case --existing --regexp")
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
   :bind
-  (;; ([remap switch-to-buffer] . consult-buffer)
+  (([remap switch-to-buffer] . consult-buffer)
    ("M-s l"   . consult-line)
    ("M-s M-l" . consult-line-multi)
    ("M-s r"   . consult-ripgrep)
@@ -1094,6 +1063,7 @@
    ("M-s e"   . consult-isearch-history)
    ("M-g e"           . consult-compile-error)
    ("M-g m"           . consult-mark)
+   ("M-g k"           . consult-global-mark)
    ("M-g f"           . consult-flycheck)
    ("M-g o"           . consult-outline)
    ([remap imenu]     . consult-imenu)
@@ -1102,16 +1072,43 @@
    ([remap bookmark-jump] . consult-bookmark)
    ([remap yank-pop] . consult-yank-pop))
   :config
-  (recentf-mode))
+  (recentf-mode)
+  (consult-customize
+   consult-bookmark consult-buffer
+   :preview-key "C-'"))
+
+(use-package consult-project-extra
+  :after consult
+  :bind
+  ([remap project-find-file] . consult-project-extra-find)
+  :config
+  (consult-customize
+   consult-project-extra-find
+   :preview-key "C-'"))
 
 (use-package consult-ls-git
   :bind
   ("M-s g" . consult-ls-git))
 
 (use-package consult-flycheck
-  :after flycheck
-  :straight (:host github
-             :repo "minad/consult-flycheck"))
+  :defer t
+  :straight (:host github :repo "minad/consult-flycheck"))
+
+;; Can I somehow use global marks instead or something?
+;; Can I limit those to 4 max
+;; I probably want to write my own thing
+(use-package harpoon
+  :bind
+  ("C-c h a" . harpoon-add-file)
+  ("C-c h f" . harpoon-toggle-quick-menu)
+  ("C-c h t" . harpoon-go-to-1)
+  ("C-c h n" . harpoon-go-to-2)
+  ("C-c h s" . harpoon-go-to-3)
+  ("C-c h c" . harpoon-go-to-4)
+  ("C-c h d" . harpoon-clear)
+  :custom
+  (harpoon-project-package 'project)
+  (harpoon-separate-by-branch t))
 
 (use-package marginalia
   :config
@@ -1120,7 +1117,9 @@
   (marginalia-align 'right))
 
 (use-package embark
-  :config
+  :after vertico
+  :custom
+  (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
   :bind
   (("M-o" . embark-act)
    ("M-." . embark-dwim)
@@ -1134,6 +1133,7 @@
   (embark-collect-mode-hook . consult-preview-at-point-mode))
 
 (use-package keychain-environment
+  :defer 0.3
   :config
   (keychain-refresh-environment))
 
@@ -1142,18 +1142,13 @@
 ;;   (envrc-global-mode))
 
 (use-package c-ts-mode
+  :defer t
   :straight (:type built-in)
   :custom
   (c-ts-mode-indent-offset 4))
 
-(use-package smart-tabs-mode
-  :disabled
-  :config
-  (setq-mode-local c-mode indent-tabs-mode t)
-  (setq-mode-local c++-mode indent-tabs-mode t)
-  (smart-tabs-insinuate 'c 'c++))
-
 (use-package smart-tab
+  :disabled
   :custom
   (smart-tab-user-provided-completion-function
    'corfu-candidate-overlay-complete-at-point)
@@ -1161,57 +1156,64 @@
   :config
   (global-smart-tab-mode))
 
-;; TODO: does it work the way it should with all the capf ordering?
-(use-package tempel
-  :bind
-  (:map tempel-map
-   ("C-M-n" . tempel-next)
-   ("C-M-p" . tempel-previous))
-  :preface
-  (defun tempel-setup-capf ()
-    (setq-local completion-at-point-functions
-                (cons #'tempel-complete completion-at-point-functions)))
-  :hook
-  (prog-mode-hook . tempel-setup-capf)
-  (text-mode-hook . tempel-setup-capf))
-
 (use-package corfu
   :straight
   (:host github
-   :repo "minad/corfu"
-   :files ("*" "extensions/*" (:exclude ".git")))
+         :repo "minad/corfu"
+         :files ("*" "extensions/*" (:exclude ".git")))
+  :defer 0.1
   :preface
   (defun corfu-move-to-minibuffer ()
     (interactive)
     (let ((completion-extra-properties corfu--extra)
           completion-cycle-threshold completion-cycling)
       (apply #'consult-completion-in-region completion-in-region--data)))
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active)
+                (bound-and-true-p vertico--input)
+                (eq (current-local-map) read-passwd-map))
+      (setq-local corfu-auto nil) ;; Enable/disable auto completion
+      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                  corfu-popupinfo-delay nil)
+      (corfu-mode 1)))
   :bind
-  (:map corfu-map
-   ("M-s o" . corfu-move-to-minibuffer))
+  ("C-<tab>" . completion-at-point)
+  :config
+  (setq corfu-map
+        (let ((m (make-sparse-keymap)))
+          (bind-keys :map m
+                     ("C-g" . corfu-quit)
+                     ("M-s o" . corfu-move-to-minibuffer)
+                     ("C-'" . corfu-insert)
+                     ;; I don't like C-n and C-p having two functions
+                     ("C-n" . corfu-next)
+                     ("C-p" . corfu-previous))
+          m))
   :custom
+  (corfu-auto nil)
   (corfu-auto-prefix 2)
   (corfu-cycle t)
-  (corfu-auto nil)
   (corfu-separator ?\s)
   (corfu-quit-at-boundary 'separator)
   (corfu-quit-no-match 'separator)
   (corfu-on-exact-match 'insert)
   (corfu-preselect 'first)
-  :demand
+  (corfu-preview-current nil)
   :config
-  (set-face-attribute
-   'corfu-default nil
-   :background 'unspecified
-   :inherit 'default)
-  (put 'completion-at-point-functions 'safe-local-variable #'listp)
+  ;; Why do I have to do this?
+  (setq company-minimum-prefix-length corfu-auto-prefix)
+  ;; (set-face-attribute
+  ;;  'corfu-default nil
+  ;;  :background 'unspecified
+  ;;  :inherit 'default)
   (global-corfu-mode)
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode)
-  (set-face-attribute 'corfu-popupinfo nil :height 0.9))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1))
 
 (use-package corfu-candidate-overlay
-  :demand
+  :disabled
   :bind
   ;; TODO: maybe replace?
   ("C-<tab>" . corfu-candidate-overlay-complete-at-point)
@@ -1219,21 +1221,51 @@
   (corfu-candidate-overlay-mode))
 
 (use-package cape
+  :defer 0.3
   :straight (:host github
-             :repo "minad/cape"
-             :files ("*.el" "extensions/*.el"))
+                   :repo "minad/cape"
+                   :files ("*.el" "extensions/*.el"))
   :preface
   (defun cape-setup ()
     (setq-local completion-at-point-functions
                 (delete-dups
-                 (append (list #'cape-file #'cape-keyword #'cape-dabbrev)
-                         completion-at-point-functions))))
+                 (remove
+                  #'ispell-completion-at-point
+                  (append (list #'cape-file #'cape-keyword #'cape-dabbrev)
+                          completion-at-point-functions)))))
   ;; TODO: use lisp-complete-symbol for elisp
   :hook
   (prog-mode-hook . cape-setup)
-  ;; (lsp-completion-mode-hook . cape-setup)
+  (org-mode-hook . cape-setup)
+  (markdown-mode-hook . cape-setup)
+  ;; (lsp-completion-mode-hook . cape-lsp-setup)
   :bind
   ("M-/" . cape-dabbrev))
+
+(use-package copilot
+  :disabled
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
+  :custom
+  (copilot-indent-offset-warning-disable t)
+  (copilot-idle-delay 0)
+  :hook
+  (prog-mode-hook . copilot-mode)
+  :bind
+  ("C-M-=" . copilot-complete)
+  ("M-\\" . copilot-accept-completion)
+  ("C-M-\\" . copilot-accept-completion-by-line))
+
+(use-package codeium
+  :disabled
+  :preface
+  ;; :disabled
+  :after cape
+  :straight (:host github :repo "exafunction/codeium.el")
+  :config
+  ;; (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
+  (keymap-global-set
+   "M-\\"
+   (cape-capf-interactive #'codeium-completion-at-point)))
 
 (use-package kind-icon
   :disabled
@@ -1255,6 +1287,7 @@
   (xref-show-definitions-function #'xref-show-definitions-completing-read))
 
 (use-package haskell-mode
+  :defer t
   :config
   (remove-hook 'haskell-mode-hook #'interactive-haskell-mode)
   :custom
@@ -1264,15 +1297,18 @@
   (haskell-font-lock-symbols nil))
 
 (use-package flycheck
+  :defer 1
   :custom
-  (flycheck-indication-mode 'right-fringe)
+  (flycheck-indication-mode nil)
+  (flycheck-highlighting-mode 'symbols)
   (flycheck-check-syntax-automatically '(save idle-change mode-enable))
-  :demand t
-  :config
-  (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
-    [16 48 112 240 112 48 16] nil nil 'center))
+  ;; :config
+  ;; (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+  ;;   [16 48 112 240 112 48 16] nil nil 'center)
+  )
 
 (use-package flycheck-posframe
+  ;; :disabled
   :hook
   (flycheck-mode-hook . flycheck-posframe-mode)
   :preface
@@ -1297,13 +1333,17 @@
       ('left (posframe-poshandler-frame-bottom-right-corner info))))
   :custom
   ;; I want it to be shown on a bottom corner the most removed from the pos
-  (flycheck-posframe-position 'frame-bottom-opposite-corner)
+  (flycheck-posframe-position 'window-bottom-right-corner)
+  ;; (flycheck-posframe-position 'point-bottom-left-corner)
+  ;; (flycheck-posframe-position 'frame-bottom-opposite-corner)
   (flycheck-posframe-border-width 1)
-  :config
-  (flycheck-posframe-configure-pretty-defaults))
+  ;; :config
+  ;; (flycheck-posframe-configure-pretty-defaults)
+  )
 
 (use-package flycheck-inline
-  ;; :disabled
+  :defer t
+  :disabled
   ;; :hook (flycheck-mode-hook . flycheck-inline-mode)
   )
 
@@ -1313,7 +1353,10 @@
   ;; (flycheck-pos-tip-timeout 0)
   :hook (flycheck-mode-hook . flycheck-pos-tip-mode))
 
-(use-package devdocs)
+(use-package tldr
+  :defer t)
+(use-package devdocs
+  :defer t)
 
 (use-package eldoc
   :custom
@@ -1325,32 +1368,51 @@
 (use-package eldoc-box
   ;; :disabled
   ;; :hook (eldoc-mode-hook . eldoc-box-hover-at-point-mode)
-  :hook (eldoc-mode-hook . eldoc-box-hover-mode)
+  :hook
+  ;; (eldoc-mode-hook . eldoc-box-hover-mode)
+  (spacious-padding-mode-hook . eldoc-set-box-border-fringe)
   :custom
+  (eldoc-display-functions '(eldoc-display-in-buffer))
   (eldoc-box-clear-with-C-g t)
   ;; (eldoc-box-offset '(16 16 32))
+  :preface
+  (defun eldoc-set-box-border-fringe ()
+    (interactive)
+    ;; (set-face-attribute
+    ;;  'eldoc-box-border nil
+    ;;  :background 'unspecified
+    ;;  :foreground 'unspecified
+    ;;  :inherit 'window-divider)
+    )
+  :bind
+  ("C-c h h" . eldoc-box-help-at-point)
   :config
   ;; (set-face-attribute
   ;;  'eldoc-box-body nil
   ;;  :background 'unspecified
   ;;  :foreground 'unspecified
   ;;  :inherit 'default)
-  ;;  TODO: do this on theme change
-  (set-face-attribute
-   'eldoc-box-border nil
-   :background 'unspecified
-   :foreground 'unspecified
-   :inherit 'border)
-  )
+  (eldoc-set-box-border-fringe))
 
 (use-package eglot
   :disabled
+  :demand
+  :straight
   :hook
   (eglot-managed-mode-hook . eglot-inlay-hints-mode)
+  (typescript-mode-hook . eglot-ensure)
+  (typescript-ts-mode-hook . eglot-ensure)
+  (tsx-ts-mode-hook . eglot-ensure)
+  (zig-mode-hook . eglot-ensure)
+  (haskell-mode-hook . eglot-ensure)
+  (rust-mode-hook . eglot-ensure)
+  (rust-ts-mode-hook . eglot-ensure)
   :custom
   (read-process-output-max (* 1024 1024 10))
-  (eglot-confirm-server-initiated-edits nil)
-  (eglot-stay-out-of '(yasnippet))
+  (eglot-autoshutdown t)
+  (eglot-extend-to-xref t)
+  (eglot-ignored-server-capabilities ())
+  (eglot-stay-out-of '(company))
   :bind
   (("C-c l l" . eglot)
    :map eglot-mode-map
@@ -1360,62 +1422,75 @@
    ("C-c l r" . eglot-rename)
    ("C-c l f" . eglot-format)
    ("C-c l e" . consult-flymake)
-   ("C-c l h" . eldoc-print-current-symbol-info)
-   ("C-c l o" . open-markdown-link)
-   :map haskell-mode-map
-   ("C-c l l" . eglot-turn-on-hls))
-  :preface
-  (defun eglot-turn-on-hls ()
-    (interactive)
-    (add-hook 'haskell-mode-hook #'eglot-ensure)
-    (call-interactively #'eglot))
-  (defun open-markdown-link (&rest _)
-    (interactive "P")
-    (let ((buffer-list-update-hook nil))
-      (-let [(buffer point) (if-let* ((valid (and (listp last-input-event)
-                                                  (eq (car last-input-event) 'mouse-2)))
-                                      (event (cadr last-input-event))
-                                      (win (posn-window event))
-                                      (buffer (window-buffer win)))
-                                `(,buffer ,(posn-point event))
-                              `(,(current-buffer) ,(point)))]
-        (with-current-buffer buffer
-          ;; Markdown-mode puts the url in 'help-echo
-          (-some--> (get-text-property point 'help-echo)
-            (and (string-match-p goto-address-url-regexp it)
-                 (browse-url it)))))))
+   ("C-c l h" . eldoc-print-current-symbol-info))
   :config
-  (fset #'eglot--snippet-expansion-fn #'ignore)
-  (require 'goto-addr)
-  (push '(haskell-mode . ("haskell-language-server" "--lsp")) eglot-server-programs)
+  ;; (fset #'eglot--snippet-expansion-fn #'ignore)
+  ;; (require 'goto-addr)
+  ;; (push '(haskell-mode . ("haskell-language-server" "--lsp")) eglot-server-programs)
   ;; corfu setup
+  (cl-defmethod project-root ((project (head eglot-project)))
+    (cdr project))
+  (defun my-project-try-tsconfig-json (dir)
+    (when-let* ((found (locate-dominating-file dir "tsconfig.json")))
+      (cons 'eglot-project found)))
+  (add-hook 'project-find-functions
+            'my-project-try-tsconfig-json nil nil)
+  (add-to-list 'eglot-server-programs
+               '((typescript-mode) "typescript-language-server" "--stdio"))
   (push '(eglot (styles orderless)) completion-category-overrides))
 
-(use-package consult-eglot
+(use-package flycheck-eglot
   :disabled
-  :bind
-  (:map eglot-mode-map
-   ("C-c l c" . consult-eglot-symbols)))
+  :config
+  (global-flycheck-eglot-mode))
 
-(use-package buffer-env)
+(use-package eglot-booster
+  :disabled
+  :straight (:host github
+             :repo "jdtsmith/eglot-booster")
+  :config
+  (eglot-booster-mode))
 
-;; This is to make `lsp-mode' work with `direnv' and pick up the correct
-;; version of GHC.
-;; (advice-add 'lsp :before #'direnv-update-environment)
+(use-package buffer-env
+  :disabled)
+
+(use-package yasnippet
+  :defer 0.5
+  :config
+  (yas-global-mode))
 
 (use-package lsp-mode
+  :defer 0.5
   :straight (lsp-mode
              :type git
              :flavor melpa
              :files (:defaults "clients/*.el" "lsp-mode-pkg.el")
              :host github
-             :repo "emacs-lsp/lsp-mode"
-             :build (:not compile))
-  :after corfu
+             :repo "emacs-lsp/lsp-mode")
   :preface
   (defun lsp-mode-setup-completion-for-corfu ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
   :hook
   (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
   (typescript-mode-hook . lsp-deferred)
@@ -1425,102 +1500,58 @@
   (haskell-mode-hook . lsp-deferred)
   (rust-mode-hook . lsp-deferred)
   (rust-ts-mode-hook . lsp-deferred)
+  (c-ts-mode-hook . lsp-deferred)
   :bind
   ("C-c l l" . lsp)
   :config
+  (set-face-attribute 'lsp-face-highlight-textual nil
+                      :inherit 'bold)
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
   (setq lsp-eslint-auto-fix-on-save t)
   (defun lsp--eslint-before-save (orig-fun)
     "Run lsp-eslint-apply-all-fixes and then run the original lsp--before-save."
-    (when lsp-eslint-auto-fix-on-save (lsp-eslint-fix-all))
+    (when (and lsp-eslint-auto-fix-on-save
+               (derived-mode-p '(typescript-mode typescript-ts-mode tsx-tx-mode)))
+      (lsp-eslint-fix-all))
     (funcall orig-fun))
   (advice-add 'lsp--before-save :around #'lsp--eslint-before-save)
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("nextls" "--stdio" ))
-                    :multi-root t
-                    ;; :initialization-options '(:experimental (:completions (:enable t))) ;; Enable the experimental completion mode
-                    :activation-fn (lsp-activate-on "elixir")
-                    :server-id 'next-ls))
-  :demand t
   :custom
   (lsp-keymap-prefix "C-c l")
   (lsp-enable-symbol-highlighting nil)
+  (lsp-symbol-highlighting-skip-current t)
   (lsp-modeline-code-actions-enable nil)
-  (lsp-lens-place-position 'above-line)
+  (lsp-lens-enable nil)
+  (lsp-lens-place-position 'end-of-line)
+  ;; (lsp-lens-place-position 'above-line)
   (lsp-prefer-capf t)
   (lsp-completion-provider :none) ; use corfu instead
   ;; (lsp-completion-provider :capf)
   (lsp-idle-delay 0.75)
-  ;; (lsp-inlay-hint-enable nil)
-  (lsp-enable-snippet nil)
+  (lsp-inlay-hint-enable t)
+  ;; (lsp-enable-snippet t)
   (lsp-headerline-breadcrumb-enable nil)
-  (lsp-semantic-tokens-enable nil)
+  (lsp-semantic-tokens-enable t)
   (read-process-output-max (* 1024 1024 10))
   (lsp-file-watch-threshold 512)
   (lsp-diagnostics-flycheck-default-level 'warning)
+  (lsp-modeline-diagnostics-enable nil)
+  (lsp-modeline-workspace-status-enable nil)
   (lsp-eldoc-enable-hover t)
-  (lsp-eldoc-render-all nil))
-
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+  (lsp-eldoc-render-all t))
 
 (use-package consult-lsp
   :bind
   (:map lsp-mode-map
-   ("C-c l c d" . consult-lsp-diagnostics)
-   ("C-c l c s" . consult-lsp-symbols)
-   ("C-c l c f" . consult-lsp-file-symbols)))
-
-(use-package dap-mode
-  :disabled
-  :custom
-  (dap-auto-configure-features '(sessions locals controls tooltip))
-  :hook
-  (dap-stopped-hook . (lambda (arg) (call-interactively #'dap-hydra)))
-  :config
-  (require 'dap-python)
-  (require 'dap-variables)
-  (require 'dap-gdb-lldb)
-  (dap-gdb-lldb-setup)
-  (require 'dap-cpptools)
-  (dap-cpptools-setup)
-  (require 'dap-chrome)
-  (dap-chrome-setup))
+   ("M-g f" . consult-lsp-diagnostics)))
 
 (use-package lsp-ui
   :disabled
-  :straight (lsp-ui
-             :type git
-             :flavor melpa
-             :files (:defaults "lsp-ui-doc.html" "resources" "lsp-ui-pkg.el")
-             :host github
-             :repo "emacs-lsp/lsp-ui"
-             :build (:not compile))
   :bind
   (:map lsp-ui-mode-map
    ("C-c l t s" . lsp-ui-sideline-toggle-symbols-info)
@@ -1530,12 +1561,12 @@
   (lsp-ui-doc-include-signature t)
   (lsp-ui-doc-show-with-cursor t)
   (lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-delay 1)
+  (lsp-ui-doc-delay 0.5)
   (lsp-ui-peek-enable nil)
   (lsp-ui-sideline-enable nil)
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-diagnostic-max-lines 10)
-  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-hover t)
   :preface
   (defun lsp-ui-open-docs-link-hack ()
     (interactive)
@@ -1555,65 +1586,44 @@
               (quit-windows-on lsp-help-buf-name)))
         (lsp--info "No content at point.")))))
 
-(use-package dape :disabled)
-
-(use-package treemacs
-  :disabled
+(use-package dape
+  :defer 1
   :custom
-  (treemacs-is-never-other-window t)
-  (treemacs-width 32)
+  (dape-buffer-window-arrangement 'right)
   :config
-  (treemacs-project-follow-mode))
-
-;; TODO: no icons for directories
-(use-package treemacs-all-the-icons
-  :disabled
-  :config
-  (treemacs-load-theme "all-the-icons"))
-
-(use-package treemacs-magit
-  :disabled)
-
-(use-package lsp-treemacs
-  :disabled
-  :config
-  (lsp-treemacs-sync-mode))
+  (repeat-mode))
 
 (use-package lsp-haskell
   :after lsp-mode
+  :defer 0.4
   :preface
   :custom
+  (lsp-haskell-plugin-class-code-lens-on nil)
   (lsp-haskell-formatting-provider "fourmolu")
   (lsp-haskell-plugin-pragmas-completion-on nil)
   (lsp-haskell-plugin-ghcide-completions-config-auto-extend-on nil)
-  (lsp-haskell-plugin-ghcide-completions-config-snippets-on nil)
-  :config
-  (setf (alist-get 'lsp-haskell-server-path safe-local-variable-values)
-        "haskell-language-server"))
+  (lsp-haskell-plugin-ghcide-completions-config-snippets-on nil))
 
-(use-package tuareg)
+(use-package tuareg
+  :defer t)
 
-(use-package merlin)
+(use-package merlin
+  :defer t)
 
-(use-package dune)
+(use-package dune
+  :defer t)
 
 (use-package eros
   :hook (emacs-lisp-mode-hook . eros-mode))
 
 (use-package sly
-  :demand
+  :defer t
   :custom
   ;; (sly-complete-symbol-function 'completion-at-point)
   (inferior-lisp-program "ros -Q run")
   ;; (inferior-lisp-program "sbcl --dynamic-space-size 8Gb")
   :config
   (setq-default sly-symbol-completion-mode nil))
-
-(use-package flycheck-clj-kondo)
-
-(use-package clojure-ts-mode
-  :straight (:host github
-             :repo "clojure-emacs/clojure-ts-mode"))
 
 (use-package cider
   :bind
@@ -1624,41 +1634,14 @@
    ("C-c C-p" . cider-inspect-last-sexp))
   :custom
   (cider-repl-display-help-banner nil)
-  (cider-enrich-classpath t)
-  :preface
-  (defun clerk/show ()
-    (interactive)
-    (when-let
-        ((filename
-          (buffer-file-name)))
-      (save-buffer)
-      (cider-interactive-eval
-       (concat "(nextjournal.clerk/show! \"" filename "\")"))))
-  ;; Leverage an existing cider nrepl connection to evaluate portal.api functions
-  ;; and map them to convenient key bindings.
-  ;; def portal to the dev namespace to allow dereferencing via @dev/portal
-  (defun portal.api/open ()
-    (interactive)
-    (cider-nrepl-sync-request:eval
-     "
-(do (ns dev)
-  (def portal ((requiring-resolve 'portal.api/open)))
-  (add-tap (requiring-resolve 'portal.api/submit)))"))
-  (defun portal.api/clear ()
-    (interactive)
-    (cider-nrepl-sync-request:eval "(portal.api/clear)"))
-  (defun portal.api/close ()
-    (interactive)
-    (cider-nrepl-sync-request:eval "(portal.api/close)"))
-  ;; NOTE: You do need to have portal on the class path and the easiest way I know
-  ;; how is via a clj user or project alias.
-  (setq cider-clojure-cli-global-options "-A:portal"))
+  (cider-enrich-classpath t))
 
 (use-package sayid
   :disabled
   :hook (clojure-mode-hook . sayid-setup-package))
 
-(use-package cider-eval-sexp-fu)
+(use-package cider-eval-sexp-fu
+  :after cider)
 
 (use-package clj-refactor
   :custom
@@ -1676,42 +1659,74 @@
   :disabled
   :hook (lisp-mode-hook . aggressive-indent-mode))
 
-(use-package rust-mode)
+(use-package rust-mode
+  :defer t)
 
-(use-package nasm-mode)
+(use-package nasm-mode
+  :defer t)
 
-(use-package typescript-mode)
+(use-package typescript-mode
+  :custom
+  (typescript-indent-level 2)
+  :defer t)
 
-(use-package markdown-mode)
+(use-package prisma-ts-mode
+  :after treesit
+  :config
+  (add-to-list
+   'treesit-language-source-alist
+   '(prisma "https://github.com/victorhqc/tree-sitter-prisma")))
 
-(use-package yaml-mode)
+(use-package markdown-mode
+  :defer t)
 
-(use-package yuck-mode)
+(use-package yaml-mode
+  :defer t)
 
-(use-package dockerfile-mode)
+(use-package yuck-mode
+  :defer t)
 
-(use-package nginx-mode)
+(use-package dockerfile-mode
+  :defer t)
 
-(use-package zig-mode)
+(use-package nginx-mode
+  :defer t)
 
-(use-package lua-mode)
+(use-package zig-mode
+  :defer t)
 
-(use-package graphql-mode)
+(use-package odin-mode
+  :straight (:host github :repo "mattt-b/odin-mode")
+  :hook (odin-mode-hook . lsp-deferred)
+  :config
+  (push '(odin-mode . "odin") lsp-language-id-configuration)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "ols")
+    			    :major-modes '(odin-mode)
+    			    :server-id 'ols
+                    ;; This is just so lsp-mode sends the "workspaceFolders" param to the server.
+    			    :multi-root t))
+  )
 
-(use-package forth-mode)
+(use-package lua-mode
+  :defer t)
 
-(use-package code-cells)
+(use-package graphql-mode
+  :defer t)
+
+(use-package forth-mode
+  :defer t)
 
 (use-package comint-mime
   :hook
   (inferior-python-mode-hook . comint-mime-mode))
 
 (use-package elixir-mode
-  :hook (elixir-mode-hook . lsp-deferred))
-;; (use-package alchemist
-;;   :hook
-;;   (elixir-ts-mode-hook . alchemist-mode)
-;;   (elixir-mode-hook . alchemist-mode))
+  ;; TODO: try out lexical-lsp
+  :hook
+  (elixir-ts-mode-hook . lsp-deferred)
+  (elixir-mode-hook . lsp-deferred)
+  )
 
 ;; (use-package erlang)
 (setq load-path (cons "/usr/lib/erlang/lib/tools-3.6/emacs" load-path))
@@ -1722,55 +1737,55 @@
   (exec-path (cons "/usr/lib/erlang/bin" exec-path))
   (erlang-man-root-dir "/usr/lib/erlang/man"))
 
-(use-package visible-mark
-  :config
-  (visible-mark-mode))
-
 (use-package treesit
+  :defer t
   :straight (:type built-in)
   :custom
-  (treesit-font-lock-level 4)
-  :config
-  (setq
-   treesit-extra-load-path
+  (treesit-font-lock-level 2)
+  (treesit-extra-load-path
    '("~/.tree-sitter/bin/"
      "~/.config/emacs/straight/build/tree-sitter-langs/bin/")))
 
 (use-package treesit-auto
+  :defer 1
   :straight
   (:host github
    :repo "renzmann/treesit-auto")
   :custom
   (treesit-auto-install t)
   :config
+  (delete 'typescript treesit-auto-langs)
+  (delete 'tsx treesit-auto-langs)
   (global-treesit-auto-mode))
 
 (use-package ligature
-  :straight (:host github
-             :repo "mickeynp/ligature.el")
+  :straight (:host github :repo "mickeynp/ligature.el")
+  :hook
+  (after-init-hook . global-ligature-mode)
   :config
-  ;; Iosevka ligatures
-  (defvar iosevka-ligatures
-    '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--"
-      ">=>" "<=<" "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>" "<!---"
-      "(*" "*)" "[|" "|]" "{|" "|}" "<." "<.>" ".>"
-      ":-->"
-      "</>" "</" "/>"
-      "<~~" "<~" "~>" "~~>" "::" ":::" "==" "!=" "===" "!==" ">>=" "=<<" "<>" ":>"
-      ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++"))
-  (ligature-set-ligatures 'prog-mode iosevka-ligatures))
+  (ligature-set-ligatures
+   'prog-mode
+   '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--" ":-->"
+     ">=>" "<=<" "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>" "<!---"
+     "(*" "*)" "[|" "|]" "{|" "|}" "<." "<.>" ".>"
+     "</>" "</" "/>"
+     "<~~" "<~" "~>" "~~>"
+     "::" ":::"
+     "==" "==="
+     "!=" "!=="
+     ">>=" "=<<"
+     "<>" ":>"
+     "<<" ">>"
+     ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>" "+:" "-:" "=:" "<******>" "++" "+++")))
 
 (use-package xah-math-input
   :bind
   ("C-c m i" . xah-math-input-change-to-symbol))
 
-(use-package nov)
-
 (use-package pdf-tools
-  ;; :custom
-  ;; (pdf-view-display-page 'fit-page)
+  :mode ("\\.pdf\\'" . pdf-view-mode)
   :config
-  (pdf-tools-install))
+  (pdf-tools-install t))
 
 (use-package tex-site
   :straight auctex
@@ -1793,8 +1808,11 @@
   (typescript-ts-mode-hook . apheleia-mode)
   (tsx-ts-mode-hook . apheleia-mode)
   (erlang-mode-hook . apheleia-mode)
-  :demand
+  (elixir-mode-hook . apheleia-mode)
+  (elixir-ts-mode-hook . apheleia-mode)
   :config
+  (setf (alist-get 'prettier-typescript apheleia-formatters)
+        '("apheleia-npx" "prettier" "--stdin-filepath" filepath "--parser=typescript"))
   (setf (alist-get 'cljstyle      apheleia-formatters) '("cljstyle" "pipe"))
   (setf (alist-get 'clojure-mode  apheleia-mode-alist) 'cljstyle)
   (setf (alist-get 'fourmolu      apheleia-formatters) '("fourmolu" file))
@@ -1802,64 +1820,28 @@
   (setf (alist-get 'rebar3-format apheleia-formatters) '("apheleia-from-project-root" "rebar.config" "rebar3" "format" filepath))
   (setf (alist-get 'erlang-mode   apheleia-mode-alist) 'rebar3-format))
 
-(use-package editorconfig
-  :config
-  (editorconfig-mode))
-
-(use-package rainbow-mode)
+(use-package rainbow-mode
+  :commands (rainbow-mode))
 
 ;; TODO: something's wrong with the font sizes, only 9 works
 (use-package screenshot
   :straight (:host github
              :repo "tecosaur/screenshot"
              :build (:not compile))
+  :commands (screenshot)
   :custom
   (screenshot-max-width 140))
 
-(use-package dotenv-mode)
+(use-package nix-mode
+  :defer t)
 
-(use-package nix-mode)
+(use-package sudo-edit
+  :commands (sudo-edit-find-file sudo-edit sudo-edit-current-file))
 
-(use-package pretty-sha-path
-  :config
-  (global-pretty-sha-path-mode))
-
-(use-package wombag
-  :straight (:host github
-             :repo "karthink/wombag")
-  :config
-  (let ((path "~/dotfiles/emacs/wombag-custom.el"))
-    (when (file-exists-p path)
-      (load path))))
-
-(use-package detached
-  ;; :disabled
-  :init
-  (detached-init)
-  :demand
-  ;; :bind
-  ;; ([remap async-shell-command] . detached-shell-command)
-  ;; ([remap compile] . detached-compile)
-  ;; ([remap recompile] . detached-compile-recompile)
-  ;; ([remap detached-open-session] . detached-consult-session)
-  :custom
-  (detached-show-output-on-attach t)
-  (detached-terminal-data-command system-type))
-
-(use-package sudo-edit)
-
-(use-package zoom
-  :custom
-  (zoom-size '(0.618 . 0.618)))
-
-(use-package alert
-  :demand t
-  :init
-  (setq alert-default-style 'notifications))
-
-(use-package rmsbolt)
-
-(use-package explain-pause-mode)
+(use-package jinx
+  :disabled
+  :hook
+  (emacs-startup-hook . global-jinx-mode))
 
 (provide 'init)
 ;;; init.el ends here
