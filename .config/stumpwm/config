@@ -2,11 +2,11 @@
 
 (in-package :stumpwm)
 
-(run-shell-command "~/.screenlayout/1.sh && eww open bar")
+(run-shell-command "~/.screenlayout/1.sh &")
 (run-shell-command "setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt &")
 (run-shell-command "redshift -l 50.4461248:30.5214979 -t 6500:3000 &")
 (run-shell-command "wired &")
-(run-shell-command "compfy --config ~/.config/compton.conf &")
+(run-shell-command "picom --config ~/dotfiles/.config/compton.conf &")
 (run-shell-command "~/dotfiles/scripts/to-light-theme.sh &")
 (run-shell-command "XDG_CURRENT_DESKTOP=stumpwm /usr/lib/xdg-desktop-portal --replace &")
 
@@ -15,34 +15,31 @@
 (load-module "ttf-fonts")
 (load-module "globalwindows")
 
-;; That is slow as hell, so I run it in a thread
 (defun setup-font-and-cache ()
-  (xft:cache-fonts)
-  (set-font (make-instance 'xft:font
-                           :family "Iosevka Comfy Motion Duo"
-                           :subfamily "Regular"
-                           :size 12)))
+  (handler-case
+      (set-font (make-instance 'xft:font
+                               :family "CommitMono"
+                               :subfamily "Regular"
+                               :size 11))
+    (simple-error (e)
+      (message "Font not found, recalculating the font cache")
+      (xft:cache-fonts))))
+;; That is slow as hell if I need to compute the cache, so I run it in a thread
 (sb-thread:make-thread #'setup-font-and-cache)
 
-;; Head gaps run along the 4 borders of the monitor(s)
-;; Inner gaps run along all the 4 borders of a window
-;; Outer gaps add more padding to the outermost borders of a window
-;; touching the screen border
-;; Note that I'm using a version of swm-gaps with outer gaps per side hacked in
+;; I'm using a version of swm-gaps with outer gaps per side hacked in
 (setf swm-gaps:*head-gaps-size* 0
       swm-gaps:*inner-gaps-size* 5
       swm-gaps:*outer-gaps-top-size* 10
-      swm-gaps:*outer-gaps-bottom-size* 30
+      swm-gaps:*outer-gaps-bottom-size* 20
       swm-gaps:*outer-gaps-left-size* 30
       swm-gaps:*outer-gaps-right-size* 30)
 ;; (swm-gaps:toggle-gaps)
 
-;; TODO: reverse on theme change
 (set-focus-color "Black")
 (set-unfocus-color "White")
-
-(set-focus-color "White")
 (set-float-focus-color "White")
+
 (setf *mouse-focus-policy* :click
       *window-border-style* :thin
       *maxsize-border-width* 1
@@ -72,20 +69,12 @@
      (define-key *top-map* select-key select-cmd)
      (define-key *top-map* move-key move-cmd))
 
-;; (setf *window-placement-rules* nil)
-(define-frame-preference "1"
-  ;; Can I make it float
-  (0 t t :class "firefox"))
-(define-frame-preference "9"
-  ;; Can I make it float
-  (0 nil nil :class "TelegramDesktop"))
-
 ;; I want something to auto-balance the windows
 ;; and ergonomic resizes
 
-(define-key *top-map* (kbd "s-Return") "exec kitty -e nu")
-(define-key *top-map* (kbd "s-e") "exec emacsclient -c -a=''")
-(define-key *top-map* (kbd "s-d") "exec rofi -show run")
+(define-key *top-map* (kbd "s-Return") "exec wezterm -e fish")
+(define-key *top-map* (kbd "s-e") "exec emacs")
+(define-key *top-map* (kbd "s-d") "exec rofi -show run -show-icons")
 (define-key *top-map* (kbd "s-b") "toggle-eww")
 (define-key *top-map* (kbd "s-x") "delete")
 (define-key *top-map* (kbd "s-i") "fnext")
@@ -94,21 +83,21 @@
 (define-key *top-map* (kbd "s-s") "fullscreen")
 (define-key *top-map* (kbd "s-l") "hsplit")
 (define-key *top-map* (kbd "s-L") "vsplit")
-;; (define-key *top-map* (kbd "s-m") "swap-with-master")
 (define-key *top-map* (kbd "XF86AudioPause") "exec playerctl pause")
 (define-key *top-map* (kbd "XF86AudioPlay") "exec playerctl play")
 (define-key *top-map* (kbd "XF86AudioLowerVolume") "exec pactl -- set-sink-volume 0 -5%")
 (define-key *top-map* (kbd "XF86AudioRaiseVolume") "exec pactl -- set-sink-volume 0 +5%")
 (define-key *top-map* (kbd "XF86AudioMute") "exec pactl set-sink-mute 0 toggle")
+(define-key *top-map* (kbd "s-Tab") "global-windowlist")
+(define-key *top-map* (kbd "s-j") "global-pull-windowlist")
 
 (set-prefix-key (kbd "s-o"))
-(define-key *root-map* (kbd "w") "raise-firefox")
+(define-key *root-map* (kbd "w") "raise-chromium")
 (define-key *root-map* (kbd "t") "raise-telegram")
 (define-key *root-map* (kbd "e") "raise-emacs")
 (define-key *root-map* (kbd "s") "maim-region")
 (define-key *root-map* (kbd "s-s") "maim-app")
 (define-key *root-map* (kbd "p") "exec pass clip -r")
-(define-key *root-map* (kbd "j") "global-windowlist")
 
 (defcommand toggle-float-this () ()
   (if (typep (current-window) 'float-window)
@@ -128,7 +117,6 @@
   (define-key map (kbd "d") "to-dark-theme")
   (define-key map (kbd "y") "exec sh ~/dotfiles/scripts/xclip-yt-dlp.sh")
   (define-key map (kbd "k") "exec setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt")
-  (define-key map (kbd "c") "exec eww close calendar || eww open calendar")
   (define-key map (kbd "t") "toggle-comfy-gaps")
   (define-key map (kbd "C-t") "toggle-gaps")
   (define-key map (kbd "w") "exec cd ~/code/core-contracts && make emacs")
@@ -152,10 +140,10 @@
   (run-or-raise "telegram-desktop" '(:class "TelegramDesktop")))
 
 (defcommand raise-emacs () ()
-  (run-or-raise "emacsclient -c -a=''" '(:class "Emacs")))
+  (run-or-raise "emacs" '(:class "Emacs")))
 
-(defcommand raise-firefox () ()
-  (run-or-raise "firefox" '(:class "firefox")))
+(defcommand raise-chromium () ()
+  (run-or-raise "chromium" '(:class "Chromium")))
 
 (defcommand toggle-eww () ()
   (if (head-mode-line (current-head))
@@ -164,6 +152,7 @@
 
 (defcommand to-light-theme () ()
   (set-focus-color "Black")
+  (set-float-focus-color "Black")
   (set-unfocus-color "White")
   (run-shell-command "~/dotfiles/scripts/to-light-theme.sh")
   (when (head-mode-line (current-head))
@@ -172,6 +161,7 @@
 
 (defcommand to-dark-theme () ()
   (set-focus-color "White")
+  (set-float-focus-color "White")
   (set-unfocus-color "Black")
   (run-shell-command "~/dotfiles/scripts/to-dark-theme.sh")
   (when (head-mode-line (current-head))
@@ -179,7 +169,7 @@
   (run-shell-command "sleep 0.5 && eww open bar &"))
 
 (define-remapped-keys
-    '(("(.*[Ff]irefox|TelegramDesktop)"
+    '(("(.*[Cc]hromium|[Ff]irefox|TelegramDesktop)"
        ("M-w"   . "C-c")
        ("C-y"   . "C-v")
        ("C-s"   . "C-f")
@@ -203,3 +193,5 @@
   :port 43232
   :style slynk:*communication-style*
   :dont-close t)
+
+(run-shell-command "eww open bar &")
