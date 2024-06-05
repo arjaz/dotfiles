@@ -1,2 +1,8 @@
-# [character]
-# success_symbol = '[>](bold green)'
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$cmd_duration\
+$line_break\
+$character"""
