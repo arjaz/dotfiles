@@ -1,3 +1,8 @@
+;; TODO: get the router connection as well
+
+(defpoll internet :interval "1.5s"
+  "scripts/getinternet")
+
 (defpoll volume :interval "0.1s"
   "scripts/getvol")
 
@@ -26,6 +31,7 @@
 
 (defwidget sidestuff []
   (box :class "sidestuff" :orientation "h" :space-evenly false :halign "end"
+    (internet)
     (music)
     (metric :label ""
             :value {volume != "" ? volume : "50"}
@@ -35,6 +41,13 @@
   (eventbox :onclick "eww close calendar || eww open calendar"
     (box :class "timestuff" :orientation "h" :space-evenly false :halign "center"
      date)))
+
+(defwidget internet []
+  (box :class "internet"
+       :orientation "h"
+       :space-evenly false
+       :halign "center"
+    {internet == "1 received" ? "" : "no internet |"}))
 
 (defwidget music []
   (eventbox :onclick "playerctl play-pause"
@@ -91,7 +104,7 @@
 
 (defwindow calendar
   :geometry (geometry :x "-10px"
-					  :y "1%"
+					  :y "21px"
                       :anchor "top center"
 					  :width "270px"
 					  :height "60px")

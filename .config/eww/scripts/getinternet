@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+rec=$(ping 8.8.8.8 -c 1 -w 1 | grep -e "1 received" -o)
+echo $rec
