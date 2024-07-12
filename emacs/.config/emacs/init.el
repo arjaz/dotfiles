@@ -46,6 +46,11 @@
   :config
   (setq-default tab-width 4))
 
+(use-package compile
+  :straight (:type built-in)
+  :bind
+  ("C-c r" . recompile))
+
 (use-package auth-source
   :defer 0.2
   :straight (:type built-in))
