@@ -706,7 +706,7 @@
 
 (use-package elec-pair
   :straight (:type built-in)
-  :disabled
+  ;; :disabled
   :hook (prog-mode-hook . electric-pair-mode))
 
 (use-package wrap-region
