@@ -133,6 +133,13 @@
       (end-of-line)
       (default-indent-new-line nil t)))))
 
+(use-package drag-stuff
+  :bind
+  ("M-<down>" . drag-stuff-down)
+  ("M-<up>" . drag-stuff-up)
+  :config
+  (drag-stuff-global-mode))
+
 (use-package paren
   :custom
   (show-paren-when-point-in-periphery t))
