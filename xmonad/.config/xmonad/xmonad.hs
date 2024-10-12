@@ -19,8 +19,6 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.OneBig
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
-import XMonad.Layout.Tabbed
-import XMonad.Layout.TwoPane
 import qualified XMonad.StackSet as W
 import XMonad.Util.EZConfig (
     additionalKeys,
@@ -85,12 +83,12 @@ screenshotFilename = "\"~/pictures/screenshots/screen-%Y-%m-%d-%T.png\""
 
 myAdditionalKeysP :: [(String, X ())]
 myAdditionalKeysP =
-    [ ("M-h", windows W.focusDown)
+    [ ("M-c", windows W.focusDown)
     , ("M-i", windows W.focusUp)
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "chromium" (className =? "chromium"))
+    , ("M-o w", runOrRaise "chromium" (className =? "Chromium"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o e", runOrRaise "emacs" (className =? "Emacs"))
     , ("M-e", spawn "emacs")
@@ -110,7 +108,7 @@ myAdditionalKeysP =
     , ("M-o s", spawn "maim -m 10 -s | xclip -selection clipboard -t image/png")
     , ("M-o M-S-s", spawn $ "maim " <> screenshotFilename)
     , ("M-o S-s", spawn $ "maim -s " <> screenshotFilename)
-    , ("S-M-h", sendMessage Expand)
+    , ("S-M-c", sendMessage Expand)
     , ("S-M-i", sendMessage Shrink)
     , ("M-m", windows W.swapMaster)
     , ("M-x", kill)
@@ -147,13 +145,12 @@ myManageHook =
 myLayoutHook :: Choose _ _ Window
 myLayoutHook =
     fancy ||| fancyCentral
-    -- ||| simpleTabbed ||| TwoPane
   where
     fancy =
         avoidStruts
             -- . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
             . smartBorders -- TODO: use lessBorders
-            . smartSpacing spacingSize
+            -- . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
     fancyCentral =
@@ -182,8 +179,9 @@ startupCommands =
     , -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
       "XDG_CURRENT_DESKTOP=xmonad /usr/lib/xdg-desktop-portal --replace &"
-    , "~/dotfiles/scripts/to-light-theme.sh &"
+    , "~/dotfiles/scripts/dbus-monitor.sh > /dev/null &"
     , "~/.screenlayout/1.sh &"
+    , "~/dotfiles/scripts/to-light-theme.sh &"
     ]
 
 myStartupHook :: X ()
