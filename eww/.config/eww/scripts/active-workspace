@@ -1,3 +1,0 @@
-#!/bin/sh
-
-wmctrl -d | awk '{ if ($2=="*") print $1}'

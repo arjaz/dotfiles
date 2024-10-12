@@ -1,3 +1,0 @@
-#!/bin/sh
-
-wmctrl -l | cut -f3 -d" " | sort -u | tr '\n' ' '
