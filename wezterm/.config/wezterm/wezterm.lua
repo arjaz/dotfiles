@@ -3,20 +3,20 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 if wezterm.gui.get_appearance():find "Dark" then
-   config.color_scheme = 'Tomorrow Night'
+   config.color_scheme = 'Modus-Vivendi'
 else
    config.color_scheme = 'Modus-Operandi-Tinted'
 end
 
 config.window_padding = {
-  left = 2,
-  right = 2,
-  top = 2,
-  bottom = 2,
+  left = 5,
+  right = 5,
+  top = 5,
+  bottom = 5,
 }
 
-config.font = wezterm.font("Iosevka")
-config.font_size = 12.0
+config.font = wezterm.font("Iosevka Arjaz Extended")
+config.font_size = 14.0
 
 config.hide_tab_bar_if_only_one_tab = true
 
