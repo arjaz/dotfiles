@@ -3,10 +3,15 @@
 
 (setq package-enable-at-startup nil)
 
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+(push '(menu-bar-lines . 0)   default-frame-alist)
+(push '(tool-bar-lines . 0)   default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+(push '(horizontal-scroll-bars) default-frame-alist)
+(setq tool-bar-mode nil
+      scroll-bar-mode nil
+      menu-bar-mode nil)
 (tooltip-mode -1)
-(scroll-bar-mode -1)
+(horizontal-scroll-bar-mode -1)
 
 (defvar bootstrap-version)
 (setq straight-check-for-modifications '(watch-files))
@@ -35,58 +40,32 @@
   :custom
   (savehist-file (concat user-emacs-directory "savehist"))
   (savehist-save-minibuffer-history t)
+  (history-length 100)
+  (history-delete-duplicates t)
   :config
   (savehist-mode)
   (push 'use-dark-theme-p savehist-additional-variables)
   (push 'the-font-height savehist-additional-variables))
 
-(use-package solaire-mode
-  :commands (solaire-global-mode))
-(use-package doom-themes
-  :defer t
+(use-package saveplace
+  :straight (:type built-in)
   :custom
-  (doom-themes-enable-bold nil)
-  (doom-themes-enable-italic nil))
+  (save-place-file (expand-file-name "saveplace" user-emacs-directory))
+  (save-place-limit 600)
+  :config
+  (save-place-mode))
 
 (use-package modus-themes
   :defer t
-  :preface
-  (defun my-modus-themes-custom-faces (&rest _)
-    (modus-themes-with-colors
-      (custom-set-faces
-       `(solaire-default-face ((,c :inherit default :background ,bg-dim :foreground ,fg-dim)))
-       `(solaire-line-number-face ((,c :inherit solaire-default-face :foreground ,fg-dim)))
-       `(solaire-hl-line-face ((,c :background ,bg-active)))
-       `(solaire-org-hide-face ((,c :background ,bg-dim :foreground ,bg-dim))))))
   :custom
-  (modus-operandi-palette-overrides
-   '((bg-paren-match bg-dim)
-     (preprocessor green-faint)
-     (string green-faint)
-     (keyword blue-faint)
-     (bg-region fg-dim)
-     (fg-region bg-main)))
   (modus-operandi-tinted-palette-overrides
    '((bg-paren-match bg-green-nuanced)
-     (keyword cyan-faint)
-     ;; (preprocessor blue-faint)
-     (string green)))
-  (modus-vivendi-palette-overrides
-   '((fg-main "#e0e0e0")
-     ;; (bg-main "#111111")
-     (bg-main "#1d1f21")
-     ;; (preprocessor fg)
-     (keyword cyan-faint)
-     (bg-paren-match fg-dim)
-     (string green-faint)
-     (bg-region fg-dim)
-     (fg-region bg-main)))
-  (modus-themes-common-palette-overrides
-   '((border-mode-line-active unspecified)
-     (border-mode-line-inactive unspecified)
-     (fringe unspecified)
-     (bg-mode-line-active bg)
-     (bg-mode-line-inactive bg)
+     (bg-region bg-blue-subtle)
+     (fg-region fg-main)
+     (string fg-main)
+     (keyword fg-main)
+     (docstring fg-main)
+     (docmarkup fg-main)
      (bg-hover bg-magenta-nuanced)
      (bg-search-current bg-yellow-nuanced)
      (bg-search-lazy bg-cyan-nuanced)
@@ -94,10 +73,51 @@
      (bg-search-rx-group-0 bg-blue-nuanced)
      (bg-search-rx-group-1 bg-green-nuanced)
      (bg-search-rx-group-2 bg-red-subtle)
-     (bg-search-rx-group-3 bg-magenta-subtle)
-     (bg-region bg-green-nuanced)
-     (fg-region unspecified)
+     (bg-search-rx-group-3 bg-magenta-subtle)))
+  (modus-vivendi-palette-overrides
+   '((fg-main "#d4d4d4")
+     (bg-main "#1e1e1e")
+     ;; (bg-main "#111111")
+     (string fg-main)
+     (keyword fg-main)
+     (bg-paren-match fg-dim)
+     (string cyan-faint)
+     (docstring fg-main)
+     (docmarkup fg-main)
+     (bg-region fg-dim)
+     (fg-region bg-main)
+     (bg-hover bg-magenta-intense)
+     (bg-search-current bg-yellow-intense)
+     (bg-search-lazy bg-cyan-intense)
+     (bg-search-replace bg-red-intense)
+     (bg-search-rx-group-0 bg-blue-intense)
+     (bg-search-rx-group-1 bg-green-intense)
+     (bg-search-rx-group-2 bg-red-subtle)
+     (bg-search-rx-group-3 bg-magenta-subtle)))
+  (modus-themes-common-palette-overrides
+   '((border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (fringe unspecified)
+     (keybind cyan-faint)
+     (accent-0 cyan-faint)
+     (accent-1 yellow-faint)
+     (accent-2 blue-faint)
+     (accent-3 red-faint)
+     (fg-prompt cyan-faint)
+     (rx-construct cyan-faint)
+     (rx-backslash magenta-faint)
+     (bg-mode-line-active bg)
+     (bg-mode-line-inactive bg)
+     (date-common fg-main)
+     (date-deadline fg-main)
+     (date-event fg-main)
+     (date-holiday fg-main)
+     (date-now fg-main)
+     (date-scheduled fg-main)
+     (date-weekday fg-main)
+     (date-weekend fg-main)
      (docstring fg-dim)
+     (docmarkup fg-dim)
      (comment fg-dim)
      (preprocessor fg-main)
      (constant fg-main)
@@ -118,44 +138,36 @@
   (interactive)
   (setq use-dark-theme-p t)
   (mapcar #'disable-theme custom-enabled-themes)
-  (load-theme dark-theme t)
-  (solaire-global-mode t))
+  (load-theme dark-theme t))
 (defun load-light-theme ()
   "Load the saved light theme."
   (interactive)
   (setq use-dark-theme-p nil)
   (mapcar #'disable-theme custom-enabled-themes)
-  (load-theme light-theme t)
-  ;; (my-modus-themes-custom-faces)
-  ;; (set-face-attribute font-lock-keyword-face nil
-  ;;                     :weight 'semibold)
-  ;; (solaire-global-mode t)
-  )
+  (load-theme light-theme t))
 (defvar use-dark-theme-p t)
 
-(setq the-font "Iosevka")
-(setq the-nice-font "Iosevka")
-(setq the-font-height 110)
+(setq the-font "Iosevka Arjaz Extended")
+(setq the-nice-font "Iosevka Arjaz Extended")
+(setq the-font-height 120)
+(setq-default line-spacing nil)
+(set-face-attribute 'default
+                    nil
+                    :family the-font
+                    :height the-font-height)
+(set-face-attribute 'fixed-pitch-serif
+                    nil
+                    :family the-font
+                    :height the-font-height)
+(set-face-attribute 'fixed-pitch
+                    nil
+                    :family the-font
+                    :height the-font-height)
+(set-face-attribute 'variable-pitch
+                    nil
+                    :family the-nice-font
+                    :height the-font-height)
 
-(add-hook
- 'before-make-frame-hook
- (lambda ()
-   (set-face-attribute 'default
-                       nil
-                       :family the-font
-                       :height the-font-height)
-   (set-face-attribute 'fixed-pitch-serif
-                       nil
-                       :family the-font
-                       :height the-font-height)
-   (set-face-attribute 'fixed-pitch
-                       nil
-                       :family the-font
-                       :height the-font-height)
-   (set-face-attribute 'variable-pitch
-                       nil
-                       :family the-nice-font
-                       :height the-font-height)
-   (if use-dark-theme-p
-       (load-dark-theme)
-     (load-light-theme))))
+(if use-dark-theme-p
+    (load-dark-theme)
+  (load-light-theme))

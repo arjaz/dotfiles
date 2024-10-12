@@ -3,7 +3,6 @@ backups/
 bookmarks
 .cache/
 detached/
-devdocs/
 eln-cache/
 eshell/
 .extension/
@@ -23,3 +22,5 @@ undo-fu-session/
 url/
 wombag/
 debug-adapters/
+tmp/
+saveplace
