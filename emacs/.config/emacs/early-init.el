@@ -75,7 +75,8 @@
      (bg-search-rx-group-2 bg-red-subtle)
      (bg-search-rx-group-3 bg-magenta-subtle)))
   (modus-vivendi-palette-overrides
-   '((fg-main "#d4d4d4")
+   '((fg-main "#f4f4f4")
+     (fg-dim "#aeafad")
      (bg-main "#1e1e1e")
      ;; (bg-main "#111111")
      (string fg-main)
