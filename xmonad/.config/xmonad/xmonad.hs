@@ -88,7 +88,7 @@ myAdditionalKeysP =
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "chromium" (className =? "Chromium"))
+    , ("M-o w", runOrRaise "zen-browser" (className =? "zen-alpha"))
     , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
     , ("M-o e", runOrRaise "emacs" (className =? "Emacs"))
     , ("M-e", spawn "emacs")
@@ -113,7 +113,7 @@ myAdditionalKeysP =
     , ("M-m", windows W.swapMaster)
     , ("M-x", kill)
     , ("M-<Tab>", spawn $ "rofi -show window")
-    , ("M-b", spawn $ "pgrep -x \"polybar\" && pkill polybar || polybar.sh")
+    , ("M-b", spawn $ "pgrep -x \"polybar\" && pkill polybar || ~/dotfiles/scripts/polybar.sh")
     , ("M-j", bringMenuConfig def { menuCommand = "rofi", menuArgs = ["-dmenu"] })
     ,
         ( "M-s"
@@ -126,7 +126,7 @@ myAdditionalKeysP =
 myAdditionalKeys :: [((KeyMask, KeySym), X ())]
 myAdditionalKeys =
     [((mask, key), windows $ W.greedyView ws) | (key, ws) <- myWorkspaces]
-        <> [((mask .|. shiftMask, key), windows $ W.shift ws) | (key, ws) <- myWorkspaces]
+        <> [((mask .|. mod1Mask, key), windows $ W.shift ws) | (key, ws) <- myWorkspaces]
 
 myManageHook :: Query (Endo WindowSet)
 myManageHook =
@@ -180,7 +180,6 @@ startupCommands =
       --       systemd's --user service doesn't work for some reason
       "XDG_CURRENT_DESKTOP=xmonad /usr/lib/xdg-desktop-portal --replace &"
     , "~/dotfiles/scripts/dbus-monitor.sh > /dev/null &"
-    , "~/.screenlayout/1.sh &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
     ]
 
