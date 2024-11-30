@@ -237,7 +237,8 @@
   :custom
   (custom-file (concat user-emacs-directory "garbage.el"))
   :config
-  (load custom-file nil 'nomessage))
+  (when (file-exists-p custom-file)
+    (load custom-file nil 'nomessage)))
 
 (use-package autorevert
   :straight (:type built-in)
@@ -1062,7 +1063,7 @@ finding the executable with variable `exec-path'."
      			    :multi-root t))
   :custom
   ;; a SPICY take
-  (lsp-completion-enable nil)
+  (lsp-completion-enable t)
   (lsp-keymap-prefix "C-c l")
   (lsp-enable-symbol-highlighting nil)
   (lsp-symbol-highlighting-skip-current t)
