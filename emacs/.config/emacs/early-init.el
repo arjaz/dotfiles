@@ -159,6 +159,8 @@
   (load-theme light-theme t))
 (defvar use-dark-theme-p t)
 
+(setq ring-bell-function 'ignore)
+
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
   (setq the-font "Iosevka")
