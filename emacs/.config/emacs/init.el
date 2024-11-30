@@ -1200,13 +1200,13 @@ finding the executable with variable `exec-path'."
 (use-package elixir-mode
   :mode ("\\.heex\\'" . heex-ts-mode))
 
-(add-to-list 'load-path "/usr/lib/erlang/lib/tools-4.1/emacs")
-(use-package erlang-start
-  :straight (:type built-in)
-  :custom
-  (erlang-root-dir "/usr/lib/erlang/")
-  (exec-path (cons "/usr/lib/erlang/bin" exec-path))
-  (erlang-man-root-dir "/usr/lib/erlang/man"))
+;; (add-to-list 'load-path "/usr/lib/erlang/lib/tools-4.1/emacs")
+;; (use-package erlang-start
+;;   :straight (:type built-in)
+;;   :custom
+;;   (erlang-root-dir "/usr/lib/erlang/")
+;;   (exec-path (cons "/usr/lib/erlang/bin" exec-path))
+;;   (erlang-man-root-dir "/usr/lib/erlang/man"))
 
 (use-package treesit
   :defer t
