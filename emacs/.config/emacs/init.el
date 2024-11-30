@@ -1033,11 +1033,11 @@
   ("C-c l l" . lsp)
   :config
   (advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
   (set-face-attribute 'lsp-face-highlight-textual nil
                       :inherit 'bold)
@@ -1050,7 +1050,8 @@
   (defun lsp--eslint-before-save (orig-fun)
     "Run lsp-eslint-apply-all-fixes and then run the original lsp--before-save."
     (when (and lsp-eslint-auto-fix-on-save
-               (derived-mode-p '(typescript-ts-mode tsx-tx-mode)))
+               (or (derived-mode-p 'typescript-ts-mode)
+                   (derived-mode-p 'tsx-ts-mode)))
       (lsp-eslint-fix-all))
     (funcall orig-fun))
   (advice-add 'lsp--before-save :around #'lsp--eslint-before-save)
@@ -1158,6 +1159,7 @@ finding the executable with variable `exec-path'."
   :defer t)
 
 (use-package prisma-ts-mode
+  ;; :disabled
   :after treesit
   :config
   (add-to-list
