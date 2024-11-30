@@ -262,7 +262,7 @@
   (display-buffer-alist
    '(("\\*\\(compilation\\|Async\\)\\*"
       (display-buffer-in-side-window)
-      (side . bottom)
+      (side . right)
       (slot . 1))
      ("\\magit:"
       (display-buffer-same-window))
