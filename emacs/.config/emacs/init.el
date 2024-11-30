@@ -1132,6 +1132,7 @@ finding the executable with variable `exec-path'."
   :after lsp-mode
   :preface
   :custom
+  (lsp-haskell-server-path "haskell-language-server")
   (lsp-haskell-plugin-class-code-lens-on nil)
   (lsp-haskell-formatting-provider "fourmolu")
   (lsp-haskell-plugin-pragmas-completion-on nil)
