@@ -834,8 +834,8 @@
   :defer t
   :custom
   (flycheck-indication-mode nil)
-  ;; (flycheck-highlighting-mode 'symbols)
-  (flycheck-highlighting-mode nil)
+  (flycheck-highlighting-mode 'symbols)
+  ;; (flycheck-highlighting-mode nil)
   (flycheck-check-syntax-automatically '(save idle-change mode-enable))
   ;; (flycheck-error-list-format
   ;;  [("Level" 8 flycheck-error-list-entry-level-<)
@@ -872,6 +872,21 @@
   ;; I want it to be shown on a bottom corner the most removed from the pos
   (flycheck-posframe-position 'window-bottom-right-corner)
   (flycheck-posframe-border-width 1))
+
+(use-package sideline
+  :hook
+  (flycheck-mode-hook . sideline-mode)
+  ;; (eldoc-mode-hook . sideline-mode)
+  :custom
+  (sideline-backends-right '(sideline-flycheck ;; sideline-eldoc
+                                               )))
+(use-package sideline-flycheck
+  :hook (flycheck-mode-hook . sideline-flycheck-setup))
+(use-package sideline-eldoc
+  :straight
+  (:host github :repo "ginqi7/sideline-eldoc")
+  :custom
+  (sideline-eldoc-documentation nil))
 
 (use-package eldoc
   :bind
