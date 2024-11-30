@@ -15,10 +15,19 @@
 
 (defvar bootstrap-version)
 (setq straight-check-for-modifications '(watch-files))
-(let ((bootstrap-file (expand-file-name
-                       "straight/repos/straight.el/bootstrap.el"
-                       user-emacs-directory))
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
       (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 (defvar use-package-enable-imenu-support t)
 (setq straight-use-package-by-default t)
@@ -58,8 +67,10 @@
 (use-package modus-themes
   :defer t
   :custom
-  (modus-operandi-tinted-palette-overrides
-   '((bg-paren-match bg-green-nuanced)
+  (modus-operandi-palette-overrides
+   '(;; (bg-main "#f6f8fa")
+     ;; (fg-main "#24292f")
+     (bg-paren-match bg-green-nuanced)
      (bg-region bg-blue-subtle)
      (fg-region fg-main)
      (string fg-main)
@@ -75,9 +86,9 @@
      (bg-search-rx-group-2 bg-red-subtle)
      (bg-search-rx-group-3 bg-magenta-subtle)))
   (modus-vivendi-palette-overrides
-   '((fg-main "#f4f4f4")
-     (fg-dim "#aeafad")
-     (bg-main "#1e1e1e")
+   '(;; (fg-main "#f4f4f4")
+     ;; (fg-dim "#aeafad")
+     ;; (bg-main "#1e1e1e")
      ;; (bg-main "#111111")
      (string fg-main)
      (keyword fg-main)
@@ -132,7 +143,7 @@
 (custom-set-faces
  '(region ((t :extend nil))))
 
-(setq light-theme 'modus-operandi-tinted)
+(setq light-theme 'modus-operandi)
 (setq dark-theme 'modus-vivendi)
 (defun load-dark-theme ()
   "Load the saved dark theme."
@@ -148,26 +159,29 @@
   (load-theme light-theme t))
 (defvar use-dark-theme-p t)
 
-(setq the-font "Iosevka Arjaz Extended")
-(setq the-nice-font "Iosevka Arjaz Extended")
-(setq the-font-height 120)
-(setq-default line-spacing nil)
-(set-face-attribute 'default
-                    nil
-                    :family the-font
-                    :height the-font-height)
-(set-face-attribute 'fixed-pitch-serif
-                    nil
-                    :family the-font
-                    :height the-font-height)
-(set-face-attribute 'fixed-pitch
-                    nil
-                    :family the-font
-                    :height the-font-height)
-(set-face-attribute 'variable-pitch
-                    nil
-                    :family the-nice-font
-                    :height the-font-height)
+(defun set-fonts (font-height)
+  (interactive "nFont height: ")
+  (setq the-font "Iosevka")
+  (setq the-nice-font "Iosevka")
+  (setq the-font-height font-height)
+  (setq-default line-spacing nil)
+  (set-face-attribute 'default
+                      nil
+                      :family the-font
+                      :height the-font-height)
+  (set-face-attribute 'fixed-pitch-serif
+                      nil
+                      :family the-font
+                      :height the-font-height)
+  (set-face-attribute 'fixed-pitch
+                      nil
+                      :family the-font
+                      :height the-font-height)
+  (set-face-attribute 'variable-pitch
+                      nil
+                      :family the-nice-font
+                      :height the-font-height))
+(set-fonts 140)
 
 (if use-dark-theme-p
     (load-dark-theme)
