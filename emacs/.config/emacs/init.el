@@ -303,6 +303,7 @@
    ([remap split-window-right] . split-window-right+switch)))
 
 (use-package spacious-padding
+  :disabled
   :custom
   (spacious-padding-subtle-mode-line t)
   :config
