@@ -5,7 +5,7 @@ local config = wezterm.config_builder()
 if wezterm.gui.get_appearance():find "Dark" then
    config.color_scheme = 'Modus-Vivendi'
 else
-   config.color_scheme = 'Modus-Operandi-Tinted'
+   config.color_scheme = 'Modus-Operandi'
 end
 
 config.window_padding = {
@@ -15,7 +15,7 @@ config.window_padding = {
   bottom = 5,
 }
 
-config.font = wezterm.font("Iosevka Arjaz Extended")
+config.font = wezterm.font("Iosevka Extended")
 config.font_size = 14.0
 
 config.hide_tab_bar_if_only_one_tab = true
