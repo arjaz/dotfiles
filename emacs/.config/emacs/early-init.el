@@ -1,5 +1,5 @@
-;; Make sure to use emacs lsp booster
-(setenv "LSP_USE_PLISTS" "true")
+;; -*- lexical-binding: t; -*-
+;; (setenv "LSP_USE_PLISTS" "true")
 
 (setq package-enable-at-startup nil)
 
@@ -14,7 +14,7 @@
 (horizontal-scroll-bar-mode -1)
 
 (defvar bootstrap-version)
-(setq straight-check-for-modifications '(watch-files))
+(setq straight-check-for-modifications '())
 (let ((bootstrap-file
        (expand-file-name
         "straight/repos/straight.el/bootstrap.el"
@@ -64,127 +64,66 @@
   :config
   (save-place-mode))
 
-(use-package modus-themes
-  :defer t
-  :custom
-  (modus-operandi-palette-overrides
-   '(;; (bg-main "#f6f8fa")
-     ;; (fg-main "#24292f")
-     (bg-paren-match bg-green-nuanced)
-     (bg-region bg-blue-subtle)
-     (fg-region fg-main)
-     (string fg-main)
-     (keyword fg-main)
-     (docstring fg-main)
-     (docmarkup fg-main)
-     (bg-hover bg-magenta-nuanced)
-     (bg-search-current bg-yellow-nuanced)
-     (bg-search-lazy bg-cyan-nuanced)
-     (bg-search-replace bg-red-nuanced)
-     (bg-search-rx-group-0 bg-blue-nuanced)
-     (bg-search-rx-group-1 bg-green-nuanced)
-     (bg-search-rx-group-2 bg-red-subtle)
-     (bg-search-rx-group-3 bg-magenta-subtle)))
-  (modus-vivendi-palette-overrides
-   '(;; (fg-main "#f4f4f4")
-     ;; (fg-dim "#aeafad")
-     ;; (bg-main "#1e1e1e")
-     ;; (bg-main "#111111")
-     (string fg-main)
-     (keyword fg-main)
-     (bg-paren-match fg-dim)
-     (string cyan-faint)
-     (docstring fg-main)
-     (docmarkup fg-main)
-     (bg-region fg-dim)
-     (fg-region bg-main)
-     (bg-hover bg-magenta-intense)
-     (bg-search-current bg-yellow-intense)
-     (bg-search-lazy bg-cyan-intense)
-     (bg-search-replace bg-red-intense)
-     (bg-search-rx-group-0 bg-blue-intense)
-     (bg-search-rx-group-1 bg-green-intense)
-     (bg-search-rx-group-2 bg-red-subtle)
-     (bg-search-rx-group-3 bg-magenta-subtle)))
-  (modus-themes-common-palette-overrides
-   '((border-mode-line-active unspecified)
-     (border-mode-line-inactive unspecified)
-     (fringe unspecified)
-     (keybind cyan-faint)
-     (accent-0 cyan-faint)
-     (accent-1 yellow-faint)
-     (accent-2 blue-faint)
-     (accent-3 red-faint)
-     (fg-prompt cyan-faint)
-     (rx-construct cyan-faint)
-     (rx-backslash magenta-faint)
-     (bg-mode-line-active bg)
-     (bg-mode-line-inactive bg)
-     (date-common fg-main)
-     (date-deadline fg-main)
-     (date-event fg-main)
-     (date-holiday fg-main)
-     (date-now fg-main)
-     (date-scheduled fg-main)
-     (date-weekday fg-main)
-     (date-weekend fg-main)
-     (docstring fg-dim)
-     (docmarkup fg-dim)
-     (comment fg-dim)
-     (preprocessor fg-main)
-     (constant fg-main)
-     (variable fg-main)
-     (type fg-main)
-     (fnname fg-main)
-     (keyword fg-main)
-     (builtin fg-main)))
-  (modus-themes-mixed-fonts t))
-
-(custom-set-faces
- '(region ((t :extend nil))))
-
-(setq light-theme 'modus-operandi)
-(setq dark-theme 'modus-vivendi)
-(defun load-dark-theme ()
-  "Load the saved dark theme."
-  (interactive)
-  (setq use-dark-theme-p t)
-  (mapcar #'disable-theme custom-enabled-themes)
-  (load-theme dark-theme t))
-(defun load-light-theme ()
-  "Load the saved light theme."
-  (interactive)
-  (setq use-dark-theme-p nil)
-  (mapcar #'disable-theme custom-enabled-themes)
-  (load-theme light-theme t))
-(defvar use-dark-theme-p t)
-
 (setq ring-bell-function 'ignore)
 
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  (setq the-font "Iosevka")
-  (setq the-nice-font "Iosevka")
+  ;; (setq the-font "CommitMonoArjaz")
+  (setq the-font "Ioskeley Mono")
+  ;; (setq the-font "Iosevka")
+  (setq the-nice-font "Iosevka Aile")
   (setq the-font-height font-height)
-  (setq-default line-spacing nil)
+  (setq-default line-spacing 0.0)
+  ;; TODO: custom-set-faces
   (set-face-attribute 'default
                       nil
+                      :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'fixed-pitch-serif
                       nil
+                      :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'fixed-pitch
                       nil
+                      :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'variable-pitch
                       nil
+                      :weight 'normal
                       :family the-nice-font
                       :height the-font-height))
-(set-fonts 140)
+(set-fonts 110)
 
-(if use-dark-theme-p
-    (load-dark-theme)
-  (load-light-theme))
+;; (defun set-safe-composition-table ()
+;;   (interactive)
+;;   (set-char-table-range composition-function-table t `(["[,-.;A-Z_a-z]+" 0 font-shape-gstring])))
+;; (defun unset-safe-composition-table ()
+;;   (interactive)
+;;   (set-char-table-range composition-function-table t `(["" 0 font-shape-gstring])))
+;; (defun toggle-safe-composition-table--around (old-fn &rest args)
+;;   "Disable the composition table around a function invocation. Useful to prevent weird avy artifacts."
+;;   (let ((visible-buffers (mapcar #'window-buffer (window-list))))
+;;     (dolist (b visible-buffers)
+;;       (with-current-buffer b
+;;         (unset-safe-composition-table)))
+;;     (let ((res (apply old-fn args)))
+;;       (dolist (b visible-buffers)
+;;         (with-current-buffer b
+;;           (set-safe-composition-table)))
+;;       res)))
+;; (add-hook 'minibufer-setup-hook 'set-safe-composition-table)
+;; (add-hook 'special-mode-hook 'set-safe-composition-table)
+;; (add-hook 'text-mode-hook 'set-safe-composition-table)
+;; (add-hook 'fundamental-mode-hook 'set-safe-composition-table)
+;; (add-hook 'prog-mode-hook 'set-safe-composition-table)
+
+;; (advice-add 'avy-process
+;;             :around
+;;             #'toggle-safe-composition-table--around)
+
+;; (advice-add 'flash-jump
+;;             :around
+;;             #'toggle-safe-composition-table--around)

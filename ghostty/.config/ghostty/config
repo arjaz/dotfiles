@@ -1,0 +1,32 @@
+unfocused-split-opacity = 1
+# font-family = CommitMonoArjaz
+# font-family = CommitMono Nerd Font Mono
+# font-family = Berkeley Mono
+font-family = Ioskeley Term Mono
+# font-family = Iosevka Nerd Font Mono
+# font-family = ShureTechMono Nerd Font Mono
+font-size = 13
+# adjust-cell-height = 10%
+font-feature = -calt
+font-feature = -liga
+font-feature = -cdlig
+font-feature = +TXTR
+
+window-decoration = none
+gtk-titlebar = false
+
+window-padding-x = 4
+window-padding-y = 2
+
+# working-directory = inherit
+# window-inherit-working-directory = false
+
+command = zsh
+
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
+theme = light:"modus-operandi",dark:"modus-vivendi"
+keybind = ctrl+,=unbind
+
+app-notifications = false

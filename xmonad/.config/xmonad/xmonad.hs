@@ -50,13 +50,13 @@ myConfig =
         `removeKeysP` ["M-,", "M-."]
 
 term :: String
-term = "wezterm -e fish"
+term = "ghostty"
 
 normalBorderColor' :: String
-normalBorderColor' = "#202328"
+normalBorderColor' = "#ffffff"
 
 focusedBorderColor' :: String
-focusedBorderColor' = "#ffffff"
+focusedBorderColor' = "#000000"
 
 mask :: KeyMask
 mask = mod4Mask
@@ -88,16 +88,15 @@ myAdditionalKeysP =
     , ("S-M-n", windows W.swapDown)
     , ("S-M-p", windows W.swapUp)
     , ("M-<Return>", spawn term)
-    , ("M-o w", runOrRaise "zen-browser" (className =? "zen-alpha"))
-    , ("M-o t", runOrRaise "telegram-desktop" (className =? "TelegramDesktop"))
-    , ("M-o e", runOrRaise "emacs" (className =? "Emacs"))
+    , ("M-o w", spawn "brave --password-store=basic")
+    , ("M-o t", spawn "telegram-desktop")
     , ("M-e", spawn "emacs")
     , ("M-o q q", io exitSuccess)
     , ("M-o c k", spawn "setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt")
     , ("M-o c l", spawn "sh ~/dotfiles/scripts/to-light-theme.sh")
     , ("M-o c d", spawn "sh ~/dotfiles/scripts/to-dark-theme.sh")
     , ("M-o d y", spawn "sh ~/dotfiles/scripts/xclip-yt-dlp.sh")
-    , ("M-d", spawn "rofi -show run")
+    , ("M-d", spawn "rofi -show run -font \"Iosarja 14\"")
     , ("M-o p", spawn "pass clip -r")
     , ("<XF86AudioPause>", spawn "playerctl pause")
     , ("<XF86AudioPlay>", spawn "playerctl play")
@@ -133,7 +132,7 @@ myManageHook =
     composeAll
         [ isFullscreen --> doFullFloat
         , title =? "Telegram" --> viewShift "9"
-        , title =? "Telegram" --> doRectFloat (W.RationalRect 0.05 0.05 0.27 0.9)
+        -- , title =? "Telegram" --> doRectFloat (W.RationalRect 0.05 0.05 0.27 0.9)
         , isDialog --> doCenterFloat
         , manageDocks
         , manageHook desktopConfig
@@ -150,13 +149,15 @@ myLayoutHook =
         avoidStruts
             -- . gaps [(L, leftGap), (R, rightGap), (U, topGap), (D, bottomGap)]
             . smartBorders -- TODO: use lessBorders
+            -- . spacingWithEdge 10
             -- . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
     fancyCentral =
         avoidStruts
             . gaps [(L, leftGap * 10), (R, rightGap * 10), (U, topGap), (D, bottomGap)]
-            . smartBorders -- TODO: use lessBorders
+            -- . smartBorders -- TODO: use lessBorders
+            . withBorder myBorderWidth
             . smartSpacing spacingSize
             . mkToggle (NOBORDERS ?? FULL ?? EOT)
             $ ResizableTall nmaster delta ratio []
@@ -167,7 +168,7 @@ myLayoutHook =
     bottomGap = 30
     spacingSize = 4
     nmaster = 1
-    delta = 3 / 100
+    delta = 5 / 1000
     ratio = 1 / 2
 
 startupCommands :: [String]
@@ -175,11 +176,10 @@ startupCommands =
     [ "~/dotfiles/scripts/polybar.sh"
     , "redshift -l 50.4461248:30.5214979 -t 6500:3000 &"
     , "wired &"
-    -- , "compfy --config ~/.config/compton.conf &"
+    -- , "picom --config ~/.config/compton.conf &"
     , -- TODO: why do I have to do that?
       --       systemd's --user service doesn't work for some reason
       "XDG_CURRENT_DESKTOP=xmonad /usr/lib/xdg-desktop-portal --replace &"
-    , "~/dotfiles/scripts/dbus-monitor.sh > /dev/null &"
     , "~/dotfiles/scripts/to-light-theme.sh &"
     ]
 

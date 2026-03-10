@@ -1,5 +1,4 @@
-;;; init.el --- My configuration
-;;; -*- lexical-binding: t; -*-
+;;; init.el --- My configuration  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;; My Emacs configuration
@@ -16,6 +15,173 @@
 (advice-add #'display-startup-echo-area-message :override #'ignore)
 (advice-add #'display-startup-screen :override #'ignore)
 
+(defun shut-up--advice (fn &rest args)
+  (let ((inhibit-message t)
+        (message-log-max))
+    (apply fn args)))
+(advice-add 'repeat-mode :around #'shut-up--advice)
+(advice-add 'recentf-load-list :around #'shut-up--advice)
+(advice-add 'recentf-cleanup :around #'shut-up--advice)
+(advice-add 'undo-fu-session--recover-impl :around #'shut-up--advice)
+
+(use-package ef-themes :disabled)
+(use-package srcery-theme :disabled)
+
+(use-package alabaster-theme
+  :straight
+  (:host github :repo "uzhne/alabaster-emacs"))
+
+(use-package modus-themes
+  :defer t
+  :custom
+  (modus-operandi-palette-overrides
+   '(;; (bg-region bg-cyan-subtle)
+     ;; (fg-region fg-main)
+     (bg-region fg-main)
+     (fg-region bg-main)
+     (keyword fg-main)
+     (docstring fg-main)
+     (docmarkup fg-main)
+     (fg-line-number-inactive fg-dim)
+     (fg-line-number-active fg-dim)
+     (bg-line-number-inactive bg-main)
+     (bg-line-number-active bg-main)))
+  (modus-vivendi-palette-overrides
+   '((keyword fg-main)
+     (bg-paren-match fg-dim)
+     (docstring fg-main)
+     (docmarkup fg-main)
+     (fg-line-number-inactive fg-dim)
+     (fg-line-number-active fg-dim)
+     (bg-line-number-inactive bg-main)
+     (bg-line-number-active bg-main)
+     ;; (bg-region bg-cyan-subtle)
+     ;; (fg-region fg-main)
+     (bg-region fg-main)
+     (fg-region bg-main)
+     (bg-hover bg-magenta-intense)
+     (bg-search-current bg-yellow-intense)
+     (bg-search-lazy bg-cyan-intense)
+     (bg-search-replace bg-red-intense)
+     (bg-search-rx-group-0 bg-blue-intense)
+     (bg-search-rx-group-1 bg-green-intense)
+     (bg-search-rx-group-2 bg-red-subtle)
+     (bg-search-rx-group-3 bg-magenta-subtle)))
+  (modus-themes-common-palette-overrides
+   '((string fg-main)
+     (border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (fringe unspecified)
+     (keybind cyan-faint)
+     (accent-0 cyan-faint)
+     (accent-1 yellow-faint)
+     (accent-2 blue-faint)
+     (accent-3 red-faint)
+     ;; TODO: diffs
+     ;; (bg-term-black black)
+     ;; (fg-term-black black)
+     ;; (bg-term-black-bright black)
+     ;; (fg-term-black-bright black)
+     ;; (bg-term-red red-faint)
+     ;; (fg-term-red red-faint)
+     ;; (bg-term-red-bright red-faint)
+     ;; (fg-term-red-bright red-faint)
+     ;; (bg-term-green green-faint)
+     ;; (fg-term-green green-faint)
+     ;; (bg-term-green-bright green-faint)
+     ;; (fg-term-green-bright green-faint)
+     ;; (bg-term-yellow yellow-faint)
+     ;; (fg-term-yellow yellow-faint)
+     ;; (bg-term-yellow-bright yellow-faint)
+     ;; (fg-term-yellow-bright yellow-faint)
+     ;; (bg-term-blue blue-faint)
+     ;; (fg-term-blue blue-faint)
+     ;; (bg-term-blue-bright blue-faint)
+     ;; (fg-term-blue-bright blue-faint)
+     ;; (bg-term-magenta magenta-faint)
+     ;; (fg-term-magenta magenta-faint)
+     ;; (bg-term-magenta-bright magenta-faint)
+     ;; (fg-term-magenta-bright magenta-faint)
+     ;; (bg-term-cyan cyan-faint)
+     ;; (fg-term-cyan cyan-faint)
+     ;; (bg-term-cyan-bright cyan-faint)
+     ;; (fg-term-cyan-bright cyan-faint)
+     ;; (bg-term-white white)
+     ;; (fg-term-white white)
+     ;; (bg-term-white-bright white)
+     ;; (fg-term-white-bright white)
+     (fg-heading-0 fg-main)
+     (fg-heading-1 fg-main)
+     (fg-heading-2 fg-main)
+     (fg-heading-3 fg-main)
+     (fg-heading-4 fg-main)
+     (fg-heading-5 fg-main)
+     (fg-heading-6 fg-main)
+     (fg-heading-7 fg-main)
+     (fg-heading-8 fg-main)
+     (fg-prompt cyan-faint)
+     (rx-construct cyan-faint)
+     (rx-backslash fg-main)
+     (bg-mode-line-active bg-dim)
+     (bg-mode-line-inactive bg)
+     (date-common fg-main)
+     (date-deadline fg-main)
+     (date-event fg-main)
+     (date-holiday fg-main)
+     (date-now fg-main)
+     (date-scheduled fg-main)
+     (date-weekday fg-main)
+     (date-weekend fg-main)
+     (docstring fg-main)
+     (docmarkup fg-main)
+     (comment fg-main)
+     (property fg-main)
+     (preprocessor fg-main)
+     (constant fg-main)
+     (variable fg-main)
+     (type fg-main)
+     (fnname fg-main)
+     (keyword fg-main)
+     (builtin fg-main)))
+  (modus-themes-mixed-fonts t))
+
+(setq light-theme 'modus-operandi)
+(setq dark-theme 'modus-vivendi)
+(defun load-dark-theme ()
+  "Load the saved dark theme."
+  (interactive)
+  (setq use-dark-theme-p t)
+  (mapcar #'disable-theme custom-enabled-themes)
+  (load-theme dark-theme t)
+  (custom-set-faces
+   '(region
+     ((t :extend nil)))
+   `(font-lock-comment-face
+     ((t :background ,(modus-themes-get-color-value 'bg-green-subtle))))
+   `(font-lock-doc-face
+     ((t :background ,(modus-themes-get-color-value 'bg-green-subtle))))))
+(defun load-light-theme ()
+  "Load the saved light theme."
+  (interactive)
+  (setq use-dark-theme-p nil)
+  (mapcar #'disable-theme custom-enabled-themes)
+  (load-theme light-theme t)
+  ;; TODO: maybe dim out the punctuation?
+  (custom-set-faces
+   ;; '(font-lock-keyword-face
+   ;;   ((t :weight semibold)))
+   '(region
+     ((t :extend nil)))
+   `(font-lock-comment-face
+     ((t :background ,(modus-themes-get-color-value 'bg-green-nuanced))))
+   `(font-lock-doc-face
+     ((t :background ,(modus-themes-get-color-value 'bg-green-nuanced))))))
+(defvar use-dark-theme-p nil)
+
+(if use-dark-theme-p
+    (load-dark-theme)
+  (load-light-theme))
+
 (use-package emacs
   :straight (:type built-in)
   :custom
@@ -23,7 +189,7 @@
   (initial-scratch-message nil)
   (frame-inhibit-implied-resize t)
   (auto-mode-case-fold nil)
-  (read-process-output-max (* 1024 1024 10))
+  (read-process-output-max (* 1024 1024))
   (window-resize-pixelwise nil)
   (cursor-in-nonselected-windows nil)
   (fast-but-imprecise-scrolling t)
@@ -48,12 +214,13 @@
   (use-file-dialog nil)
   (use-dialog-box nil)
   (use-short-answers t)
-  (history-length 100)
+  (history-length 1000)
   (history-delete-duplicates t)
   (enable-recursive-minibuffers t)
   (sentence-end-double-space nil)
+  ;; Temporarily disable GC during startup
   (gc-cons-threshold most-positive-fixnum "2^61 bytes")
-  (gc-cons-percentage 0.6)
+  (gc-cons-percentage 1.0)
   (split-width-threshold 170)
   (split-height-threshold nil)
   (recentf-max-saved-items 300)
@@ -61,9 +228,12 @@
   (x-stretch-cursor nil)
   :preface
   (defun allow-garbage ()
-    (setq gc-cons-threshold 536870912 ; 512mb
+    (setq ;; this does nothing with MPC-based GC
+          gc-cons-threshold (* 32 1024 1024)
+          ;; this does nothing with MPC-based GC
           gc-cons-percentage 0.1))
   :hook
+  ;; Enable the GC back
   (after-init-hook . allow-garbage)
   :config
   (setq-default tab-width 4))
@@ -75,100 +245,62 @@
                   minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
+(use-package delsel
+  :straight (:type built-in)
+  :hook
+  (after-init-hook . delete-selection-mode))
+
+(use-package ansi-color
+  :straight (:type built-in))
+
 (use-package compile
   :straight (:type built-in)
   :custom
   (compilation-scroll-output 'first-error)
+  :hook
+  (compilation-mode-hook . visual-line-mode)
+  (compilation-filter-hook . ansi-color-compilation-filter)
   :bind
   ("C-c r" . recompile))
 
 (use-package auth-source
-  :defer 0.2
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :defer 0.2)
 
 (use-package repeat
   :straight (:type built-in)
   :hook
   (after-init-hook . repeat-mode))
 
-;; (use-package evil
-;;   :init
-;;   (setq evil-want-keybinding nil)
-;;   :custom
-;;   (evil-move-beyond-eol t)
-;;   (evil-want-C-w-delete nil)
-;;   :config
-;;   (evil-mode)
-;;   (evil-define-key
-;;    'normal 'global
-;;    (kbd "SPC f f") 'find-file
-;;    (kbd "SPC b") 'consult-buffer
-;;    (kbd "SPC p f") 'project-find-file
-;;    (kbd "SPC o m") 'magit))
-;; (use-package evil-collection
-;;   :config
-;;   (evil-collection-init))
-;; (use-package evil-surround
-;;   :config
-;;   (global-evil-surround-mode))
-;; (use-package evil-commentary
-;;   :config
-;;   (evil-commentary-mode))
-
 (use-package which-key
-  :config
-  (which-key-mode))
-
-(defun set-safe-composition-table ()
-  (interactive)
-  (set-char-table-range composition-function-table t `(["[,-.;A-Z_a-z]+" 0 font-shape-gstring])))
-
-(defun unset-safe-composition-table ()
-  (interactive)
-  (set-char-table-range composition-function-table t `(["" 0 font-shape-gstring])))
-
-(defun toggle-safe-composition-table--around (old-fn &rest args)
-  "Disable the composition table around a function invocation. Useful to prevent weird avy artifacts."
-  (let ((visible-buffers (mapcar #'window-buffer (window-list))))
-    (dolist (b visible-buffers)
-      (with-current-buffer b
-        (unset-safe-composition-table)))
-    (let ((res (apply old-fn args)))
-      (dolist (b visible-buffers)
-        (with-current-buffer b
-          (set-safe-composition-table)))
-      res)))
-
-;; (add-hook 'minibufer-setup-hook 'set-safe-composition-table)
-;; (add-hook 'special-mode-hook 'set-safe-composition-table)
-;; (add-hook 'text-mode-hook 'set-safe-composition-table)
-;; (add-hook 'fundamental-mode-hook 'set-safe-composition-table)
-;; (add-hook 'prog-mode-hook 'set-safe-composition-table)
-
-;; (advice-add 'avy-jump
-;;             :around
-;;             #'toggle-safe-composition-table--around)
+  :straight (:type built-in)
+  :hook
+  (after-init-hook . which-key-mode))
 
 (use-package misc
   :straight (:type built-in)
   :bind
-  ("C-M-y" . duplicate-line-next-line)
+  ;; ("C-M-y" . duplicate-line-next-line)
+  ("C-M-y" . duplicate-dwim)
   ("C-o" . open-line-forward)
   ("C-S-o" . open-line-backward)
   ("C-M-o" . split-line-tab)
-  ("M-t" . jump-to-char-forward)
-  ("C-M-t" . jump-to-char-backward)
+  ;; ("M-t" . jump-to-char-forward)
+  ;; ("C-M-t" . jump-to-char-backward)
   :preface
-  (defun jump-to-char-forward (char)
-    (interactive "cFind char: ")
-    (search-forward (char-to-string char) (line-end-position) t))
-  (defun jump-to-char-backward (char)
-    (interactive "cFind char: ")
-    (search-backward (char-to-string char) (line-beginning-position) t))
+  ;; (defun jump-to-char-forward (char)
+  ;;   (interactive "cFind char: ")
+  ;;   (search-forward (char-to-string char) (line-end-position) t))
+  ;; (defun jump-to-char-backward (char)
+  ;;   (interactive "cFind char: ")
+  ;;   (search-backward (char-to-string char) (line-beginning-position) t))
+  ;;   (search-backward (char-to-string char) (line-beginning-position) t))
   (defun split-line-tab ()
     (interactive)
-    (default-indent-new-line nil t)
-    (default-indent-new-line nil t)
+    (newline)
+    (indent-according-to-mode)
+    (newline)
+    (indent-according-to-mode)
     (previous-line)
     (indent-according-to-mode))
   (defun duplicate-line-next-line ()
@@ -177,19 +309,22 @@
     (next-line))
   (defun open-line-forward ()
     (interactive)
-    (end-of-line)
-    (default-indent-new-line nil t))
+    (end-of-line)    
+    (newline)
+    (indent-according-to-mode))
   (defun open-line-backward ()
     (interactive)
     (previous-line)
     (open-line-forward)))
 
 (use-package paren
+  :straight (:type built-in)
+  :init
+  (show-paren-mode -1)
   :custom
+  ;; (show-paren-context-when-offscreen 'child-frame)
   (show-paren-delay 0.1)
-  (show-paren-highlight-openparen t)
-  (show-paren-when-point-inside-paren t)
-  (show-paren-when-point-in-periphery nil))
+  (show-paren-when-point-inside-paren t))
 
 (use-package loaddefs
   :straight (:type built-in)
@@ -207,14 +342,18 @@
   (frame-resize-pixelwise t)
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
-  (cursor-type t)
+  (cursor-type 'box)
   (blink-cursor-delay 1.5)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
+  (unbind-key (kbd "C-z") 'global-map)
   ;; (window-divider-mode)
   (blink-cursor-mode 0))
 
+(setq scroll-margin 0
+      scroll-conservatively 101)
 (use-package pixel-scroll
+  :disabled
   :straight (:type built-in)
   :custom
   (hscroll-margin 2)
@@ -222,18 +361,32 @@
   (scroll-margin 0)
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
-  (pixel-scroll-precision-interpolation-total-time 0.05)
-  (pixel-scroll-precision-interpolation-factor 1.25)
+  (pixel-scroll-precision-use-momentum nil)
+  (pixel-scroll-precision-interpolation-between-scroll 0.001)
+  (pixel-scroll-precision-interpolation-total-time 0.15)
+  (pixel-scroll-precision-interpolation-factor 1.5)
   (pixel-scroll-precision-interpolate-page t)
   (auto-window-vscroll nil)
   (mouse-wheel-scroll-amount '(1 ((shift) . hscroll)))
   (mouse-wheel-scroll-amount-horizontal 1)
-  :hook
-  (after-init-hook . pixel-scroll-precision-mode))
+  ;; :hook
+  ;; (after-init-hook . pixel-scroll-precision-mode)
+  )
+
+(use-package ultra-scroll
+  ;; :disabled
+  :straight (:host github :repo "jdsmith/ultra-scroll")
+  :custom
+  (pixel-scroll-precision-interpolation-total-time 0.15)
+  (pixel-scroll-precision-interpolate-page t)
+  (scroll-conservatively 101)
+  (scroll-margin 0)
+  :config
+  (ultra-scroll-mode))
 
 (use-package cus-edit
-  :defer 3
   :straight (:type built-in)
+  :defer 3
   :custom
   (custom-file (concat user-emacs-directory "garbage.el"))
   :config
@@ -248,8 +401,8 @@
   (global-auto-revert-mode t))
 
 (use-package eww
-  :defer t
   :straight (:type built-in)
+  :defer t
   :custom
   (eww-default-download-directory "~/downloads/"))
 
@@ -259,29 +412,40 @@
   (fit-window-to-buffer-horizontally t)
   (switch-to-buffer-in-dedicated-window 'pop)
   (switch-to-buffer-obey-display-actions t)
-  (display-buffer-alist
-   '(("\\*\\(compilation\\|Async\\)\\*"
-      (display-buffer-in-side-window)
-      (side . right)
-      (slot . 1))
-     ("\\magit:"
-      (display-buffer-same-window))
-     ("\\*Flycheck error messages"
-      (display-buffer-in-side-window)
-      (side . bottom)
-      (slot . -1))
-     ("\\*Flycheck errors\\*"
-      (display-buffer-in-side-window)
-      (side . right)
-      (slot . -1))
-     ("\\*eldoc"
-      (display-buffer-in-side-window)
-      (side . right)
-      (slot . -1))
-     ("\\*lsp-help\\*"
-      (display-buffer-in-side-window)
-      (side . right)
-      (slot . -1))))
+  ;; (display-buffer-alist
+  ;;  '(("\\*\\(compilation\\|Async\\)\\*"
+  ;;     (display-buffer-in-side-window)
+  ;;     (window-width . 0.4)
+  ;;     (side . right)
+  ;;     (slot . 1))
+  ;;    ("\\magit:"
+  ;;     (display-buffer-same-window))
+  ;;    ("\\*Flycheck error messages"
+  ;;     (display-buffer-in-side-window)
+  ;;     (window-width . 0.4)
+  ;;     (side . bottom)
+  ;;     (slot . -1))
+  ;;    ("\\*Flycheck errors\\*"
+  ;;     (display-buffer-in-side-window)
+  ;;     (window-width . 0.4)
+  ;;     (side . right)
+  ;;     (slot . -1))
+  ;;    ("\\*eldoc"
+  ;;     (display-buffer-in-side-window)
+  ;;     (window-width . 0.4)
+  ;;     (side . right)
+  ;;     (slot . -1))
+  ;;    ("\\*lsp-help\\*"
+  ;;     (display-buffer-in-side-window)
+  ;;     (window-width . 0.4)
+  ;;     (side . right)
+  ;;     (slot . -1))
+  ;;    ;; ("\\*Occur\\*"
+  ;;    ;;  (display-buffer-in-side-window)
+  ;;    ;;  (window-width . 0.35)
+  ;;    ;;  (side . left)
+  ;;    ;;  (slot . -1))
+  ;;    ))
   :preface
   (defun split-window-right+switch ()
     (interactive)
@@ -305,13 +469,19 @@
 (use-package spacious-padding
   :disabled
   :custom
-  (spacious-padding-subtle-mode-line t)
+  (spacious-padding-subtle-frame-lines t)
   :config
   (spacious-padding-mode))
 
+;; (setq backward-delete-char-untabify-method 'hungry)
+(use-package hungry-delete
+  ;; :disabled
+  :hook (prog-mode-hook . hungry-delete-mode))
+
 (use-package winner
-  :config
-  (winner-mode))
+  :straight (:type built-in)
+  :hook
+  (after-init-hook . winner-mode))
 
 (use-package mode-local
   :straight (:type built-in))
@@ -354,35 +524,52 @@
     (make-directory (concat user-emacs-directory "backups") t)))
 
 (use-package hideshow
+  ;; :disabled
   :straight (:type built-in)
-  :init
-  (defvar-keymap hideshow-map
-    :doc "Keymap for hs-minor-mode"
-    "t"   'hs-toggle-hiding
-    "h"   'hs-hide-block
-    "s"   'hs-show-block
-    "C-h" 'hs-hide-all
-    "C-s" 'hs-show-all
-    "l"   'hs-hide-level)
-  :bind-keymap
-  ("C-c t" . hideshow-map)
+  :preface
+  (defun hs-cycle (&optional level)
+    (interactive "p")
+    (let (message-log-max
+          (inhibit-message t))
+      (if (= level 1)
+          (pcase last-command
+            ('hs-cycle
+             (hs-hide-level 1)
+             (setq this-command 'hs-cycle-children))
+            ('hs-cycle-children
+             ;; TODO: Fix this case. `hs-show-block' needs to be
+             ;; called twice to open all folds of the parent
+             ;; block.
+             (save-excursion (hs-show-block))
+             (hs-show-block)
+             (setq this-command 'hs-cycle-subtree))
+            ('hs-cycle-subtree
+             (hs-hide-block))
+            (_
+             (if (not (hs-already-hidden-p))
+                 (hs-hide-block)
+               (hs-hide-level 1)
+               (setq this-command 'hs-cycle-children))))
+        (hs-hide-level level)
+        (setq this-command 'hs-hide-level))))
+  :bind
+  ("C-M-<tab>" . hs-cycle)
   :hook
   (prog-mode-hook . hs-minor-mode))
 
-(use-package gcmh
-  :demand
+(use-package treesit-fold
+  :disabled
+  :straight (treesit-fold :type git :host github :repo "emacs-tree-sitter/treesit-fold")
   :config
-  (gcmh-mode))
-
-(use-package so-long
-  :config
-  (global-so-long-mode))
-
-(use-package helpful
+  (global-treesit-fold-mode)
+  :preface
+  (defun fold-toggle ()
+    (interactive)
+    (if (treesit-parser-list)
+        (treesit-fold-toggle)
+      (call-interactively 'hs-cycle)))
   :bind
-  ([remap describe-key] . helpful-key)
-  ([remap describe-function] . helpful-callable)
-  ([remap describe-variable] . helpful-variable))
+  ("C-M-<tab>" . fold-toggle))
 
 (use-package visual-regexp
   :bind
@@ -392,6 +579,7 @@
   :defer t
   :hook
   (org-mode-hook . variable-pitch-mode)
+  (org-mode-hook . visual-line-mode)
   :custom
   (org-confirm-babel-evaluate nil)
   (org-directory "~/documents/org/")
@@ -399,40 +587,9 @@
   (org-hide-leading-stars t)
   (org-startup-indented t))
 
-(use-package indent-bars
-  :disabled
-  ;; :hook
-  ;; (c-mode-hook . indent-bars-mode)
-  ;; (c-ts-mode-hook . indent-bars-mode)
-  ;; (typescript-ts-mode-hook . indent-bars-mode)
-  ;; (elixir-mode-hook . indent-bars-mode)
-  ;; (elixir-ts-mode-hook . indent-bars-mode)
-  ;; (zig-mode-hook . indent-bars-mode)
-  :custom
-  (indent-bars-color '(highlight :face-bg nil :blend 0.9))
-  ;; (indent-bars-highlight-current-depth '(highlight :face-bg nil :blend 1.0))
-  (indent-bars-pattern ".")
-  (indent-bars-width-frac 0.1)
-  (indent-bars-pad-frac 0.1)
-  (indent-bars-starting-column 0)
-  (indent-bars-color-by-depth nil)
-  (indent-bars-no-descend-lists t)
-  (indent-bars-display-on-blank-lines t)
-  (indent-bars-treesit-support t)
-  (indent-bars-treesit-scope-min-lines 0)
-  (indent-bars-ts-styling-scope 'out-of-scope)
-  (indent-bars-ts-color '(highlight :face-bg nil :blend 0.1))
-  (indent-bars-ts-highlight-current-depth '(highlight :face-bg nil :blend 0.1))
-  (indent-bars-treesit-wrap
-   '((c argument_list parameter_list init_declarator)))
-  (indent-bars-treesit-scope
-   '((c compound_statement))))
-
-(use-package gdscript-mode
-  :defer t)
-
 (use-package dired
   :straight (:type built-in)
+  :demand
   :hook
   (dired-mode-hook . auto-revert-mode)
   :bind
@@ -449,18 +606,38 @@
   (dired-recursive-deletes 'top))
 
 (use-package dired-hacks
-  :after dired
+  :demand
   :bind
   (:map dired-mode-map
         ("<tab>" . dired-subtree-toggle)))
 
+(use-package multiple-cursors
+  :bind
+  (("C->" . mc/mark-next-lines)
+   ("C-<" . mc/mark-previous-lines)
+   ;; TODO: include word boundaries please
+   ("C-M->" . mc/mark-next-like-this-symbol)
+   ("C-M-<" . mc/mark-previous-like-this-symbol)
+   :map mc/keymap
+   ("<return>" .  nil))
+  ;; :preface
+  ;; (defun toggle-completion-preview-mode ()
+  ;;   (interactive)
+  ;;   (if completion-preview-mode
+  ;;       (completion-preview-mode -1)
+  ;;     (completion-preview-mode t)))
+  ;; :hook
+  ;; (multiple-cursors-mode-hook . toggle-completion-preview-mode)
+  )
+
 (use-package macrursors
-  :straight (:host github
-                   :repo "corytertel/macrursors")
+  :disabled
+  :straight
+  (:host github :repo "corytertel/macrursors")
   :hook
   (macrursors-mode-hook . deactivate-mark)
-  (macrursors-pre-finish-hook . corfu-mode)
-  (macrursors-post-finish-hook . corfu-mode)
+  ((macrursors-pre-finish-hook macrursors-post-finish-hook)
+   . corfu-mode)
   :bind
   (("C->" . macrursors-mark-next-line)
    ("C-<" . macrursors-mark-previous-line)
@@ -470,9 +647,8 @@
    ("C-," . macrursors-end)))
 
 (use-package selection-highlight-mode
-  :straight (selection-highlight-mode :type git
-                                      :host github
-                                      :repo "balloneij/selection-highlight-mode")
+  :straight
+  (:type git :host github :repo "balloneij/selection-highlight-mode")
   :config (selection-highlight-mode))
 
 (use-package smart-comment
@@ -486,38 +662,58 @@
   (lazy-highlight-initial-delay 0)
   (isearch-lazy-count t)
   (search-ring-max 100)
-  (regexp-search-ring-max 100))
-
-(use-package avy
-  :bind
-  ("C-t" . avy-goto-char-2)
-  :custom
-  (avy-style 'de-bruijn)
-  (avy-keys '(?c ?s ?n ?t ?a ?e ?i ?m))
-  (avy-dispatch-alist '((?\w . avy-action-copy))))
-
-(use-package rotate
+  (regexp-search-ring-max 100)
   :config
-  (setq
-   rotate-functions
-   '(rotate:even-horizontal
-     rotate:even-vertical))
-  :bind
-  ("C-x C-o" . rotate-window)
-  ("C-x M-o" . rotate-layout))
+  (defvar search-recenter-context-lines 6)
+  (defvar-local save-scroll-margin nil)
+  (add-hook 'isearch-mode-hook
+            (lambda ()
+              (when (local-variable-if-set-p 'scroll-margin)
+                (setq save-scroll-margin scroll-margin))
+              (setq-local scroll-margin search-recenter-context-lines)))
+  (add-hook 'isearch-mode-end-hook
+            (lambda ()
+              (if save-scroll-margin
+                  (prog1
+                      (setq-local scroll-margin save-scroll-margin)
+                    (kill-local-variable 'save-scroll-margin))
+                (kill-local-variable 'scroll-margin)))))
 
+(use-package isearch-mb
+  :disabled
+  :hook
+  ;; TODO: that makes recentering harder
+  (after-init-hook . isearch-mb-mode))
+
+(use-package flash
+  :straight
+  (:host github :repo "Prgebish/flash")
+  :demand
+  :custom
+  (flash-labels "scnitehafbpydoluv#w*g'm-")
+  (flash-label-uppercase t)
+  (flash-backdrop nil)
+  :bind
+  ("C-t" . flash-jump)
+  :config
+  (require 'flash-isearch)
+  (flash-isearch-mode))
+
+(use-package vundo)
 (use-package undo-fu
   :bind
   ([remap undo] . undo-fu-only-undo)
   ([remap undo-redo] . undo-fu-only-redo))
 
 (use-package undo-fu-session
-  :config
-  (global-undo-fu-session-mode))
+  ;; :disabled
+  :hook
+  (after-init-hook . global-undo-fu-session-mode))
 
 (use-package ws-butler
-  :config
-  (ws-butler-global-mode))
+  ;; :disabled
+  :hook
+  (prog-mode-hook . ws-butler-mode))
 
 (use-package elec-pair
   :straight (:type built-in)
@@ -528,31 +724,24 @@
   :hook (prog-mode-hook . electric-pair-mode))
 
 (use-package wrap-region
-  :config
-  (wrap-region-global-mode))
+  :hook
+  (after-init-hook . wrap-region-global-mode))
 
 (use-package puni
+  :disabled
   :bind
   ("M-r"   . puni-raise)
-  ("C-M-s" . puni-splice)
+  ;; FIXME: conflicts with isearch
+  ;; ("C-M-s" . puni-splice)
   ("C-("   . puni-slurp-backward)
   ("C-)"   . puni-slurp-forward)
   ("C-{"   . puni-barf-backward)
   ("C-}"   . puni-barf-forward))
 
-(use-package ansi-color
-  :straight (:type built-in)
-  :preface
-  (defun colorize-compilation-buffer ()
-    (read-only-mode)
-    (ansi-color-apply-on-region compilation-filter-start (point))
-    (read-only-mode))
-  :hook
-  (compilation-filter-hook . colorize-compilation-buffer))
-
 (use-package xterm-color)
 
 (use-package esh-mode
+  :disabled
   :defer t
   :straight (:type built-in)
   :hook
@@ -573,7 +762,7 @@
         (erase-buffer)
         (eshell-send-input))))
   :bind
-  (("C-c o e" . eshell)
+  (;; ("C-c o e" . eshell)
    :map eshell-mode-map
    ("C-c C-l" . eshell/clear-buffer)
    ;; :map eshell-hist-mode-map
@@ -585,52 +774,50 @@
   (add-hook 'eshell-preoutput-filter-functions 'xterm-color-filter)
   (setenv "TERM" "xterm-256color"))
 
-(use-package fish-completion
-  :straight (:host github
-                   :repo "LemonBreezes/emacs-fish-completion")
-  :hook
-  (eshell-mode-hook . turn-on-fish-completion-mode)
-  :custom
-  (fish-completion-fallback-on-bash-p t)
+(setq shell-file-name "zsh")
+(use-package vterm
   :config
-  (global-fish-completion-mode))
-
-(use-package eat
-  :straight
-  (eat
-   :type git
-   :host codeberg
-   :repo "akib/emacs-eat"
-   :files ("*.el" ("term" "term/*.el") "*.texi"
-           "*.ti" ("terminfo/e" "terminfo/e/*")
-           ("terminfo/65" "terminfo/65/*")
-           ("integration" "integration/*")
-           (:exclude ".dir-locals.el" "*-tests.el")))
+  ;; (advice-add
+  ;;  'set-window-vscroll :after
+  ;;  (defun me/vterm-toggle-scroll (&rest _)
+  ;;    (when (eq major-mode 'vterm-mode)
+  ;;      (if (> (window-end) (buffer-size))
+  ;;          (when vterm-copy-mode (vterm-copy-mode-done nil))
+  ;;        (vterm-copy-mode 1)))))
+  (push '("find-file-other-window" find-file-other-window)
+        vterm-eval-cmds)
   :custom
-  (eat-shell "fish")
-  (eat-kill-buffer-on-exit t)
+  (vterm-timer-delay 0.01)
+  (vterm-max-scrollback 10000)
+  (vterm-environment '("PAGER"))
   :bind
-  ("C-c o v" . eat))
+  ("C-c o v" . vterm))
 
 (use-package magit
   :bind
   ("C-c o m" . magit-status)
   :config
+  (add-to-list
+   'display-buffer-alist
+   '(("\\magit:"
+      (display-buffer-same-window))))
   (add-to-list 'magit-git-environment "OVERCOMMIT_COLOR=0"))
 
+(column-number-mode)
+(size-indication-mode)
 (setq-default
  mode-line-format
- '("%e" mode-line-front-space
-   (:propertize ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-window-dedicated)
-                display (min-width (6.0)))
+ '("%e" " "
+   (:propertize
+    (""  mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-window-dedicated)
+    display (min-width (6.0)))
    mode-line-frame-identification
    mode-line-buffer-identification
    "   "
    mode-line-position
    (project-mode-line project-mode-line-format)
-   (vc-mode vc-mode)
-   "  "
-   mode-line-end-spaces))
+   "  "))
+;; (setq-default mode-line-format nil)
 
 (use-package wgrep
   :defer t
@@ -640,36 +827,47 @@
 (use-package vertico
   :custom
   (vertico-resize nil)
-  :config
-  (vertico-mode))
-
-(use-package vertico-directory
-  :straight nil
-  :after vertico
-  :hook (rfn-eshadow-update-overlay-hook . vertico-directory-tidy)
+  :hook
+  (after-init-hook . vertico-mode)
+  (after-init-hook . vertico-multiform-mode)
+  (rfn-eshadow-update-overlay-hook . vertico-directory-tidy)
   :bind
   (:map vertico-map
         ("RET" . vertico-directory-enter)
         ("DEL" . vertico-directory-delete-char)
-        ("M-DEL" . vertico-directory-delete-word)))
+        ("M-DEL" . vertico-directory-delete-word))
+  :config
+  ;; (setq
+  ;;  vertico-multiform-commands
+  ;;  '((consult-ripgrep
+  ;;     buffer
+  ;;     (vertico-buffer-display-action . (display-buffer-same-window)))))
+  )
 
 (use-package orderless
-  :config
-  (defun orderless-fast-dispatch (word index total)
-    (and (= index 0) (= total 1) (length< word 4)
-         (cons 'orderless-literal-prefix word)))
-  (orderless-define-completion-style orderless-fast
-    (orderless-style-dispatchers '(orderless-fast-dispatch))
-    (orderless-matching-styles '(orderless-literal orderless-regexp)))
+  ;; :config
+  ;; (defun orderless-fast-dispatch (word index total)
+  ;;   (and (= index 0) (= total 1) (length< word 4)
+  ;;        (cons 'orderless-literal-prefix word)))
+  ;; (orderless-define-completion-style orderless-fast
+  ;;   (orderless-style-dispatchers '(orderless-fast-dispatch))
+  ;;   (orderless-matching-styles '(orderless-literal orderless-regexp)))
   :custom
-  (completion-styles '(orderless-fast basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
+  (completion-styles '(orderless basic))
+  ;; (completion-styles '(orderless-fast basic))
+  ;; (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package goto-chg
   :bind
   ("C-," . goto-last-change)
   ("C-." . goto-last-change-reverse))
+
+(use-package javelin
+  :straight
+  (:host github :repo "DamianB-BitFlipper/javelin.el")
+  :config
+  (global-javelin-minor-mode t))
 
 (use-package consult
   :custom
@@ -677,7 +875,7 @@
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   :bind
-  (([remap switch-to-buffer] . consult-buffer)
+  (;; ([remap switch-to-buffer] . consult-buffer)
    ("M-s l"   . consult-line)
    ("M-s M-l" . consult-line-multi)
    ("M-s r"   . consult-ripgrep)
@@ -694,36 +892,79 @@
    ([remap imenu]     . consult-imenu)
    ("M-g M-i"         . consult-imenu-multi)
    ([remap goto-line] . consult-goto-line)
-   ([remap bookmark-jump] . consult-bookmark)
+   ;; ([remap bookmark-jump] . consult-bookmark)
    ([remap yank-pop] . consult-yank-pop))
-  :config
-  (recentf-mode)
-  (consult-customize
-   consult-bookmark consult-buffer consult-recent-file
-   :preview-key "C-'"))
+  :hook
+  (after-init-hook . recentf-mode))
+
+(use-package vertico-posframe
+  :disabled)
+(use-package nova
+  :disabled
+  :straight (:host github :repo "thisisran/nova"))
 
 (use-package project
   :straight (:type built-in)
   :custom
   (project-vc-extra-root-markers
-   '("Cargo.toml")))
+   '("Cargo.toml" ".jj"))
+  :bind
+  (([remap project-compile] . arjaz-project-compile)
+   :map project-prefix-map
+   ("t" . project-vterm))
+  :preface
+  (defun arjaz-project-compile ()
+    "For some bizarre reason project-compile doesn't update the compile-command"
+    (interactive)
+    (let ((default-directory (project-root (project-current t))))
+      (call-interactively #'compile)))
+  (defun project-vterm ()
+    (interactive)
+    (let ((default-directory (project-root (project-current t))))
+      (call-interactively #'vterm))))
+
+(use-package vc-jj
+  :straight
+  (:host codeberg :repo "emacs-jj-vc/vc-jj.el")
+  :init
+  (add-to-list 'auto-mode-alist '("\\.jjdescription\\'". diff-mode)))
+
+(use-package jj-mode
+  :straight (:host github :repo "bolivier/jj-mode.el")
+  :bind
+  ("C-c o j" . jj-log)
+  :config
+  (custom-set-faces
+   `(jj-working-copy-heading
+     ((t :background ,(modus-themes-get-color-value 'bg-cyan-nuanced) :inherit nil)))
+   `(jj-trunk-heading
+     ((t :background ,(modus-themes-get-color-value 'bg-green-nuanced) :inherit nil)))))
+
+(use-package bookmark
+  :straight (:type built-in)
+  :custom
+  (bookmark-fringe-mark nil))
 
 (use-package consult-project-extra
-  :after consult
-  :bind
-  ([remap project-find-file] . consult-project-extra-find)
-  :config
-  (consult-customize
-   consult-project-extra-find
-   :preview-key "C-'"))
+  :disabled
+  ;; :bind
+  ;; ([remap project-find-file] . consult-project-extra-find)
+  ;; :config
+  ;; (consult-customize
+  ;;  consult-project-extra-find
+  ;;  :preview-key "C-'")
+  )
 
 (use-package consult-flycheck
+  ;; :disabled
   :defer t
-  :straight (:host github :repo "minad/consult-flycheck"))
+  :straight
+  (:host github :repo "minad/consult-flycheck"))
 
 (use-package marginalia
-  :config
-  (marginalia-mode)
+  :disabled
+  :hook
+  (after-init-hook . marginalia-mode)
   :custom
   (marginalia-align 'right))
 
@@ -731,12 +972,21 @@
   :after vertico
   :custom
   (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  :hook
+  (embark-collect-mode-hook . visual-line-mode)
+  :config
+  (custom-set-faces
+   '(embark-target
+     ((t :inherit region)))
+   )
   :bind
   (("M-o" . embark-act)
    :map vertico-map
    ("M-s o" . embark-export)
-   :map embark-general-map
-   ([remap describe-symbol] . helpful-symbol)))
+   ("M-s l" . embark-live)
+   ;; :map embark-general-map
+   ;; ([remap describe-symbol] . helpful-symbol)
+   ))
 
 (use-package embark-consult
   :hook
@@ -748,20 +998,54 @@
   (keychain-refresh-environment))
 
 (use-package c-ts-mode
+  ;; :disabled
   :straight (:type built-in)
   :custom
+  (c-ts-mode-emacs-sources-support nil)
   (c-ts-mode-indent-style 'k&r)
   (c-basic-offset 4)
   (c-ts-mode-indent-offset 4))
 
+(use-package completion-preview
+  :straight (:type built-in)
+  ;; :disabled
+  :hook
+  (prog-mode-hook . completion-preview-mode)
+  :custom
+  (completion-preview-minimum-symbol-length 3)
+  :bind
+  (:map completion-preview-active-mode-map
+        ("TAB" . nil)
+        ("M-i" . nil)
+        ("C-'" . completion-preview-insert))
+  :config
+  ;; TODO: custom-set-faces
+  ;; (set-face-attribute 'completion-preview-common nil
+  ;;                     :underline nil)
+  ;; (set-face-attribute 'completion-preview-exact nil
+  ;;                     :underline 'unspecified)
+  (custom-set-faces
+   '(completion-preview
+     ((t :inherit shadow)))
+   '(completion-preview-common
+     ((t :inherit completion-preview)))
+   '(completion-preview-exact
+     ((t :inherit completion-preview)))
+   '(completion-preview-highlight
+     ((t :inherit completion-preview))))
+  ;; (setq completion-preview-active-mode-map
+  ;;       (let ((m (make-sparse-keymap)))
+  ;;         (bind-keys
+  ;;          :map m
+  ;;          ("C-'" . completion-preview-insert))
+  ;;         m))
+  )
+
 (use-package corfu
-  :demand
   :straight
   (:host github
          :repo "minad/corfu"
          :files ("*" "extensions/*" (:exclude ".git")))
-  :bind
-  ("C-<tab>" . completion-at-point)
   :config
   (setq corfu-map
         (let ((m (make-sparse-keymap)))
@@ -769,12 +1053,12 @@
            :map m
            ("C-g" . corfu-quit)
            ("C-'" . corfu-insert)
-           ("C-q" . corfu-next)
+           ("C-*" . corfu-next)
            ("C--" . corfu-previous))
           m))
   :custom
   (corfu-auto nil)
-  (corfu-auto-prefix 2)
+  (corfu-auto-prefix 3)
   (corfu-cycle t)
   (corfu-separator ?\s)
   (corfu-quit-at-boundary 'separator)
@@ -782,33 +1066,48 @@
   (corfu-on-exact-match 'insert)
   (corfu-preselect 'first)
   (corfu-preview-current nil)
+  (corfu-bar-width 0.01)
+  :hook
+  (after-init-hook . global-corfu-mode)
   :config
   ;; Why do I have to do this?
   (setq company-minimum-prefix-length corfu-auto-prefix)
-  (global-corfu-mode)
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode))
+
+(use-package tempel
+  :bind
+  ("M-'" . tempel-complete)
+  :config
+  (setq tempel-map
+        (let ((m (make-sparse-keymap)))
+          (bind-keys
+           :map m
+           ("C-g" . tempel-done)
+           ([remap right-word] . tempel-next)
+           ([remap left-word] . tempel-next))
+          m)))
 
 (use-package cape
   :straight
   (:host github
          :repo "minad/cape"
          :files ("*.el" "extensions/*.el"))
-  :preface
-  (defun cape-setup ()
-    (setq-local
-     completion-at-point-functions
-     (delete-dups
-      (remove
-       #'ispell-completion-at-point
-       (append (list #'cape-file #'cape-keyword #'cape-dabbrev)
-               completion-at-point-functions)))))
-  :hook
-  (prog-mode-hook . cape-setup)
-  (org-mode-hook . cape-setup)
-  (markdown-mode-hook . cape-setup)
   :bind
   ("M-/" . cape-dabbrev))
+
+(defun capf-setup ()
+  (interactive)
+  (setq-local
+   completion-at-point-functions
+   (delete-dups
+    (remove
+     'tags-completion-at-point-function
+     (remove
+      'ispell-completion-at-point
+      (append '(tempel-expand cape-file cape-dabbrev)
+              completion-at-point-functions))))))
+(add-hook 'prog-mode-hook 'capf-setup)
 
 (use-package dumb-jump
   :hook
@@ -819,30 +1118,29 @@
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
   :mode ("\\.tsx\\'" . tsx-ts-mode)
-  :straight (:type built-in))
+  :straight (:type built-in)
+  :custom
+  (typescript-ts-mode-indent-offset 2))
 
 (use-package haskell-ts-mode
-  :straight nil
-  :load-path "/home/arjaz/.config/emacs/tmp/haskell-ts-mode"
   :mode "\\.hs\\'"
+  :custom
+  (haskell-ts-use-indent t)
   :init
   (add-to-list
    'treesit-language-source-alist
    '(haskell "https://github.com/tree-sitter/tree-sitter-haskell")))
 
 (use-package flycheck
-  :defer t
+  :hook
+  ;; TODO: customize if possible
+  (flycheck-error-list-mode-hook . visual-line-mode)
   :custom
+  (flycheck-display-errors-function nil)
   (flycheck-indication-mode nil)
-  (flycheck-highlighting-mode 'symbols)
-  ;; (flycheck-highlighting-mode nil)
-  (flycheck-check-syntax-automatically '(save idle-change mode-enable))
-  ;; (flycheck-error-list-format
-  ;;  [("Level" 8 flycheck-error-list-entry-level-<)
-  ;;   (#("Message (Checker)" 0 7 (face flycheck-error-list-error-message) 9 16 (face flycheck-error-list-checker-name)) 0 t)])
-  ;; :bind
-  ;; ("C-c e e" . flycheck-list-errors)
-  )
+  ;; (flycheck-highlighting-mode 'symbols)
+  (flycheck-highlighting-mode nil)
+  (flycheck-check-syntax-automatically '(save idle-change mode-enable)))
 
 (use-package flycheck-posframe
   :hook
@@ -868,120 +1166,224 @@
     (pcase (used-window-side)
       ('right (posframe-poshandler-frame-bottom-left-corner info))
       ('left (posframe-poshandler-frame-bottom-right-corner info))))
+  :config
+  (flycheck-posframe-configure-pretty-defaults)
   :custom
   ;; I want it to be shown on a bottom corner the most removed from the pos
   (flycheck-posframe-position 'window-bottom-right-corner)
   (flycheck-posframe-border-width 1))
 
-(use-package sideline
-  :hook
-  (flycheck-mode-hook . sideline-mode)
-  ;; (eldoc-mode-hook . sideline-mode)
-  :custom
-  (sideline-backends-right '(sideline-flycheck ;; sideline-eldoc
-                                               )))
-(use-package sideline-flycheck
-  :hook (flycheck-mode-hook . sideline-flycheck-setup))
-(use-package sideline-eldoc
-  :straight
-  (:host github :repo "ginqi7/sideline-eldoc")
-  :custom
-  (sideline-eldoc-documentation nil))
-
+;; eldoc-help-at-pt
 (use-package eldoc
   :bind
-  ("C-c h e" . eldoc)
+  ("C-c h" . eldoc-show)
+  :config
+  (add-to-list
+   'display-buffer-alist
+   ;; '("\\*eldoc"
+   ;;   (display-buffer-in-direction)
+   ;;   (window-width . 0.3)
+   ;;   (direction . right))
+   '("\\*eldoc"
+     (display-buffer-in-side-window)
+     (window-width . 0.3)
+     (side . right)
+     (slot . -1))
+   )
+  (defun eldoc-visual-line-mode-advice (&rest _)
+    (with-current-buffer eldoc--doc-buffer
+      (visual-line-mode t)))
+  (advice-add 'eldoc-doc-buffer :after #'eldoc-visual-line-mode-advice)
+  (defvar eldoc-auto-hide--point nil)
+  (defun eldoc-auto-hide ()
+    (unless (= (point) eldoc-auto-hide--point)
+      (setq eldoc-auto-hide--point nil)
+      (remove-hook 'post-command-hook #'eldoc-auto-hide)
+      (when-let* ((b (get-buffer-window (eldoc-doc-buffer))))
+        (delete-window b))))
+  ;; TODO: ideally don't resize other windows
+  (defun eldoc-show ()
+    (interactive)
+    (setq eldoc-auto-hide--point (point))
+    (call-interactively #'eldoc-doc-buffer)
+    (add-hook 'post-command-hook #'eldoc-auto-hide))
   :custom
+  (eldoc-display-functions '(eldoc-display-in-buffer))
+  (eldoc-idle-delay 0)
   (eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
+  ;; (eldoc-echo-area-use-multiline-p 5)
   (eldoc-echo-area-use-multiline-p nil)
   (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-echo-area-display-truncation-message nil))
 
 (use-package eldoc-box
+  :disabled
   :custom
-  (eldoc-display-functions '(eldoc-display-in-echo-area eldoc-display-in-buffer))
+  ;; (eldoc-display-functions '(eldoc-display-in-echo-area eldoc-display-in-buffer))
+  (eldoc-message-function #'ignore) ;; don't show the message in the minibuffer
   (eldoc-box-clear-with-C-g t)
   :bind
-  ("C-c h h" . eldoc-box-help-at-point))
+  ("C-c h" . eldoc-box-help-at-point)
+  :config
+  (add-hook 'eldoc-box-buffer-setup-hook #'eldoc-box-prettify-ts-errors 0 t))
+
+(use-package eldoc-mouse
+  :disabled
+  :straight
+  (:host github :repo "huangfeiyu/eldoc-mouse")
+  :config
+  (eldoc-mouse-enable))
 
 (use-package eglot
-  :disabled
-  :demand
+  ;; :disabled
+  :demand t
   :straight t
-  :preface
-  (defun eglot-remove-fluff ()
-    (eglot-inlay-hints-mode -1)
-    (remove-hook 'completion-at-point-functions #'eglot-completion-at-point t)
-    (remove-hook 'completion-in-region-mode-hook #'eglot--capf-session-flush t))
   :hook
-  ;; a SPICY take
-  (eglot-managed-mode-hook . eglot-remove-fluff)
-  (js-ts-hook . eglot-ensure)
-  (typescript-mode-hook . eglot-ensure)
-  (typescript-ts-mode-hook . eglot-ensure)
-  (tsx-ts-mode-hook . eglot-ensure)
-  (zig-mode-hook . eglot-ensure)
-  (haskell-ts-mode-hook . eglot-ensure)
-  (elixir-ts-mode-hook . eglot-ensure)
-  (elixir-mode-hook . eglot-ensure)
-  (rust-mode-hook . eglot-ensure)
-  (rust-ts-mode-hook . eglot-ensure)
-  (odin-mode-hook . eglot-ensure)
+  ((js-ts-hook
+    typescript-mode-hook
+    typescript-ts-mode-hook
+    tsx-ts-mode-hook
+    zig-mode-hook
+    haskell-ts-mode-hook
+    elixir-ts-mode-hook
+    elixir-mode-hook
+    erlang-mode-hook
+    rust-mode-hook
+    rust-ts-mode-hook
+    python-mode-hook
+    python-ts-mode-hook
+    go-ts-mode-hook
+    odin-mode-hook
+    c-mode-hook
+    c-ts-mode-hook)
+   . eglot-ensure)
+  (eglot-managed-mode-hook . (lambda () (eglot-inlay-hints-mode -1)))
+  (eglot-managed-mode-hook . disable-eglot-completion)
+  :preface
+  (defun disable-eglot-completion ()
+    (setq-local completion-at-point-functions
+                (remove #'eglot-completion-at-point completion-at-point-functions)))
   :custom
-  (eglot-autoshutdown t)
+  (eglot-prefer-plaintext t)
+  (eglot-confirm-server-edits '((t . nil)))
+  (eglot-code-action-indications '())
   (eglot-extend-to-xref t)
-  (eglot-ignored-server-capabilities ())
+  (eglot-autoshutdown t)
+  (eglot-ignored-server-capabilities '(:documentHighlightProvider))
   (eglot-stay-out-of '(company company-capf yasnippet company-backends))
   :bind
   (("C-c l l" . eglot)
    :map eglot-mode-map
+   ;; TODO: enable that once flymake actually works like I want it to
+   ;; ("M-g f" . consult-flymake)
    ("C-c l w r" . eglot-reconnect)
    ("C-c l w q" . eglot-shutdown)
    ("C-c l a" . eglot-code-actions)
    ("C-c l r" . eglot-rename)
    ("C-c l f" . eglot-format)
+   ("C-c l t" . eglot-find-typeDefinition)
    ("C-c l h" . eldoc-print-current-symbol-info))
   :config
   (add-to-list 'eglot-server-programs
+               '(erlang-mode
+                 . ("elp" "server")))
+  (add-to-list 'eglot-server-programs
                '((elixir-mode elixir-ts-mode heex-ts-mode)
-                 . ("/usr/lib/elixir-ls/language_server.sh")))
+                 . ("expert")))
   (add-to-list 'eglot-server-programs
                '(haskell-ts-mode
                  . ("haskell-language-server-wrapper" "--lsp")))
   (add-to-list 'eglot-server-programs
-               '(odin-mode . ("ols")))
+               '(odin-mode . ("odinls")))
+  (add-to-list 'eglot-server-programs
+               '((java-mode java-ts-mode)
+                 "jdtls"))
+  (add-to-list 'eglot-server-programs
+               `((js-mode js-ts-mode tsx-ts-mode typescript-ts-mode typescript-mode)
+                 .
+                 ("typescript-language-server" "--stdio"
+                  :initializationOptions
+                  (:preferences
+                   (:includeInlayParameterNameHints
+                    "all"
+                    :includeInlayParameterNameHintsWhenArgumentMatchesName nil
+                    :includeInlayFunctionParameterTypeHints nil
+                    :includeInlayVariableTypeHints nil
+                    :includeInlayVariableTypeHintsWhenTypeMatchesName nil
+                    :includeInlayPropertyDeclarationTypeHints nil
+                    :includeInlayFunctionLikeReturnTypeHints nil
+                    :includeInlayEnumMemberValueHints nil)))))
   ;; (add-to-list 'eglot-server-programs
-  ;;              '((typescript-ts-mode tsx-ts-mode typescript-mode tsx-mode js-mode js2-mode js3-mode)
+  ;;              '((typescript-ts-mode tsx-ts-mode typescript-mode js-mode js2-mode js3-mode)
   ;;                . ("vtsls" "--stdio")))
-  ;; (setq-default eglot-workspace-configuration
-  ;;               '((vtsls (experimental (completion (enableServerSideFuzzyMatch . t)
-  ;;                                                  (entriesLimit . 200)))
-  ;;                        (autoUseWorkspaceTsdk . t))))
+  (add-to-list 'eglot-server-programs
+               '(aiken-mode . ("aiken" "lsp")))
   ;; (fset #'eglot--snippet-expansion-fn #'ignore)
+  (eglot--code-action eglot-code-action-extract-function "refactor.extract.function")
   ;; corfu setup
-  (push '(eglot (styles orderless)) completion-category-overrides))
+  ;; (push '(eglot (styles orderless)) completion-category-overrides)
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
+(defun flymake-bs-display--shut-up (_type _indicator-type)
+  "")
+(advice-add 'flymake--bs-display :override #'flymake-bs-display--shut-up)
+(use-package flymake
+  :disabled
+  :straight (:type built-in)
+  :custom
+  ;; TODO: this still highlights the errors
+  (flymake-fringe-indicator-position nil)
+  (flymake-indicator-type nil)
+  (flymake-error-bitmap nil)
+  (flymake-warning-bitmap nil)
+  (flymake-note-bitmap nil)
+  (flymake-gui-warnings-enabled nil)
+  (flymake-margin-indicator-position nil)
+  (flymake-autoresize-margins nil)
+  (flymake-margin-indicators-string
+   '((error "" compilation-error)
+     (warning "" compilation-error)
+     (note "" compilation-error)))
+  :config
+  (put :note 'flymake-bitmap nil)
+  (push '(face . nil) (get :note 'flymake-overlay-control))
+  (put :warning 'flymake-bitmap nil)
+  (push '(face . nil) (get :warning 'flymake-overlay-control))
+  (put :error 'flymake-bitmap nil)
+  (push '(face . nil) (get :error 'flymake-overlay-control))
+  (custom-set-faces
+   '(flymake-error ((t :inherit default)))
+   '(flymake-warning ((t :inherit default)))
+   '(flymake-note ((t :inherit default)))
+   '(eglot-diagnostic-tag-unnecessary-face ((t :inherit default)))
+   ))
+
+;; TODO: maybe actually try flymake, also configure it so it shuts up
 (use-package flycheck-eglot
-  :disabled
-  :config
-  (global-flycheck-eglot-mode))
-
-(use-package eglot-booster
-  :disabled
-  :straight (:host github
-             :repo "jdtsmith/eglot-booster")
-  :config
-  (eglot-booster-mode))
+  ;; :disabled
+  ;; :after (flycheck eglot)
+  :hook
+  (eglot-managed-mode-hook . flycheck-eglot-mode))
 
 (use-package yasnippet
   :disabled
   :defer 0.3
   :config
   (yas-global-mode)
+  ;; TODO: custom-set-faces
   (set-face-attribute 'yas-field-highlight-face nil
                       :inherit 'bold))
 
+(use-package xref
+  :straight (:type built-in)
+  :custom
+  (xref-after-jump-hook '(recenter))
+  (xref-after-return-hook '()))
+
+(setq xref-prompt-for-identifier
+      '(not xref-find-references xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame))
 (use-package lsp-mode
+  :disabled
   :straight (lsp-mode
              :type git
              :flavor melpa
@@ -992,53 +1394,36 @@
   (defun lsp-mode-setup-completion-for-corfu ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
-  (defun lsp-booster--advice-json-parse (old-fn &rest args)
-    "Try to parse bytecode instead of json."
-    (or
-     (when (equal (following-char) ?#)
-       (let ((bytecode (read (current-buffer))))
-         (when (byte-code-function-p bytecode)
-           (funcall bytecode))))
-     (apply old-fn args)))
-  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-    "Prepend emacs-lsp-booster command to lsp CMD."
-    (let ((orig-result (funcall old-fn cmd test?)))
-      (if (and (not test?)                             ;; for check lsp-server-present?
-               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-               lsp-use-plists
-               (not (functionp 'json-rpc-connection))  ;; native json-rpc
-               (executable-find "emacs-lsp-booster"))
-          (progn
-            (message "Using emacs-lsp-booster for %s!" orig-result)
-            (cons "emacs-lsp-booster" orig-result))
-        orig-result)))
   :init
-  (setq lsp-elixir-ls-version "v0.22.0")
+  (setq lsp-elixir-ls-version "v0.27.2")
   :hook
   (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
-  (typescript-mode-hook . lsp-deferred)
-  (typescript-ts-mode-hook . lsp-deferred)
-  (tsx-ts-mode-hook . lsp-deferred)
-  (zig-mode-hook . lsp-deferred)
-  (haskell-ts-mode-hook . lsp-deferred)
-  (rust-mode-hook . lsp-deferred)
-  (rust-ts-mode-hook . lsp-deferred)
-  (c-ts-mode-hook . lsp-deferred)
-  (elixir-mode-hook . lsp-deferred)
-  (erlang-hook . lsp-deferred)
-  (elixir-ts-mode-hook - lsp-deferred)
-  (heex-ts-mode-hook . lsp-deferred)
-  (odin-mode-hook . lsp-deferred)
+  ((typescript-mode-hook
+    typescript-ts-mode-hook
+    js-mode-hook
+    js-ts-mode-hook
+    tsx-ts-mode-hook
+    python-mode-hook
+    python-ts-mode-hook
+    zig-mode-hook
+    haskell-ts-mode-hook
+    rust-mode-hook
+    rust-ts-mode-hook
+    c-mode-hook
+    c-ts-mode-hook
+    erlang-hook
+    elixir-mode-hook
+    elixir-ts-mode-hook
+    heex-ts-mode-hook
+    go-ts-mode-hook
+    odin-mode-hook
+    aiken-mode-hook
+    uiua-mode-hook)
+   . lsp-deferred)
   :bind
   ("C-c l l" . lsp)
   :config
-  (advice-add (if (progn (require 'json)
-                         (fboundp 'json-parse-buffer))
-                  'json-parse-buffer
-                'json-read)
-              :around
-              #'lsp-booster--advice-json-parse)
-  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+  ;; TODO: custom-set-faces
   (set-face-attribute 'lsp-face-highlight-textual nil
                       :inherit 'bold)
   (set-face-attribute 'lsp-face-highlight-read nil
@@ -1046,7 +1431,7 @@
                       :inherit 'bold)
   (set-face-attribute 'lsp-face-highlight-write nil
                       :inherit 'bold)
-  (setq lsp-eslint-auto-fix-on-save t)
+  (setq lsp-eslint-auto-fix-on-save nil)
   (defun lsp--eslint-before-save (orig-fun)
     "Run lsp-eslint-apply-all-fixes and then run the original lsp--before-save."
     (when (and lsp-eslint-auto-fix-on-save
@@ -1089,37 +1474,52 @@ finding the executable with variable `exec-path'."
     			    :server-id 'ols
                     ;; This is just so lsp-mode sends the "workspaceFolders" param to the server.
      			    :multi-root t))
+  (push '(aiken-mode . "aiken") lsp-language-id-configuration)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("aiken" "lsp"))
+    			    :major-modes '(aiken-mode)
+    			    :server-id 'aiken))
+  (push '(uiua-mode . "uiua") lsp-language-id-configuration)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("uiua" "lsp"))
+    			    :major-modes '(uiua-mode)
+    			    :server-id 'uiua))
   :custom
-  ;; a SPICY take
+  (lsp-completion-default-behaviour :insert)
   (lsp-completion-enable t)
   (lsp-keymap-prefix "C-c l")
   (lsp-enable-symbol-highlighting nil)
   (lsp-symbol-highlighting-skip-current t)
   (lsp-modeline-code-actions-enable nil)
-  (lsp-inlay-hint-enable nil)
+  (lsp-inlay-hint-enable t)
   (lsp-lens-enable nil)
-  (lsp-lens-place-position 'end-of-line)
   (lsp-prefer-capf t)
   (lsp-completion-provider :none) ; use corfu instead
   (lsp-idle-delay 0.75)
-  (lsp-enable-snippet t)
+  (lsp-enable-snippet nil)
   (lsp-headerline-breadcrumb-enable nil)
-  (lsp-file-watch-threshold 512)
+  (lsp-file-watch-threshold nil)
   (lsp-diagnostics-flycheck-default-level 'warning)
   (lsp-modeline-diagnostics-enable nil)
   (lsp-modeline-workspace-status-enable nil)
   (lsp-eldoc-enable-hover t)
   (lsp-eldoc-render-all t)
-  (lsp-typescript-surveys-enabled nil))
+  (lsp-typescript-surveys-enabled nil)
+  (lsp-eslint-enable nil))
 
 (use-package consult-lsp
+  :disabled
   :bind
+  ("M-g s" . consult-lsp-symbols)
   ("M-g d" . consult-lsp-diagnostics))
 
 (use-package dape
   :straight
   (:host github :repo "svaante/dape")
   :commands (dape)
+  :hook
+  (kill-emacs-hook . dape-breakpoint-save)
+  (after-init-hook . dape-breakpoint-load)
   :bind
   ("C-x C-a b" . dape-breakpoint-toggle)
   :custom
@@ -1128,9 +1528,10 @@ finding the executable with variable `exec-path'."
   :config
   (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line))
 
+;; TODO: defer
 (use-package lsp-haskell
+  :disabled
   :after lsp-mode
-  :preface
   :custom
   (lsp-haskell-server-path "haskell-language-server")
   (lsp-haskell-plugin-class-code-lens-on nil)
@@ -1143,15 +1544,19 @@ finding the executable with variable `exec-path'."
   :defer t
   :custom
   ;; (sly-complete-symbol-function 'completion-at-point)
-  (inferior-lisp-program "ros -Q run")
+  (inferior-lisp-program "sbcl")
   ;; (inferior-lisp-program "sbcl --dynamic-space-size 8Gb")
   :config
   (setq-default sly-symbol-completion-mode nil))
 
 (use-package cider
+  :defer t
   :custom
   (cider-repl-display-help-banner nil)
-  (cider-enrich-classpath t))
+  (cider-enrich-classpath t)
+  :bind
+  (:map cider-mode-map
+        ("C-c M-c" . cider-debug-defun-at-point)))
 
 (use-package rust-mode
   :defer t)
@@ -1160,17 +1565,26 @@ finding the executable with variable `exec-path'."
   :defer t)
 
 (use-package prisma-ts-mode
-  ;; :disabled
   :after treesit
   :config
   (add-to-list
    'treesit-language-source-alist
    '(prisma "https://github.com/victorhqc/tree-sitter-prisma")))
 
-(use-package markdown-mode
-  :hook
-  (markdown-mode-hook . variable-pitch-mode)
+(use-package graphql-ts-mode
+  :after treesit
+  :config
+  (add-to-list
+   'treesit-language-source-alist
+   '(graphql "https://github.com/bkegley/tree-sitter-graphql"))
   :defer t)
+
+(use-package typst-mode)
+
+;; it's really slow, especially with eglot rendering hovers
+(use-package markdown-mode
+  :disabled
+  )
 
 (use-package yaml-mode
   :defer t)
@@ -1181,6 +1595,9 @@ finding the executable with variable `exec-path'."
 (use-package nginx-mode
   :defer t)
 
+(use-package rmsbolt)
+
+;; TODO: https://codeberg.org/meow_king/zig-ts-mode
 (use-package zig-mode
   :custom
   (zig-format-on-save nil)
@@ -1191,22 +1608,26 @@ finding the executable with variable `exec-path'."
   :hook
   (odin-mode-hook . indent-tabs-mode))
 
-(use-package lua-mode
+(use-package glsl-mode
   :defer t)
 
-(use-package graphql-mode
+(use-package lua-mode
   :defer t)
 
 (use-package elixir-mode
   :mode ("\\.heex\\'" . heex-ts-mode))
 
-;; (add-to-list 'load-path "/usr/lib/erlang/lib/tools-4.1/emacs")
-;; (use-package erlang-start
-;;   :straight (:type built-in)
-;;   :custom
-;;   (erlang-root-dir "/usr/lib/erlang/")
-;;   (exec-path (cons "/usr/lib/erlang/bin" exec-path))
-;;   (erlang-man-root-dir "/usr/lib/erlang/man"))
+(if (file-exists-p "/usr/lib/erlang/lib/tools-4.1.2/emacs")
+    (progn
+      (add-to-list 'load-path "/usr/lib/erlang/lib/tools-4.1.2/emacs")
+      (use-package erlang-start
+        :straight (:type built-in)
+        :defer t
+        :mode ("\\.erl\\'" . erlang-mode)
+        :custom
+        (erlang-root-dir "/usr/lib/erlang/")
+        (exec-path (cons "/usr/lib/erlang/bin" exec-path))
+        (erlang-man-root-dir "/usr/lib/erlang/man"))))
 
 (use-package treesit
   :defer t
@@ -1218,85 +1639,245 @@ finding the executable with variable `exec-path'."
      "~/.config/emacs/straight/build/tree-sitter-langs/bin/")))
 
 (use-package treesit-auto
-  :defer 1
   :straight
   (:host github
    :repo "renzmann/treesit-auto")
   :custom
   (treesit-auto-install t)
+  :hook
+  (after-init-hook . global-treesit-auto-mode)
   :config
-  (global-treesit-auto-mode))
+  (delete 'markdown treesit-auto-langs)
+  ;; (delete 'c treesit-auto-langs)
+  (delete 'javascript treesit-auto-langs))
 
 (use-package ligature
+  :disabled
   :straight (:host github :repo "mickeynp/ligature.el")
+  :hook
+  (after-init-hook . global-ligature-mode)
   :config
   (ligature-set-ligatures
    'prog-mode
-   '("</>" "</" "/>"
+   '("</>"
+     "</" "/>"
      "::" ":::"
-     ";;"
+     ";;" ";;;"
      "//"
      "<:" ":>"
+     "=>"
+     ;; "<=" ">="
+     "==" "==="
+     ;; "!="
+     "->" "<-"
+     ;; "~>" "<~"
      "<<" ">>"
      "+=" "-=" "/=" "*="
      ":=" ":-" ":+"
      "+:" "-:" "=:"
      "<*" "<*>" "*>"
-     "<|" "<|>" "|>"))
-  (global-ligature-mode))
+     "<|" "<|>" "|>")))
 
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :config
   (pdf-tools-install t))
 
-(use-package tex-site
-  :straight auctex
-  :hook
-  (LaTeX-mode-hook . LaTeX-math-mode)
-  (LaTeX-mode-hook . turn-on-reftex)
-  (TeX-after-compilation-finished-functions . TeX-revert-document-buffer)
-  (LaTeX-mode-hook . prettify-symbols-mode)
-  :custom
-  (reftex-plug-into-AUCTeX t))
-
 (use-package apheleia
   :hook
-  (clojure-mode-hook . apheleia-mode)
-  (haskell-ts-mode-hook . apheleia-mode)
-  (python-mode-hook . apheleia-mode)
-  (rust-mode-hook . apheleia-mode)
-  (rust-ts-mode-hook . apheleia-mode)
-  (typescript-mode-hook . apheleia-mode)
-  (typescript-ts-mode-hook . apheleia-mode)
-  (tsx-ts-mode-hook . apheleia-mode)
-  (erlang-mode-hook . apheleia-mode)
-  (elixir-mode-hook . apheleia-mode)
-  (elixir-ts-mode-hook . apheleia-mode)
+  ((clojure-mode-hook
+    haskell-ts-mode-hook
+    python-mode-hook
+    python-ts-mode-hook
+    rust-mode-hook
+    rust-ts-mode-hook
+    typescript-mode-hook
+    typescript-ts-mode-hook
+    js-mode-hook
+    js-ts-mode-hook
+    tsx-ts-mode-hook
+    erlang-mode-hook
+    elixir-mode-hook
+    elixir-ts-mode-hook
+    go-mode-hook
+    go-ts-mode-hook
+    zig-mode-hook
+    aiken-mode-hook
+    tuareg-mode-hook)
+   . apheleia-mode)
+  :init
+  (put 'apheleia-formatter 'safe-local-variable #'symbolp)
   :config
   (setf
-   (alist-get 'prettier-typescript apheleia-formatters)
-   '("apheleia-npx" "prettier" "--stdin-filepath" filepath "--parser=typescript")
-   (alist-get 'cljstyle apheleia-formatters)
-   '("cljstyle" "pipe")
-   (alist-get 'clojure-mode apheleia-mode-alist)
-   'cljstyle
-   (alist-get 'fourmolu apheleia-formatters)
-   '("fourmolu" file)
-   (alist-get 'haskell-ts-mode apheleia-mode-alist)
-   'fourmolu
+   (alist-get 'prisma-ts-mode apheleia-mode-alist)
+   'prisma
+   (alist-get 'prisma apheleia-formatters)
+   '("bunx" "--bun" "prisma" "format")
+   ;; (alist-get 'prettier-typescript apheleia-formatters)
+   ;; '("apheleia-npx" "prettier" "--stdin-filepath" filepath "--parser=typescript")
    (alist-get 'rebar3-format apheleia-formatters)
    '("apheleia-from-project-root" "rebar.config" "rebar3" "format" filepath)
    (alist-get 'erlang-mode apheleia-mode-alist)
-   'rebar3-format))
+   'rebar3-format
+   (alist-get 'isort apheleia-formatters)
+   '("isort" "--stdout" "-")
+   (alist-get 'python-mode apheleia-mode-alist)
+   '(isort black)
+   (alist-get 'python-ts-mode apheleia-mode-alist)
+   '(isort black)
+   (alist-get 'aiken apheleia-formatters)
+   '("aiken" "fmt" file)
+   (alist-get 'aiken-mode apheleia-mode-alist)
+   'aiken
+   (alist-get 'typescript-ts-mode apheleia-mode-alist)
+   'biome))
+
+(add-to-list 'eglot-server-programs
+             '((python-mode python-ts-mode)
+               "pyrefly" "lsp"
+               ;; "ty" "server"
+               ))
+
+;; (add-to-list 'eglot-server-programs
+;;              '((python-mode python-ts-mode)
+;;                "basedpyright-langserver" "--stdio"))
+(use-package lsp-pyright
+  :disabled
+  :defer t
+  :after python
+  :custom
+  (lsp-pyright-langserver-command "basedpyright"))
 
 (use-package nix-mode
   :defer t)
 
-(use-package sudo-edit
-  :commands (sudo-edit-find-file))
+(use-package ocaml-eglot
+  :hook
+  (tuareg-mode-hook . ocaml-eglot)
+  (ocaml-eglot-hook . eglot-ensure))
 
-(use-package tuareg)
+(use-package tuareg
+  ;; :custom
+  ;; (exec-path (cons (expand-file-name "~/.opam/default/bin") exec-path))
+  :defer t)
+;; (add-to-list 'load-path "/home/arjaz/.opam/default/share/emacs/site-lisp")
+;; (require 'ocp-indent)
+
+(use-package go-mode
+  :defer t
+  :custom
+  (go-ts-mode-indent-offset 4))
+
+(use-package jinx
+  ;; :hook
+  ;; (emacs-startup-hook . global-jinx-mode)
+  )
+
+(use-package protobuf-mode
+  :defer t)
+
+(use-package aiken-mode
+  :defer t
+  :init
+  (add-to-list
+   'treesit-language-source-alist
+   '(aiken "https://github.com/aiken-lang/tree-sitter-aiken")))
+
+(use-package solidity-mode
+  :defer t
+  :hook
+  (solidity-mode-hook . eglot-ensure)
+  :config
+  (add-to-list
+   'eglot-server-programs
+   '(solidity-mode
+     . ("nomicfoundation-solidity-language-server" "--stdio"))))
+
+(use-package julia-mode)
+(use-package eglot-jl
+  :config
+  (eglot-jl-init))
+
+(use-package uiua-mode
+  :defer t)
+  
+(use-package bqn-mode
+  :defer t
+  :config
+  ;; TODO: custom-set-faces
+  (set-face-attribute 'bqn-default nil
+                      :family 'unspecified
+                      :inherit 'default)
+  :bind
+  (:map bqn-mode-map
+        ("C-c C-c" . bqn-comint-send-dwim)
+        ("C-c C-e" . bqn-comint-eval-dwim)))
+
+(use-package nov
+  :mode ("\\.epub\\'" . nov-mode)
+  :custom
+  (nov-text-width 120))
+
+(use-package olivetti
+  :disabled
+  :custom
+  (olivetti-body-width 140))
+
+(use-package auto-olivetti
+  :disabled
+  :straight (:host sourcehut :repo "ashton314/auto-olivetti")
+  :custom
+  (auto-olivetti-enabled-modes '(text-mode prog-mode))
+  :hook
+  (after-init-hook . auto-olivetti-mode))
+
+(use-package indent-bars
+  :disabled
+  :hook
+  (prog-mode-hook . indent-bars-mode)
+  :custom
+  (indent-bars-no-descend-lists t)
+  (indent-bars-color '(highlight :blend 0.1))
+  (indent-bars-pattern ".")
+  (indent-bars-width-frac 0.01)
+  (indent-bars-pad-frac 0.1)
+  (indent-bars-zigzag nil)
+  (indent-bars-color-by-depth nil)
+  (indent-bars-highlight-current-depth nil)
+  (indent-bars-display-on-blank-lines t))
+
+(use-package kkp
+  :config
+  (global-kkp-mode t))
+
+(use-package xclip
+  :config
+  (xclip-mode t))
+
+(use-package elastic-indent
+  :disabled
+  :straight
+  (:host github :repo "jyp/elastic-modes")
+  :custom
+  (elastic-indent-fontify nil)
+  :config
+  (elastic-indent-mode))
+
+(use-package elastic-table
+  :disabled
+  :straight
+  (:host github :repo "jyp/elastic-modes"))
+
+(use-package buffer-box
+  :disabled
+  :straight
+  (:host github :repo "rougier/buffer-box")
+  :hook
+  (prog-mode-hook . buffer-box-on))
+
+;; startup.el in `normal-top-level` messes up the PAGER for some dumb reason
+;; and I can't figure out how to stop it
+;; (setenv "PAGER" nil)
 
 (provide 'init)
 ;;; init.el ends here
