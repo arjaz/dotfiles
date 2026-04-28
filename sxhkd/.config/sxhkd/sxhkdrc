@@ -1,0 +1,129 @@
+# terminal
+super + Return
+    ghostty
+
+# focus
+super + c
+    bspc node -f next.local.leaf
+super + i
+    bspc node -f prev.local.leaf
+
+# swap
+super + shift + n
+    bspc node -s next.local
+super + shift + p
+    bspc node -s prev.local
+
+# fullscreen
+super + s
+    bspc node -t \~fullscreen
+
+# floating
+super + t
+    bspc node -t \~floating
+    
+# fancy gaps
+super + space
+    d=$(bspc query -D -d focused --names); \
+    g=$(bspc config -d "$d" window_gap); \
+    if [ "$g" = "0" ]; then \
+      bspc config -d "$d" window_gap 4; \
+      bspc config -d "$d" top_padding 10; \
+      bspc config -d "$d" bottom_padding 10; \
+      bspc config -d "$d" left_padding 300; \
+      bspc config -d "$d" right_padding 300; \
+    else \
+      bspc config -d "$d" window_gap 0; \
+      bspc config -d "$d" top_padding 0; \
+      bspc config -d "$d" bottom_padding 0; \
+      bspc config -d "$d" left_padding 0; \
+      bspc config -d "$d" right_padding 0; \
+    fi
+    
+# kill
+super + x
+    bspc node -c
+
+# swap with master (big node)
+super + m
+    bspc node -s biggest.local
+
+# resize (Expand/Shrink)
+super + shift + c
+    bspc node -z left 20 0
+super + shift + i
+    bspc node -z left -20 0
+
+# rofi
+super + d
+    rofi -show run -font "Iosarja 14"
+super + Tab
+    rofi -show window
+
+# apps
+super + o ; w
+    helium-browser
+super + o ; t
+    Telegram
+super + e
+    emacs
+
+# exit
+super + o ; q ; q
+    bspc quit
+
+# keyboard/layout/theme/scripts
+super + o ; c ; k
+    setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt
+super + o ; c ; l
+    sh ~/dotfiles/scripts/to-light-theme.sh
+super + o ; c ; d
+    sh ~/dotfiles/scripts/to-dark-theme.sh
+super + o ; d ; y
+    sh ~/dotfiles/scripts/xclip-yt-dlp.sh
+
+# pass
+super + o ; p
+    pass clip -r
+
+# audio
+XF86AudioPause
+    playerctl pause
+XF86AudioPlay
+    playerctl play
+XF86AudioLowerVolume
+    pactl -- set-sink-volume 0 -5%
+XF86AudioRaiseVolume
+    pactl -- set-sink-volume 0 +5%
+XF86AudioMute
+    pactl set-sink-mute 0 toggle
+
+# screenshots
+super + o ; super + s
+    maim -m 10 -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
+super + o ; s
+    maim -m 10 -s | xclip -selection clipboard -t image/png
+super + o ; super + shift + s
+    maim ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
+super + o ; shift + s
+    maim -s ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
+
+# polybar toggle
+# super + b
+#     pgrep -x "polybar" && pkill polybar || ~/dotfiles/scripts/polybar.sh
+
+# workspace switching
+super + {1-9,0}
+    bspc desktop -f {1-9,0}
+
+# move node to workspace
+super + alt + {1-9,0}
+    bspc node -d {1-9,0}
+
+# reload bspwm
+super + shift + r
+    bspc wm -r
+
+# reload sxhkd
+super + Escape
+    pkill -USR1 -x sxhkd
