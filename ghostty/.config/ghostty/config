@@ -1,10 +1,6 @@
 unfocused-split-opacity = 1
-# font-family = CommitMonoArjaz
-# font-family = CommitMono Nerd Font Mono
-# font-family = Berkeley Mono
-font-family = Ioskeley Term Mono
-# font-family = Iosevka Nerd Font Mono
-# font-family = ShureTechMono Nerd Font Mono
+font-family = Ioskeley Mono
+# font-family = Ioskeley Mono Semi-Condensed
 font-size = 13
 # adjust-cell-height = 10%
 font-feature = -calt
@@ -19,7 +15,9 @@ window-padding-x = 4
 window-padding-y = 2
 
 # working-directory = inherit
-# window-inherit-working-directory = false
+window-inherit-working-directory = false
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
 
 command = zsh
 
