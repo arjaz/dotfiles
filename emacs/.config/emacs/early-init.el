@@ -77,8 +77,7 @@
 
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  ;; (setq the-font "CommitMonoArjaz")
-  (setq the-font "Ioskeley Mono")
+  (setq the-font "IoskeleyMono Nerd Font")
   ;; (setq the-font "Iosevka")
   (setq the-nice-font "Iosevka Aile")
   (setq the-font-height font-height)
@@ -86,21 +85,33 @@
   ;; TODO: custom-set-faces
   (set-face-attribute 'default
                       nil
+                      :width 'normal
+                      ;; :width 'semi-condensed
+                      ;; :width 'condensed
                       :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'fixed-pitch-serif
                       nil
+                      :width 'normal
+                      ;; :width 'semi-condensed
+                      ;; :width 'condensed
                       :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'fixed-pitch
                       nil
+                      :width 'normal
+                      ;; :width 'semi-condensed
+                      ;; :width 'condensed
                       :weight 'normal
                       :family the-font
                       :height the-font-height)
   (set-face-attribute 'variable-pitch
                       nil
+                      :width 'normal
+                      ;; :width 'semi-condensed
+                      ;; :width 'condensed
                       :weight 'normal
                       :family the-nice-font
                       :height the-font-height))
@@ -136,3 +147,4 @@
 ;; (advice-add 'flash-jump
 ;;             :around
 ;;             #'toggle-safe-composition-table--around)
+
