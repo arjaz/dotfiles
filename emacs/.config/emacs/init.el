@@ -4,9 +4,11 @@
 ;;; My Emacs configuration
 
 ;;; Code:
-;; (setq esup-depth 0)
-;; (use-package esup)
 
+(use-package esup
+  :disabled
+  :init
+  (setq esup-depth 0))
 (use-package benchmark-init
   :disabled
   :hook (after-init-hook . benchmark-init/deactivate)
