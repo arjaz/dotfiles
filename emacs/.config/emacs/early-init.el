@@ -51,10 +51,19 @@
   (savehist-save-minibuffer-history t)
   (history-length 100)
   (history-delete-duplicates t)
+  :hook
+  (savehist-save-hook
+   . (lambda ()
+       (setq kill-ring
+             (mapcar #'substring-no-properties
+                     (cl-remove-if-not #'stringp kill-ring)))))
   :config
   (savehist-mode)
   (push 'use-dark-theme-p savehist-additional-variables)
-  (push 'the-font-height savehist-additional-variables))
+  (push 'the-font-height savehist-additional-variables)
+  (push 'kill-ring savehist-additional-variables)
+  (push 'regexp-search-ring savehist-additional-variables)
+  (push 'search-ring savehist-additional-variables))
 
 (use-package saveplace
   :straight (:type built-in)
