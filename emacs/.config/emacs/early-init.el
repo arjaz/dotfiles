@@ -14,7 +14,7 @@
 (horizontal-scroll-bar-mode -1)
 
 (defvar bootstrap-version)
-(setq straight-check-for-modifications '())
+(setq straight-check-for-modifications '(find-when-checking))
 (let ((bootstrap-file
        (expand-file-name
         "straight/repos/straight.el/bootstrap.el"
