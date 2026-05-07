@@ -26,14 +26,9 @@
 (advice-add 'recentf-cleanup :around #'shut-up--advice)
 (advice-add 'undo-fu-session--recover-impl :around #'shut-up--advice)
 
-(use-package ef-themes :disabled)
-(use-package srcery-theme :disabled)
-
-(use-package alabaster-theme
-  :straight
-  (:host github :repo "uzhne/alabaster-emacs"))
-
 (use-package modus-themes
+  :straight
+  (:type built-in)
   :defer t
   :custom
   (modus-operandi-palette-overrides
@@ -51,6 +46,7 @@
   (modus-vivendi-palette-overrides
    '((keyword fg-main)
      (bg-paren-match fg-dim)
+     ;; (fg-main "#FFBF00")
      (docstring fg-main)
      (docmarkup fg-main)
      (fg-line-number-inactive fg-dim)
@@ -80,38 +76,38 @@
      (accent-2 blue-faint)
      (accent-3 red-faint)
      ;; TODO: diffs
-     ;; (bg-term-black black)
-     ;; (fg-term-black black)
-     ;; (bg-term-black-bright black)
-     ;; (fg-term-black-bright black)
-     ;; (bg-term-red red-faint)
-     ;; (fg-term-red red-faint)
-     ;; (bg-term-red-bright red-faint)
-     ;; (fg-term-red-bright red-faint)
-     ;; (bg-term-green green-faint)
-     ;; (fg-term-green green-faint)
-     ;; (bg-term-green-bright green-faint)
-     ;; (fg-term-green-bright green-faint)
-     ;; (bg-term-yellow yellow-faint)
-     ;; (fg-term-yellow yellow-faint)
-     ;; (bg-term-yellow-bright yellow-faint)
-     ;; (fg-term-yellow-bright yellow-faint)
-     ;; (bg-term-blue blue-faint)
-     ;; (fg-term-blue blue-faint)
-     ;; (bg-term-blue-bright blue-faint)
-     ;; (fg-term-blue-bright blue-faint)
-     ;; (bg-term-magenta magenta-faint)
-     ;; (fg-term-magenta magenta-faint)
-     ;; (bg-term-magenta-bright magenta-faint)
-     ;; (fg-term-magenta-bright magenta-faint)
-     ;; (bg-term-cyan cyan-faint)
-     ;; (fg-term-cyan cyan-faint)
-     ;; (bg-term-cyan-bright cyan-faint)
-     ;; (fg-term-cyan-bright cyan-faint)
-     ;; (bg-term-white white)
-     ;; (fg-term-white white)
-     ;; (bg-term-white-bright white)
-     ;; (fg-term-white-bright white)
+     (bg-term-black black)
+     (fg-term-black black)
+     (bg-term-black-bright black)
+     (fg-term-black-bright black)
+     (bg-term-red red)
+     (fg-term-red red)
+     (bg-term-red-bright red)
+     (fg-term-red-bright red)
+     (bg-term-green green)
+     (fg-term-green green)
+     (bg-term-green-bright green)
+     (fg-term-green-bright green)
+     (bg-term-yellow yellow)
+     (fg-term-yellow yellow)
+     (bg-term-yellow-bright yellow)
+     (fg-term-yellow-bright yellow)
+     (bg-term-blue blue)
+     (fg-term-blue blue)
+     (bg-term-blue-bright blue)
+     (fg-term-blue-bright blue)
+     (bg-term-magenta magenta)
+     (fg-term-magenta magenta)
+     (bg-term-magenta-bright magenta)
+     (fg-term-magenta-bright magenta)
+     (bg-term-cyan cyan)
+     (fg-term-cyan cyan)
+     (bg-term-cyan-bright cyan)
+     (fg-term-cyan-bright cyan)
+     (bg-term-white white)
+     (fg-term-white white)
+     (bg-term-white-bright white)
+     (fg-term-white-bright white)
      (fg-heading-0 fg-main)
      (fg-heading-1 fg-main)
      (fg-heading-2 fg-main)
@@ -168,7 +164,6 @@
   (setq use-dark-theme-p nil)
   (mapcar #'disable-theme custom-enabled-themes)
   (load-theme light-theme t)
-  ;; TODO: maybe dim out the punctuation?
   (custom-set-faces
    ;; '(font-lock-keyword-face
    ;;   ((t :weight semibold)))
@@ -178,6 +173,7 @@
      ((t :background ,(modus-themes-get-color-value 'bg-green-nuanced))))
    `(font-lock-doc-face
      ((t :background ,(modus-themes-get-color-value 'bg-green-nuanced))))))
+
 (defvar use-dark-theme-p nil)
 
 (if use-dark-theme-p
