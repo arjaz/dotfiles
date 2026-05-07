@@ -54,14 +54,11 @@ super + shift + c
 super + shift + i
     bspc node -z left -20 0
 
-# rofi
 super + d
-    rofi -show run -font "Iosarja 14"
-super + Tab
-    rofi -show window
+    BEMENU_RUN=t ~/dotfiles/scripts/bemenu.sh -p "run"
 
 # apps
-super + o ; w
+super + w
     helium-browser
 super + o ; t
     Telegram
@@ -72,7 +69,6 @@ super + e
 super + o ; q ; q
     bspc quit
 
-# keyboard/layout/theme/scripts
 super + o ; c ; k
     setxkbmap -option grp:sclk_toggle us,ua -option compose:ralt
 super + o ; c ; l
@@ -82,11 +78,15 @@ super + o ; c ; d
 super + o ; d ; y
     sh ~/dotfiles/scripts/xclip-yt-dlp.sh
 
-# pass
 super + o ; p
-    pass clip -r
+    ~/dotfiles/scripts/bemenu-pass.sh
+    
+super + j
+    ~/dotfiles/scripts/bemenu-bspw-jumpbring.sh jump
+    
+super + b
+    ~/dotfiles/scripts/bemenu-bspw-jumpbring.sh bring
 
-# audio
 XF86AudioPause
     playerctl pause
 XF86AudioPlay
