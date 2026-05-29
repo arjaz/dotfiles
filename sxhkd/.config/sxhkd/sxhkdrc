@@ -61,7 +61,7 @@ super + d
 super + w
     helium-browser
 super + o ; t
-    Telegram
+    telegram-desktop
 super + e
     emacs
 
@@ -107,10 +107,6 @@ super + o ; super + shift + s
     maim ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
 super + o ; shift + s
     maim -s ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
-
-# polybar toggle
-# super + b
-#     pgrep -x "polybar" && pkill polybar || ~/dotfiles/scripts/polybar.sh
 
 # workspace switching
 super + {1-9,0}
