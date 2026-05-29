@@ -1,33 +1,8 @@
 background = #ffffff
 foreground = #000000
-selection-background = #bfefff
-selection-foreground = #000000
+selection-background = #000000
+selection-foreground = #ffffff
 cursor-color = #000000
-
-# # black
-# palette = 8=#000000
-# palette = 0=#595959
-# # red
-# palette = 9=#a60000
-# palette = 1=#7f0000
-# # green
-# palette = 10=#006800
-# palette = 2=#2a5045
-# # yellow
-# palette = 11=#6f5500
-# palette = 3=#624416
-# # blue
-# palette = 12=#0031a9
-# palette = 4=#003497
-# # magenta
-# palette = 13=#721045
-# palette = 5=#7c318f
-# # cyan
-# palette = 14=#005e8b
-# palette = 6=#005077
-# # white
-# palette = 15=#ffffff
-# palette = 7=#f2f2f2
 
 # black
 palette = 0=#000000
