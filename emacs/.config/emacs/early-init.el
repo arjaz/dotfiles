@@ -1,6 +1,16 @@
 ;; -*- lexical-binding: t; -*-
 ;; (setenv "LSP_USE_PLISTS" "true")
 
+(defvar cpu-arch "znver4")
+(setq native-comp-compiler-options '("-Os"
+                                     "-g0"
+                                     "-fno-omit-frame-pointer"
+                                     "-fno-finite-math-only"))
+(setq native-comp-driver-options `(,(format "-mtune=%s" cpu-arch)
+                                   ,(format "-march=%s" cpu-arch)))
+
+(setq load-prefer-newer t)
+
 (setq package-enable-at-startup nil)
 
 (push '(menu-bar-lines . 0)   default-frame-alist)
