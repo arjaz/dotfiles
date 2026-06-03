@@ -69,8 +69,6 @@
                      (cl-remove-if-not #'stringp kill-ring)))))
   :config
   (savehist-mode)
-  (push 'use-dark-theme-p savehist-additional-variables)
-  (push 'the-font-height savehist-additional-variables)
   (push 'kill-ring savehist-additional-variables)
   (push 'regexp-search-ring savehist-additional-variables)
   (push 'search-ring savehist-additional-variables))
@@ -85,46 +83,29 @@
 
 (setq ring-bell-function 'ignore)
 
+(defvar the-font)
+(defvar the-nice-font)
+(defvar the-font-height)
+(defvar the-font-width)
+(defvar the-font-weight)
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  (setq the-font "IoskeleyMono Nerd Font")
-  ;; (setq the-font "Iosevka")
+  (setq the-font "IoskeleyMonoTerm Nerd Font")
   (setq the-nice-font "Iosevka Aile")
   (setq the-font-height font-height)
-  (setq-default line-spacing 0.0)
-  ;; TODO: custom-set-faces
-  (set-face-attribute 'default
-                      nil
-                      :width 'normal
-                      ;; :width 'semi-condensed
-                      ;; :width 'condensed
-                      :weight 'normal
-                      :family the-font
-                      :height the-font-height)
-  (set-face-attribute 'fixed-pitch-serif
-                      nil
-                      :width 'normal
-                      ;; :width 'semi-condensed
-                      ;; :width 'condensed
-                      :weight 'normal
-                      :family the-font
-                      :height the-font-height)
-  (set-face-attribute 'fixed-pitch
-                      nil
-                      :width 'normal
-                      ;; :width 'semi-condensed
-                      ;; :width 'condensed
-                      :weight 'normal
-                      :family the-font
-                      :height the-font-height)
-  (set-face-attribute 'variable-pitch
-                      nil
-                      :width 'normal
-                      ;; :width 'semi-condensed
-                      ;; :width 'condensed
-                      :weight 'normal
-                      :family the-nice-font
-                      :height the-font-height))
+  (setq the-font-width 'normal)
+  (setq the-font-weight 'normal)
+  ;; (setq-default line-spacing '(0.08 . 0.08))
+  (setq-default line-spacing nil)
+  (custom-set-faces
+   `(default
+     ((t (:family ,the-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))
+   `(fixed-pitch-serif
+     ((t (:family ,the-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))
+   `(fixed-pitch
+     ((t (:family ,the-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))
+   `(variable-pitch
+     ((t (:family ,the-nice-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))))
 (set-fonts 110)
 
 ;; (defun set-safe-composition-table ()
