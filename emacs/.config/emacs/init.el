@@ -187,10 +187,11 @@
   (initial-scratch-message nil)
   (frame-inhibit-implied-resize t)
   (auto-mode-case-fold nil)
-  (read-process-output-max (* 1024 1024))
+  (read-process-output-max (* 4 1024 1024))
   (window-resize-pixelwise nil)
   (cursor-in-nonselected-windows nil)
   (fast-but-imprecise-scrolling t)
+  (redisplay-skip-fontification-on-input t)
   (tab-always-indent t)
   (inhibit-compacting-font-caches t)
   (ad-redefinition-action 'accept)
@@ -213,7 +214,7 @@
   (use-dialog-box nil)
   (use-short-answers t)
   (history-length 1000)
-  (history-delete-duplicates t)
+  (history-delete-duplicates nil)
   (enable-recursive-minibuffers t)
   (sentence-end-double-space nil)
   ;; Temporarily disable GC during startup
@@ -254,6 +255,7 @@
 (use-package compile
   :straight (:type built-in)
   :custom
+  (compilation-always-kill t)
   (compilation-scroll-output 'first-error)
   :hook
   (compilation-mode-hook . visual-line-mode)
@@ -484,13 +486,20 @@
 (use-package mode-local
   :straight (:type built-in))
 
+(use-package executable
+  :straight (:type built-in)
+  :hook
+  (after-save-hook .  executable-make-buffer-file-executable-if-script-p))
+
 (use-package simple
   :straight (:type built-in)
   :bind
   (:map ctl-x-map
         ("k" . kill-current-buffer))
   :custom
+  (kill-do-not-save-duplicates t)
   (blink-matching-paren nil)
+  (set-mark-command-repeat-pop t)
   :config
   (setq-default indent-tabs-mode nil))
 
