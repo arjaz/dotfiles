@@ -374,8 +374,7 @@
   )
 
 (use-package ultra-scroll
-  ;; :disabled
-  :straight (:host github :repo "jdsmith/ultra-scroll")
+  :straight (:host github :repo "jdtsmith/ultra-scroll")
   :custom
   (pixel-scroll-precision-interpolation-total-time 0.15)
   (pixel-scroll-precision-interpolate-page t)
