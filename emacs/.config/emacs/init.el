@@ -636,22 +636,6 @@
   ;; (multiple-cursors-mode-hook . toggle-completion-preview-mode)
   )
 
-(use-package macrursors
-  :disabled
-  :straight
-  (:host github :repo "corytertel/macrursors")
-  :hook
-  (macrursors-mode-hook . deactivate-mark)
-  ((macrursors-pre-finish-hook macrursors-post-finish-hook)
-   . corfu-mode)
-  :bind
-  (("C->" . macrursors-mark-next-line)
-   ("C-<" . macrursors-mark-previous-line)
-   ("C-M->" . macrursors-mark-next-instance-of)
-   ("C-M-<" . macrursors-mark-previous-instance-of)
-   :map macrursors-mode-map
-   ("C-," . macrursors-end)))
-
 (use-package selection-highlight-mode
   :straight
   (:type git :host github :repo "balloneij/selection-highlight-mode")
@@ -685,12 +669,6 @@
                     (kill-local-variable 'save-scroll-margin))
                 (kill-local-variable 'scroll-margin)))))
 
-(use-package isearch-mb
-  :disabled
-  :hook
-  ;; TODO: that makes recentering harder
-  (after-init-hook . isearch-mb-mode))
-
 (use-package flash
   :straight
   (:host github :repo "Prgebish/flash")
@@ -717,7 +695,7 @@
   (after-init-hook . global-undo-fu-session-mode))
 
 (use-package ws-butler
-  ;; :disabled
+  :disabled
   :hook
   (prog-mode-hook . ws-butler-mode))
 
@@ -733,69 +711,10 @@
   :hook
   (after-init-hook . wrap-region-global-mode))
 
-(use-package puni
-  :disabled
-  :bind
-  ("M-r"   . puni-raise)
-  ;; FIXME: conflicts with isearch
-  ;; ("C-M-s" . puni-splice)
-  ("C-("   . puni-slurp-backward)
-  ("C-)"   . puni-slurp-forward)
-  ("C-{"   . puni-barf-backward)
-  ("C-}"   . puni-barf-forward))
-
 (use-package xterm-color)
 
-(use-package esh-mode
-  :disabled
-  :defer t
-  :straight (:type built-in)
-  :hook
-  (eshell-before-prompt-hook
-   .
-   (lambda ()
-     (setq-local xterm-color-preserve-properties t)))
-  :custom
-  (eshell-history-size 1024)
-  (eshell-scroll-to-bottom-on-input nil)
-  (eshell-hist-ignoredups t)
-  :preface
-  (defun eshell/clear-buffer ()
-    "Clear terminal."
-    (interactive)
-    (when (equal major-mode 'eshell-mode)
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (eshell-send-input))))
-  :bind
-  (;; ("C-c o e" . eshell)
-   :map eshell-mode-map
-   ("C-c C-l" . eshell/clear-buffer)
-   ;; :map eshell-hist-mode-map
-   ;; ("<up>" . previous-line)
-   ;; ("<down>" . next-line)
-   )
-  :config
-  (require 'em-hist)
-  (add-hook 'eshell-preoutput-filter-functions 'xterm-color-filter)
-  (setenv "TERM" "xterm-256color"))
-
 (setq shell-file-name "zsh")
-(use-package vterm
-  :config
-  ;; (advice-add
-  ;;  'set-window-vscroll :after
-  ;;  (defun me/vterm-toggle-scroll (&rest _)
-  ;;    (when (eq major-mode 'vterm-mode)
-  ;;      (if (> (window-end) (buffer-size))
-  ;;          (when vterm-copy-mode (vterm-copy-mode-done nil))
-  ;;        (vterm-copy-mode 1)))))
-  (push '("find-file-other-window" find-file-other-window)
-        vterm-eval-cmds)
-  :custom
-  (vterm-timer-delay 0.01)
-  (vterm-max-scrollback 10000)
-  (vterm-environment '("PAGER"))
+
   :bind
   ("C-c o v" . vterm))
 
@@ -851,6 +770,7 @@
   )
 
 (use-package orderless
+  :disabled
   ;; :config
   ;; (defun orderless-fast-dispatch (word index total)
   ;;   (and (= index 0) (= total 1) (length< word 4)
@@ -869,11 +789,11 @@
   ("C-," . goto-last-change)
   ("C-." . goto-last-change-reverse))
 
-(use-package javelin
-  :straight
-  (:host github :repo "DamianB-BitFlipper/javelin.el")
-  :config
-  (global-javelin-minor-mode t))
+;; (use-package javelin
+;;   :straight
+;;   (:host github :repo "DamianB-BitFlipper/javelin.el")
+;;   :config
+;;   (global-javelin-minor-mode t))
 
 (use-package consult
   :custom
@@ -903,12 +823,6 @@
   :hook
   (after-init-hook . recentf-mode))
 
-(use-package vertico-posframe
-  :disabled)
-(use-package nova
-  :disabled
-  :straight (:host github :repo "thisisran/nova"))
-
 (use-package project
   :straight (:type built-in)
   :custom
@@ -936,6 +850,7 @@
   (add-to-list 'auto-mode-alist '("\\.jjdescription\\'". diff-mode)))
 
 (use-package jj-mode
+  :disabled
   :straight (:host github :repo "bolivier/jj-mode.el")
   :bind
   ("C-c o j" . jj-log)
@@ -1014,7 +929,7 @@
 
 (use-package completion-preview
   :straight (:type built-in)
-  ;; :disabled
+  :disabled
   :hook
   (prog-mode-hook . completion-preview-mode)
   :custom
@@ -1371,15 +1286,6 @@
   :hook
   (eglot-managed-mode-hook . flycheck-eglot-mode))
 
-(use-package yasnippet
-  :disabled
-  :defer 0.3
-  :config
-  (yas-global-mode)
-  ;; TODO: custom-set-faces
-  (set-face-attribute 'yas-field-highlight-face nil
-                      :inherit 'bold))
-
 (use-package xref
   :straight (:type built-in)
   :custom
@@ -1387,137 +1293,10 @@
   (xref-after-return-hook '()))
 
 (setq xref-prompt-for-identifier
-      '(not xref-find-references xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame))
-(use-package lsp-mode
-  :disabled
-  :straight (lsp-mode
-             :type git
-             :flavor melpa
-             :files (:defaults "clients/*.el" "lsp-mode-pkg.el")
-             :host github
-             :repo "emacs-lsp/lsp-mode")
-  :preface
-  (defun lsp-mode-setup-completion-for-corfu ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless)))
-  :init
-  (setq lsp-elixir-ls-version "v0.27.2")
-  :hook
-  (lsp-completion-mode-hook . lsp-mode-setup-completion-for-corfu)
-  ((typescript-mode-hook
-    typescript-ts-mode-hook
-    js-mode-hook
-    js-ts-mode-hook
-    tsx-ts-mode-hook
-    python-mode-hook
-    python-ts-mode-hook
-    zig-mode-hook
-    haskell-ts-mode-hook
-    rust-mode-hook
-    rust-ts-mode-hook
-    c-mode-hook
-    c-ts-mode-hook
-    erlang-hook
-    elixir-mode-hook
-    elixir-ts-mode-hook
-    heex-ts-mode-hook
-    go-ts-mode-hook
-    odin-mode-hook
-    aiken-mode-hook
-    uiua-mode-hook)
-   . lsp-deferred)
-  :bind
-  ("C-c l l" . lsp)
-  :config
-  ;; TODO: custom-set-faces
-  (set-face-attribute 'lsp-face-highlight-textual nil
-                      :inherit 'bold)
-  (set-face-attribute 'lsp-face-highlight-read nil
-                      :underline nil
-                      :inherit 'bold)
-  (set-face-attribute 'lsp-face-highlight-write nil
-                      :inherit 'bold)
-  (setq lsp-eslint-auto-fix-on-save nil)
-  (defun lsp--eslint-before-save (orig-fun)
-    "Run lsp-eslint-apply-all-fixes and then run the original lsp--before-save."
-    (when (and lsp-eslint-auto-fix-on-save
-               (or (derived-mode-p 'typescript-ts-mode)
-                   (derived-mode-p 'tsx-ts-mode)))
-      (lsp-eslint-fix-all))
-    (funcall orig-fun))
-  (advice-add 'lsp--before-save :around #'lsp--eslint-before-save)
-  (defgroup lsp-vtsls nil
-    "LSP wrapper for typescript extension of vscode."
-    :group 'lsp-mode
-    :link '(url-link "https://github.com/yioneko/vtsls"))
-  (defcustom lsp-clients-vtsls-server "vtsls"
-    "The vtsls executable to use.
-Leave as just the executable name to use the default behavior of
-finding the executable with variable `exec-path'."
-    :group 'lsp-vtsls
-    :risky t
-    :type 'file
-    :package-version '(lsp-mode . "8.0.0"))
-  (defcustom lsp-clients-vtsls-server-args '("--stdio")
-    "Extra arguments for starting the vtsls language server."
-    :group 'lsp-vtsls
-    :risky t
-    :type '(repeat string)
-    :package-version '(lsp-mode . "8.0.0"))
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection (lambda ()
-                                                            (cons lsp-clients-vtsls-server
-                                                                  lsp-clients-vtsls-server-args)))
-                    :activation-fn #'lsp-typescript-javascript-tsx-jsx-activate-p
-                    :priority -1
-                    :completion-in-comments? t
-                    :server-id 'vtsls))
-  (push '(haskell-ts-mode . "haskell") lsp-language-id-configuration)
-  (push '(odin-mode . "odin") lsp-language-id-configuration)
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "ols")
-    			    :major-modes '(odin-mode)
-    			    :server-id 'ols
-                    ;; This is just so lsp-mode sends the "workspaceFolders" param to the server.
-     			    :multi-root t))
-  (push '(aiken-mode . "aiken") lsp-language-id-configuration)
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("aiken" "lsp"))
-    			    :major-modes '(aiken-mode)
-    			    :server-id 'aiken))
-  (push '(uiua-mode . "uiua") lsp-language-id-configuration)
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("uiua" "lsp"))
-    			    :major-modes '(uiua-mode)
-    			    :server-id 'uiua))
-  :custom
-  (lsp-completion-default-behaviour :insert)
-  (lsp-completion-enable t)
-  (lsp-keymap-prefix "C-c l")
-  (lsp-enable-symbol-highlighting nil)
-  (lsp-symbol-highlighting-skip-current t)
-  (lsp-modeline-code-actions-enable nil)
-  (lsp-inlay-hint-enable t)
-  (lsp-lens-enable nil)
-  (lsp-prefer-capf t)
-  (lsp-completion-provider :none) ; use corfu instead
-  (lsp-idle-delay 0.75)
-  (lsp-enable-snippet nil)
-  (lsp-headerline-breadcrumb-enable nil)
-  (lsp-file-watch-threshold nil)
-  (lsp-diagnostics-flycheck-default-level 'warning)
-  (lsp-modeline-diagnostics-enable nil)
-  (lsp-modeline-workspace-status-enable nil)
-  (lsp-eldoc-enable-hover t)
-  (lsp-eldoc-render-all t)
-  (lsp-typescript-surveys-enabled nil)
-  (lsp-eslint-enable nil))
-
-(use-package consult-lsp
-  :disabled
-  :bind
-  ("M-g s" . consult-lsp-symbols)
-  ("M-g d" . consult-lsp-diagnostics))
+      '(not xref-find-references
+            xref-find-definitions
+            xref-find-definitions-other-window
+            xref-find-definitions-other-frame))
 
 (use-package dape
   :straight
@@ -1533,18 +1312,6 @@ finding the executable with variable `exec-path'."
   (dape-inlay-hints t)
   :config
   (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line))
-
-;; TODO: defer
-(use-package lsp-haskell
-  :disabled
-  :after lsp-mode
-  :custom
-  (lsp-haskell-server-path "haskell-language-server")
-  (lsp-haskell-plugin-class-code-lens-on nil)
-  (lsp-haskell-formatting-provider "fourmolu")
-  (lsp-haskell-plugin-pragmas-completion-on nil)
-  (lsp-haskell-plugin-ghcide-completions-config-auto-extend-on nil)
-  (lsp-haskell-plugin-ghcide-completions-config-snippets-on nil))
 
 (use-package sly
   :defer t
@@ -1585,13 +1352,6 @@ finding the executable with variable `exec-path'."
    '(graphql "https://github.com/bkegley/tree-sitter-graphql"))
   :defer t)
 
-(use-package typst-mode)
-
-;; it's really slow, especially with eglot rendering hovers
-(use-package markdown-mode
-  :disabled
-  )
-
 (use-package yaml-mode
   :defer t)
 
@@ -1601,23 +1361,13 @@ finding the executable with variable `exec-path'."
 (use-package nginx-mode
   :defer t)
 
-(use-package rmsbolt)
-
 ;; TODO: https://codeberg.org/meow_king/zig-ts-mode
 (use-package zig-mode
   :custom
   (zig-format-on-save nil)
   :defer t)
 
-(use-package odin-mode
-  :straight (:host github :repo "mattt-b/odin-mode")
-  :hook
-  (odin-mode-hook . indent-tabs-mode))
-
 (use-package glsl-mode
-  :defer t)
-
-(use-package lua-mode
   :defer t)
 
 (use-package elixir-mode
@@ -1738,21 +1488,15 @@ finding the executable with variable `exec-path'."
    (alist-get 'typescript-ts-mode apheleia-mode-alist)
    'biome))
 
-(add-to-list 'eglot-server-programs
-             '((python-mode python-ts-mode)
-               "pyrefly" "lsp"
-               ;; "ty" "server"
-               ))
+;; (add-to-list 'eglot-server-programs
+;;              '((python-mode python-ts-mode)
+;;                "pyrefly" "lsp"
+;;                ;; "ty" "server"
+;;                ))
 
 ;; (add-to-list 'eglot-server-programs
 ;;              '((python-mode python-ts-mode)
 ;;                "basedpyright-langserver" "--stdio"))
-(use-package lsp-pyright
-  :disabled
-  :defer t
-  :after python
-  :custom
-  (lsp-pyright-langserver-command "basedpyright"))
 
 (use-package nix-mode
   :defer t)
@@ -1769,12 +1513,9 @@ finding the executable with variable `exec-path'."
 ;; (add-to-list 'load-path "/home/arjaz/.opam/default/share/emacs/site-lisp")
 ;; (require 'ocp-indent)
 
-(use-package go-mode
-  :defer t
-  :custom
-  (go-ts-mode-indent-offset 4))
-
 (use-package jinx
+  :disabled
+  :defer t
   ;; :hook
   ;; (emacs-startup-hook . global-jinx-mode)
   )
@@ -1819,39 +1560,6 @@ finding the executable with variable `exec-path'."
         ("C-c C-c" . bqn-comint-send-dwim)
         ("C-c C-e" . bqn-comint-eval-dwim)))
 
-(use-package nov
-  :mode ("\\.epub\\'" . nov-mode)
-  :custom
-  (nov-text-width 120))
-
-(use-package olivetti
-  :disabled
-  :custom
-  (olivetti-body-width 140))
-
-(use-package auto-olivetti
-  :disabled
-  :straight (:host sourcehut :repo "ashton314/auto-olivetti")
-  :custom
-  (auto-olivetti-enabled-modes '(text-mode prog-mode))
-  :hook
-  (after-init-hook . auto-olivetti-mode))
-
-(use-package indent-bars
-  :disabled
-  :hook
-  (prog-mode-hook . indent-bars-mode)
-  :custom
-  (indent-bars-no-descend-lists t)
-  (indent-bars-color '(highlight :blend 0.1))
-  (indent-bars-pattern ".")
-  (indent-bars-width-frac 0.01)
-  (indent-bars-pad-frac 0.1)
-  (indent-bars-zigzag nil)
-  (indent-bars-color-by-depth nil)
-  (indent-bars-highlight-current-depth nil)
-  (indent-bars-display-on-blank-lines t))
-
 (use-package kkp
   :config
   (global-kkp-mode t))
@@ -1860,19 +1568,6 @@ finding the executable with variable `exec-path'."
   :config
   (xclip-mode t))
 
-(use-package elastic-indent
-  :disabled
-  :straight
-  (:host github :repo "jyp/elastic-modes")
-  :custom
-  (elastic-indent-fontify nil)
-  :config
-  (elastic-indent-mode))
-
-(use-package elastic-table
-  :disabled
-  :straight
-  (:host github :repo "jyp/elastic-modes"))
 
 (use-package buffer-box
   :disabled
