@@ -40,12 +40,11 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 (defvar use-package-enable-imenu-support t)
-(setq straight-use-package-by-default t)
+;; (setq straight-use-package-by-default t)
 
 ;; (setq use-package-compute-statistics t)
 
 (use-package use-package-core
-  :straight (:type built-in)
   :custom
   (use-package-hook-name-suffix nil))
 
@@ -55,7 +54,6 @@
   :demand)
 
 (use-package savehist
-  :straight (:type built-in)
   :custom
   (savehist-file (concat user-emacs-directory "savehist"))
   (savehist-save-minibuffer-history t)
@@ -74,7 +72,6 @@
   (push 'search-ring savehist-additional-variables))
 
 (use-package saveplace
-  :straight (:type built-in)
   :custom
   (save-place-file (expand-file-name "saveplace" user-emacs-directory))
   (save-place-limit 600)
@@ -90,12 +87,16 @@
 (defvar the-font-weight)
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  (setq the-font "IoskeleyMonoTerm Nerd Font")
+  ;; (setq the-font "JuliaMono")
+  (setq the-font "Ioskeley Mono")
+  ;; (setq the-font "JetBrainsMono Nerd Font")
+  ;; (setq the-font "Iosevka")
+  ;; (setq the-nice-font "Alegreya")
   (setq the-nice-font "Iosevka Aile")
   (setq the-font-height font-height)
   (setq the-font-width 'normal)
   (setq the-font-weight 'normal)
-  ;; (setq-default line-spacing '(0.08 . 0.08))
+  ;; (setq-default line-spacing '(0.05 . 0.05))
   (setq-default line-spacing nil)
   (custom-set-faces
    `(default
