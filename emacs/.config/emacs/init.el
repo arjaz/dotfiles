@@ -380,7 +380,7 @@
 (setq scroll-margin 0
       scroll-conservatively 101)
 (use-package pixel-scroll
-  :disabled
+  ;; :disabled
   :custom
   (hscroll-margin 2)
   (hscroll-step 1)
@@ -388,18 +388,18 @@
   (scroll-conservatively 101)
   (scroll-preserve-screen-position t)
   (pixel-scroll-precision-use-momentum nil)
-  (pixel-scroll-precision-interpolation-between-scroll 0.001)
-  (pixel-scroll-precision-interpolation-total-time 0.15)
+  (pixel-scroll-precision-interpolation-between-scroll 0.0001)
+  (pixel-scroll-precision-interpolation-total-time 0.01)
   (pixel-scroll-precision-interpolation-factor 1.5)
   (pixel-scroll-precision-interpolate-page t)
   (auto-window-vscroll nil)
   (mouse-wheel-scroll-amount '(1 ((shift) . hscroll)))
   (mouse-wheel-scroll-amount-horizontal 1)
-  ;; :hook
-  ;; (after-init-hook . pixel-scroll-precision-mode)
-  )
+  :hook
+  (after-init-hook . pixel-scroll-precision-mode))
 
 (use-package ultra-scroll
+  :disabled
   :straight (:host github :repo "jdtsmith/ultra-scroll")
   :custom
   (pixel-scroll-precision-interpolation-total-time 0.15)
