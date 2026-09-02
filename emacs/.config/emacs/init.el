@@ -68,22 +68,18 @@
      (accent-1 yellow-faint)
      (accent-2 blue-faint)
      (accent-3 red-faint)
-
      ;; (fg-search-current fg-main)
      ;; (fg-search-lazy fg-main)
      ;; (fg-search-static fg-main)
      ;; (fg-search-replace fg-main)
-
      ;; (bg-search-current bg-yellow-intense)
      ;; (bg-search-lazy bg-cyan-intense)
      ;; (bg-search-static bg-green-intense)
      ;; (bg-search-replace bg-red-intense)
-
      ;; (bg-search-rx-group-0 bg-blue-intense)
      ;; (bg-search-rx-group-1 bg-green-intense)
      ;; (bg-search-rx-group-2 bg-red-subtle)
      ;; (bg-search-rx-group-3 bg-magenta-subtle)
-
      ;; TODO: diffs
      ;; TODO: maybe refer the colors by name?
      (bg-term-black          "#000000")
@@ -336,7 +332,7 @@
     (next-line))
   (defun open-line-forward ()
     (interactive)
-    (end-of-line)    
+    (end-of-line)
     (newline)
     (indent-according-to-mode))
   (defun open-line-backward ()
