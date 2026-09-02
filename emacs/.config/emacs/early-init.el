@@ -87,17 +87,14 @@
 (defvar the-font-weight)
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  ;; (setq the-font "JuliaMono")
-  (setq the-font "Ioskeley Mono")
-  ;; (setq the-font "JetBrainsMono Nerd Font")
-  ;; (setq the-font "Iosevka")
-  ;; (setq the-nice-font "Alegreya")
-  (setq the-nice-font "Iosevka Aile")
+  (setq the-font "Aporetic Sans Mono")
+  ;; (setq the-font "IoskeleyMono Nerd Font")
+  ;; (setq the-nice-font "Iosevka Aile")
+  (setq the-nice-font "Aporetic Sans")
   (setq the-font-height font-height)
   (setq the-font-width 'normal)
   (setq the-font-weight 'normal)
   ;; (setq-default line-spacing '(0.05 . 0.05))
-  (setq-default line-spacing nil)
   (custom-set-faces
    `(default
      ((t (:family ,the-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))
@@ -139,4 +136,3 @@
 ;; (advice-add 'flash-jump
 ;;             :around
 ;;             #'toggle-safe-composition-table--around)
-

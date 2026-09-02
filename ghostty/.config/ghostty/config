@@ -1,5 +1,6 @@
 unfocused-split-opacity = 1
-font-family = IoskeleyMonoTerm Nerd Font
+font-family = Aporetic Sans Mono
+# font-family = IoskeleyMonoTerm Nerd Font
 # font-family = Ioskeley Mono Semi-Condensed
 font-size = 13
 # adjust-cell-height = 10%
@@ -28,3 +29,5 @@ theme = light:"modus-operandi",dark:"modus-vivendi"
 keybind = ctrl+,=unbind
 
 app-notifications = false
+
+mouse-scroll-multiplier = precision:0.5,discrete:3
