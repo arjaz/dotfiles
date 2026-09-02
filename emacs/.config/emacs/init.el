@@ -706,12 +706,6 @@
    "  "))
 ;; (setq-default mode-line-format nil)
 
-(use-package wgrep
-  :straight t
-  :defer t
-  :custom
-  (wgrep-enable-key "e"))
-
 ;; TODO: in-buffer completion uses completion-list-mode and it's somewhat shit with bindings
 ;;       I want search to work there, it does random stuff
 ;;       ^ I can fix that by (setq completion-in-region-function #'consult-completion-in-region)
