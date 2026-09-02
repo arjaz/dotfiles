@@ -646,6 +646,7 @@
   :hook (prog-mode-hook . electric-pair-mode))
 
 (use-package xterm-color
+  :disabled
   :straight t)
 
 (setq shell-file-name "zsh")
