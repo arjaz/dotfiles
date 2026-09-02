@@ -929,12 +929,6 @@
   ;;     (call-interactively #'compile)))
   )
 
-(use-package vc-jj
-  :straight
-  (:host codeberg :repo "emacs-jj-vc/vc-jj.el")
-  :init
-  (add-to-list 'auto-mode-alist '("\\.jjdescription\\'" . diff-mode)))
-
 (use-package majutsu
   ;; :disabled
   :straight
@@ -945,45 +939,40 @@
   (setq majutsu-display-buffer-function
         #'majutsu-display-buffer-same-window-except-diff-v1)
   :custom
+  ;; TODO: I probably don't like right-aligned fields
   (majutsu-log-commit-columns
    '((:field change-id :module heading
              :template majutsu-log-template-change-id :face t)
-     (:field author :module heading
-             :template majutsu-log-template-author :face t)
-     (:field timestamp :module heading
-             :template majutsu-log-template-timestamp :face t)
      (:field bookmarks :module heading
              :template majutsu-log-template-bookmarks :face t)
      (:field tags :module heading
              :template majutsu-log-template-tags :face t)
      (:field working-copies :module heading
-             :template majutsu-log-template-working-copies
-             :face t)
-     (:field git-head :module heading
-             :template majutsu-log-template-git-head :face t)
-     (:field commit-id :module heading
-             :template majutsu-log-template-commit-id :face t)
-     ;; Start the second physical line.
-     (:field line-break :module heading
-             :template "\n" :face nil)
+             :template majutsu-log-template-working-copies :face t)
      (:field empty :module heading
              :template majutsu-log-template-empty :face t)
+     (:field git-head :module heading
+             :template majutsu-log-template-git-head :face t)
      (:field description :module heading
              :template majutsu-log-template-description :face t)
-     ;; Foldable remainder of a multiline description.
+     (:field commit-id :module tail
+             :template majutsu-log-template-commit-id :face t)
+     (:field author :module tail
+             :template majutsu-log-template-author :face t)
+     (:field timestamp :module tail
+             :template majutsu-log-template-timestamp :face t)
      (:field long-desc :module body
              :template majutsu-log-template-long-desc :face t)
-     ;; Keep Majutsu's navigation/copying metadata.
      (:field id :module metadata
-             :template majutsu-log-template-id :face nil)
+             :template majutsu-log-template-id :face t)
      (:field commit-id :module metadata
-             :template [:commit_id] :face nil)
+             :template majutsu-log--canonical-commit-id-template :face t)
      (:field parent-ids :module metadata
-             :template majutsu-log-template-parent-ids :face nil)
+             :template majutsu-log-template-parent-ids :face t)
      (:field flags :module metadata
-             :template majutsu-log-template-flags :face nil)
+             :template majutsu-log-template-flags :face t)
      (:field description :module metadata
-             :template [:description :first_line] :face nil))))
+             :template majutsu-log--canonical-description-template :face t))))
 
 (use-package bookmark
   :custom
