@@ -207,7 +207,7 @@
   (initial-scratch-message nil)
   (frame-inhibit-implied-resize t)
   (auto-mode-case-fold nil)
-  (read-process-output-max (* 4 1024 1024))
+  (read-process-output-max (* 1024 1024))
   (window-resize-pixelwise nil)
   (cursor-in-nonselected-windows nil)
   (fast-but-imprecise-scrolling t)
