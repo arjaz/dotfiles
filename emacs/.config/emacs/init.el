@@ -632,16 +632,6 @@
   ;; (flash-isearch-mode)
   )
 
-;; (setq undo-auto-save-history)
-(use-package vundo
-  ;; :disabled
-  :straight t)
-(use-package undo-fu
-  ;; :disabled
-  :straight t
-  :bind
-  ([remap undo] . undo-fu-only-undo)
-  ([remap undo-redo] . undo-fu-only-redo))
 (use-package undo-fu-session
   ;; :disabled
   :straight t
