@@ -676,14 +676,6 @@
 
 ;; (use-package git-link)
 
-;; https://github.com/rschmukler/magit-difftastic
-;; https://github.com/pkryger/difftastic.el
-(use-package difftastic
-  :disabled
-  ;; :config
-  ;; (difftastic-bindings-mode)
-  )
-
 (column-number-mode)
 (size-indication-mode)
 (setq-default
@@ -771,35 +763,6 @@
   (minibuffer-depth-indicate-mode t)
   (minibuffer-electric-default-mode t))
 
-(use-package vertico
-  :disabled
-  :straight t
-  :custom
-  (vertico-resize nil)
-  :hook
-  (after-init-hook . vertico-mode)
-  (after-init-hook . vertico-multiform-mode)
-  (rfn-eshadow-update-overlay-hook . vertico-directory-tidy)
-  ;; TODO: do i need that?
-  ;; (minibuffer-setup-hook . vertico-repeat-save)
-  :bind
-  (:map vertico-map
-        ;; TODO: do these two override something?
-        ;; ("M-p" . vertico-repeat-previous)
-        ;; ("M-n" . vertico-repeat-next)
-        ("RET" . vertico-directory-enter)
-        ("DEL" . vertico-directory-delete-char)
-        ("M-DEL" . vertico-directory-delete-word))
-  :config
-  (setq
-   vertico-multiform-commands
-   '(;; (consult-ripgrep buffer)
-     ;; (consult-line buffer)
-     ;; (consult-line-multi buffer)
-     (consult-flymake buffer))))
-
-;; (setq completion-styles '(flex))
-
 (use-package fzf-native
   :straight
   (:repo "dangduc/fzf-native"
@@ -821,33 +784,6 @@
   ;; (setf (alist-get 'file completion-category-overrides)
   ;;       '(basic))
   )
-
-(use-package fzfa
-  :disabled
-  :straight t)
-
-(use-package hotfuzz
-  :disabled
-  :straight t
-  :custom
-  (completion-styles '(hotfuzz))
-  :config
-  (setq consult--tofu-char #x100000
-        consult--tofu-range #x00fffe))
-
-(use-package orderless
-  :disabled
-  :straight t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles partial-completion))))
-  (completion-pcm-leading-wildcard t))
-
-(use-package expand-region
-  :disabled
-  :straight t
-  :bind
-  ("C-=" . er/expand-region))
 
 (use-package goto-chg
   :straight t
@@ -1058,36 +994,6 @@
   ;;         m))
   )
 
-(use-package corfu
-  :disabled
-  :straight t
-  :config
-  (setq corfu-map
-        (let ((m (make-sparse-keymap)))
-          (bind-keys
-           :map m
-           ("C-g" . corfu-quit)
-           ;; TODO: I don't like these ones
-           ("C-'" . corfu-insert)
-           ("C-*" . corfu-next)
-           ("C--" . corfu-previous))
-          m))
-  :custom
-  (corfu-auto nil)
-  (corfu-cycle t)
-  (corfu-separator ?\s)
-  (corfu-quit-at-boundary 'separator)
-  (corfu-quit-no-match 'separator)
-  (corfu-on-exact-match 'insert)
-  (corfu-preselect 'first)
-  (corfu-preview-current nil)
-  (corfu-bar-width 0.2)
-  :hook
-  (after-init-hook . global-corfu-mode)
-  :config
-  ;; (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  (corfu-echo-mode))
 
 (use-package cape
   :straight
@@ -1338,11 +1244,6 @@
   :bind
   (:map cider-mode-map
         ("C-c M-c" . cider-debug-defun-at-point)))
-
-(use-package rust-mode
-  :straight t
-  :disabled
-  :defer t)
 
 (use-package nasm-mode
   :straight t
