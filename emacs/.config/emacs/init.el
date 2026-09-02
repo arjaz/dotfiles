@@ -616,7 +616,7 @@
                 (kill-local-variable 'scroll-margin)))))
 
 (use-package flash
-  ;; :disabled
+  :disabled
   :straight
   (:host github :repo "Prgebish/flash")
   :demand
