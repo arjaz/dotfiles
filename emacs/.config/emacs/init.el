@@ -580,18 +580,25 @@
   (isearch-lazy-count t)
   (search-ring-max 100)
   (regexp-search-ring-max 100)
+  :bind
+  (("M-o" . isearch-forward-symbol-at-point)
+   :map isearch-mode-map
+   ("M-s r" . isearch-consult-ripgrep)
+   ("M-w" . isearch-copy-match))
+  :preface
+  (defun isearch-copy-match ()
+    (interactive)
+    (kill-new
+     (buffer-substring-no-properties
+      (min (point) isearch-other-end)
+      (max (point) isearch-other-end)))
+    (isearch-exit))
+  (defun isearch-consult-ripgrep ()
+    (interactive)
+    (let ((query isearch-string))
+      (isearch-exit)
+      (consult-ripgrep nil query)))
   :config
-  ;; (custom-set-faces
-  ;;  '(isearch
-  ;;    ((t :weight bold :underline t
-  ;;        :foreground unspecified :background unspecified)))
-  ;;  '(lazy-highlight
-  ;;    ((t :weight unspecified :underline t
-  ;;        :foreground unspecified :background unspecified)))
-  ;;  ;; '(isearch-group-1
-  ;;  ;;   ((t :weight unspecified :underline t
-  ;;  ;;       :foreground unspecified :background unspecified )))
-  ;;  )
   (defvar search-recenter-context-lines 6)
   (defvar-local save-scroll-margin nil)
   (add-hook 'isearch-mode-hook
@@ -995,11 +1002,11 @@
   ;;    ((t :inherit region)))
   ;;  )
   :bind
-  (("M-o" . embark-act)
+  (;; ("M-o" . embark-act)
    :map minibuffer-visible-completions-up-down-map
+   ("M-o" . embark-act)
    ("M-s" . nil)
    ("M-s o" . embark-export)
-   ("M-s l" . embark-live)
    ;; :map vertico-map
    ;; ("M-s o" . embark-export)
    ;; ("M-s l" . embark-live)
