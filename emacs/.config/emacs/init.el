@@ -1312,19 +1312,6 @@
    '("~/.tree-sitter/bin/"
      "~/.config/emacs/straight/build/tree-sitter-langs/bin/")))
 
-(use-package treesit-auto
-  :straight
-  (:host github
-   :repo "renzmann/treesit-auto")
-  :custom
-  (treesit-auto-install t)
-  :hook
-  (after-init-hook . global-treesit-auto-mode)
-  :config
-  ;; (delete 'markdown treesit-auto-langs)
-  ;; (delete 'c treesit-auto-langs)
-  (delete 'javascript treesit-auto-langs))
-
 (use-package markdown-ts-mode
   :defer t)
 
