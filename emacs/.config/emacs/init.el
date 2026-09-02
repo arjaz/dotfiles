@@ -262,6 +262,15 @@
   :hook
   (after-init-hook . delete-selection-mode))
 
+(use-package desktop
+  :disabled
+  :custom
+  (desktop-path '("~/.config/emacs/.cache/desktop/"))
+  (desktop-save 'if-exists)
+  (desktop-load-locked-desktop 'check-pid)
+  :config
+  (desktop-save-mode 1))
+
 (use-package ansi-color)
 
 (use-package compile
