@@ -645,11 +645,6 @@
   (electric-pair-preserve-balance nil)
   :hook (prog-mode-hook . electric-pair-mode))
 
-(use-package wrap-region
-  :straight t
-  :hook
-  (after-init-hook . wrap-region-global-mode))
-
 (use-package xterm-color
   :straight t)
 
