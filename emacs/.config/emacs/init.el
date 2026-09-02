@@ -1067,47 +1067,49 @@
 ;; TODO: eglot-momentary-inlay-hints
 (use-package eglot
   ;; :disabled
-  :hook
-  ((js-ts-hook
-    typescript-mode-hook
-    typescript-ts-mode-hook
-    tsx-ts-mode-hook
-    zig-mode-hook
-    zig-ts-mode-hook
-    ;; haskell-ts-mode-hook
-    elixir-ts-mode-hook
-    elixir-mode-hook
-    erlang-mode-hook
-    rust-mode-hook
-    rust-ts-mode-hook
-    python-mode-hook
-    python-ts-mode-hook
-    go-ts-mode-hook
-    odin-mode-hook
-    c-mode-hook
-    c-ts-mode-hook)
-   . eglot-ensure)
-  (eglot-managed-mode-hook
-   .
-   (lambda ()
-     (eglot-inlay-hints-mode -1)
-     (when (or (derived-mode-p 'c-ts-mode) (derived-mode-p 'c++-ts-mode))
-       (setq-local eglot-ignored-server-capabilities
-                   '(:documentOnTypeFormattingProvider
-                     :documentFormattingProvider
-                     :documentRangeFormattingProvider)))))
+  ;; :hook
+  ;; ((js-ts-hook
+  ;;   typescript-mode-hook
+  ;;   typescript-ts-mode-hook
+  ;;   tsx-ts-mode-hook
+  ;;   zig-mode-hook
+  ;;   zig-ts-mode-hook
+  ;;   ;; haskell-ts-mode-hook
+  ;;   elixir-ts-mode-hook
+  ;;   elixir-mode-hook
+  ;;   erlang-mode-hook
+  ;;   rust-mode-hook
+  ;;   rust-ts-mode-hook
+  ;;   python-mode-hook
+  ;;   python-ts-mode-hook
+  ;;   go-ts-mode-hook
+  ;;   odin-mode-hook
+  ;;   c-mode-hook
+  ;;   c-ts-mode-hook)
+  ;;  . eglot-ensure)
+  ;; (eglot-managed-mode-hook
+  ;;  .
+  ;;  (lambda () (eglot-inlay-hints-mode -1)))
   ;; (eglot-managed-mode-hook . disable-eglot-completion)
   ;; :preface
   ;; (defun disable-eglot-completion ()
   ;;   (setq-local completion-at-point-functions
   ;;               (remove #'eglot-completion-at-point completion-at-point-functions)))
   :custom
+  (eglot-report-progress 'messages)
+  (eglot-max-file-watches 5000)
+  (eglot-sync-connect nil)
+  (eglot-autoshutdown t)
+  (eglot-code-action-indications nil)
+  (eglot-events-buffer-config '(:size 0 :format short))
   (eglot-documentation-rederer 'markdown-ts-view-mode)
   (eglot-confirm-server-edits '((t . nil)))
   (eglot-code-action-indications '())
   (eglot-extend-to-xref t)
-  (eglot-autoshutdown t)
-  (eglot-ignored-server-capabilities '(:documentHighlightProvider))
+  (eglot-ignored-server-capabilities
+   '(:documentHighlightProvider :documentOnTypeFormattingProvider
+     :documentFormattingProvider :documentRangeFormattingProvider
+     :inlayHintProvider))
   (eglot-stay-out-of '(company company-capf yasnippet company-backends))
   :bind
   (("C-c l l" . eglot)
