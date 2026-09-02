@@ -798,22 +798,9 @@
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   :preface
-  (defmacro defn-with-tall-*completions* (command)
-    (let ((name (intern (format "%s-with-tall-*completions*" command))))
-      `(progn
-         (defun ,name ()
-           (interactive)
-           (let ((completions-max-height (/ (frame-height) 3)))
-             (call-interactively #',command)))
-         ',name)))
   (defun consult-flymake-project ()
     (interactive)
     (consult-flymake t))
-  :init
-  (defn-with-tall-*completions* consult-line)
-  (defn-with-tall-*completions* consult-line-multi)
-  (defn-with-tall-*completions* consult-ripgrep)
-  (defn-with-tall-*completions* consult-flymake-project)
   :bind
   (;; ([remap switch-to-buffer] . consult-buffer)
    ("M-s l"           . consult-line)
