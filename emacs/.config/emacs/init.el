@@ -466,6 +466,10 @@
   (blink-matching-paren nil)
   (set-mark-command-repeat-pop t)
   :config
+  (add-hook
+   'prog-mode-hook
+   (lambda ()
+     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)))
   (setq-default indent-tabs-mode nil))
 
 (use-package files
