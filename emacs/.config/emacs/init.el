@@ -561,6 +561,7 @@
   )
 
 (use-package selection-highlight-mode
+  :disabled
   :straight
   (:type git :host github :repo "balloneij/selection-highlight-mode")
   :config (selection-highlight-mode))
