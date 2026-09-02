@@ -104,9 +104,9 @@ super + o ; super + s
 super + o ; s
     maim -m 10 -s | xclip -selection clipboard -t image/png
 super + o ; super + shift + s
-    maim ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
+    maim -m 10 ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
 super + o ; shift + s
-    maim -s ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
+    maim -m 10 -s ~/pictures/screenshots/screen-$(date +%Y-%m-%d-%T).png
 
 # workspace switching
 super + {1-9,0}
