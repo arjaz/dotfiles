@@ -504,14 +504,6 @@
   :hook
   (prog-mode-hook . hs-minor-mode))
 
-;; ?
-;; (minibuffer-regexp-mode)
-(use-package visual-regexp
-  ;; :disabled
-  :straight t
-  :bind
-  ([remap query-replace] . vr/replace))
-
 (use-package org
   :defer t
   :hook
@@ -787,6 +779,7 @@
   (minibuffer-prompt-properties
    '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
   :config
+  (minibuffer-regexp-mode t)
   (minibuffer-depth-indicate-mode t)
   (minibuffer-electric-default-mode t))
 
