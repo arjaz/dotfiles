@@ -1369,51 +1369,8 @@
     go-mode-hook
     go-ts-mode-hook
     zig-mode-hook
-    zig-ts-mode-hook
-    tuareg-mode-hook)
-   . apheleia-mode)
-  :init
-  (put 'apheleia-formatter 'safe-local-variable #'symbolp)
-  :config
-  (setf
-   (alist-get 'prisma-ts-mode apheleia-mode-alist)
-   'prisma
-   (alist-get 'prisma apheleia-formatters)
-   '("bunx" "--bun" "prisma" "format")
-   (alist-get 'typescript-ts-mode apheleia-mode-alist)
-   'oxfmt
-   ;; (alist-get 'prettier-typescript apheleia-formatters)
-   ;; '("apheleia-npx" "prettier" "--stdin-filepath" filepath "--parser=typescript")
-   (alist-get 'rebar3-format apheleia-formatters)
-   '("apheleia-from-project-root" "rebar.config" "rebar3" "format" filepath)
-   (alist-get 'erlang-mode apheleia-mode-alist)
-   'rebar3-format
-   (alist-get 'isort apheleia-formatters)
-   '("isort" "--stdout" "-")
-   (alist-get 'python-mode apheleia-mode-alist)
-   '(isort black)
-   (alist-get 'python-ts-mode apheleia-mode-alist)
-   '(isort black)
-   (alist-get 'aiken apheleia-formatters)
-   '("aiken" "fmt" file)
-   (alist-get 'aiken-mode apheleia-mode-alist)
-   'aiken
-   (alist-get 'typescript-ts-mode apheleia-mode-alist)
-   'biome))
-
-;; (add-to-list 'eglot-server-programs
-;;              '((python-mode python-ts-mode)
-;;                "pyrefly" "lsp"
-;;                ;; "ty" "server"
-;;                ))
-
-;; (add-to-list 'eglot-server-programs
-;;              '((python-mode python-ts-mode)
-;;                "basedpyright-langserver" "--stdio"))
-
-(use-package nix-mode
-  :straight t
-  :defer t)
+    zig-ts-mode-hook)
+   . apheleia-mode) )
 
 (use-package ocaml-eglot
   :straight t
