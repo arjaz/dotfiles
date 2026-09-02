@@ -772,7 +772,6 @@
   (fzf-native-load-dyn))
 
 (use-package fussy
-  ;; :disabled
   :straight
   (fussy :type git :host github :repo "jojojames/fussy")
   :config
