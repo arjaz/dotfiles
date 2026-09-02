@@ -565,10 +565,14 @@
   (:type git :host github :repo "balloneij/selection-highlight-mode")
   :config (selection-highlight-mode))
 
-(use-package smart-comment
-  :straight t
-  :bind
-  ("M-;" . smart-comment))
+;; there is comment-dwim, but it is not dwim
+(defun comment-really-dwim ()
+  "Comment/uncomment region if selected, otherwise line"
+  (interactive)
+  (if (use-region-p)
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
+(bind-key (kbd "M-;") #'comment-really-dwim)
 
 (use-package isearch
   :custom
