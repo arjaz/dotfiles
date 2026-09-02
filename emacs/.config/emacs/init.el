@@ -7,10 +7,12 @@
 
 (use-package esup
   :disabled
+  :straight t
   :init
   (setq esup-depth 0))
 (use-package benchmark-init
   :disabled
+  :straight t
   :hook (after-init-hook . benchmark-init/deactivate)
   :demand t)
 

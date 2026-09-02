@@ -50,6 +50,7 @@
 
 (use-package benchmark-init
   :disabled
+  :straight t
   :hook (after-init-hook . benchmark-init/deactivate)
   :demand)
 
