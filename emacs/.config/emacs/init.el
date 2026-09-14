@@ -520,13 +520,20 @@
   (multiple-cursors-mode-hook . toggle-completion-preview-mode)
   )
 
-;; there is comment-dwim, but it is not dwim
 (defun comment-really-dwim ()
   "Comment/uncomment region if selected, otherwise line"
   (interactive)
   (if (use-region-p)
       (comment-or-uncomment-region (region-beginning) (region-end))
-    (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
+    (if (save-excursion (beginning-of-line) (looking-at "\\s-*$"))
+        (progn
+          (indent-according-to-mode)
+          (insert (comment-padright comment-start (comment-add nil)))
+          (save-excursion
+            (unless (string= "" comment-end)
+              (insert (comment-padleft comment-end (comment-add nil))))
+            (indent-according-to-mode)))
+      (comment-or-uncomment-region (line-beginning-position) (line-end-position)))))
 (bind-key (kbd "M-;") #'comment-really-dwim)
 
 (use-package isearch
