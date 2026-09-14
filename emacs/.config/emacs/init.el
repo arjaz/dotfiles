@@ -282,6 +282,10 @@
 (use-package auth-source
   :defer 0.2)
 
+(use-package replace
+  :custom
+  (query-replace-show-preview 'replace-preview-both))
+
 (use-package repeat
   :hook
   (after-init-hook . repeat-mode))
