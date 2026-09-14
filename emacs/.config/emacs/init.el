@@ -258,17 +258,6 @@
   :hook
   (after-init-hook . delete-selection-mode))
 
-(use-package desktop
-  :disabled
-  :custom
-  (desktop-path '("~/.config/emacs/.cache/desktop/"))
-  (desktop-save 'if-exists)
-  (desktop-load-locked-desktop 'check-pid)
-  :config
-  (desktop-save-mode 1))
-
-(use-package ansi-color)
-
 (use-package compile
   :custom
   (compilation-always-kill t)
@@ -409,11 +398,6 @@
   :config
   (global-auto-revert-mode t))
 
-(use-package eww
-  :defer t
-  :custom
-  (eww-default-download-directory "~/downloads/"))
-
 (use-package window
   :custom
   (fit-window-to-buffer-horizontally t)
@@ -488,24 +472,6 @@
   (unless (file-exists-p (concat user-emacs-directory "backups"))
     (make-directory (concat user-emacs-directory "backups") t)))
 
-(use-package hideshow
-  :bind
-  ("C-M-<tab>" . hs-cycle)
-  :hook
-  (prog-mode-hook . hs-minor-mode))
-
-(use-package org
-  :defer t
-  :hook
-  (org-mode-hook . variable-pitch-mode)
-  (org-mode-hook . visual-line-mode)
-  :custom
-  (org-confirm-babel-evaluate nil)
-  (org-directory "~/documents/org/")
-  (org-default-notes-file (concat org-directory "todo.org"))
-  (org-hide-leading-stars t)
-  (org-startup-indented t))
-
 (use-package proced
   :defer t
   :custom
@@ -553,12 +519,6 @@
   :hook
   (multiple-cursors-mode-hook . toggle-completion-preview-mode)
   )
-
-(use-package selection-highlight-mode
-  :disabled
-  :straight
-  (:type git :host github :repo "balloneij/selection-highlight-mode")
-  :config (selection-highlight-mode))
 
 ;; there is comment-dwim, but it is not dwim
 (defun comment-really-dwim ()
@@ -609,39 +569,11 @@
                     (kill-local-variable 'save-scroll-margin))
                 (kill-local-variable 'scroll-margin)))))
 
-(use-package flash
-  :disabled
-  :straight
-  (:host github :repo "Prgebish/flash")
-  :demand
-  :custom
-  (flash-case-fold t)
-  (flash-labels "scnitehafbpydoluw*g'm-")
-  (flash-label-uppercase nil)
-  (flash-backdrop nil)
-  :bind
-  ("C-t" . flash-jump)
-  ;; :config
-  ;; (require 'flash-isearch)
-  ;; (flash-isearch-mode)
-  )
-
 (use-package undo-fu-session
   ;; :disabled
   :straight t
   :hook
   (after-init-hook . global-undo-fu-session-mode))
-
-(use-package elec-pair
-  :disabled
-  :custom
-  (electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
-  (electric-pair-preserve-balance nil)
-  :hook (prog-mode-hook . electric-pair-mode))
-
-(use-package xterm-color
-  :disabled
-  :straight t)
 
 (setq shell-file-name "zsh")
 
@@ -757,26 +689,7 @@
   (minibuffer-depth-indicate-mode t)
   (minibuffer-electric-default-mode t))
 
-(use-package fzf-native
-  :straight
-  (:repo "dangduc/fzf-native"
-   :host github
-   :files (:defaults "bin"))
-  :config
-  (fzf-native-load-dyn))
 
-(use-package fussy
-  :straight
-  (fussy :type git :host github :repo "jojojames/fussy")
-  :config
-  (fussy-setup-fzf)
-  ;; TODO: Do I need some fancy completion-category-overrides for eglot specifically?
-  ;;       rahuljuliato introduces some flex-noinsert thingy <- seems to work with the setup commented out
-  ;; (fussy-eglot-setup)
-  ;; (fussy-corfu-setup)
-  ;; (setf (alist-get 'file completion-category-overrides)
-  ;;       '(basic))
-  )
 
 (use-package goto-chg
   :straight t
@@ -915,12 +828,6 @@
 (use-package embark-consult
   :straight t)
 
-(use-package keychain-environment
-  :straight t
-  :defer 0.3
-  :config
-  (keychain-refresh-environment))
-
 (use-package c-ts-mode
   ;; :disabled
   :preface
@@ -1008,16 +915,6 @@
   :mode ("\\.tsx\\'" . tsx-ts-mode)
   :custom
   (typescript-ts-mode-indent-offset 2))
-
-(use-package haskell-ts-mode
-  :straight t
-  :mode "\\.hs\\'"
-  :custom
-  (haskell-ts-use-indent t)
-  :init
-  (add-to-list
-   'treesit-language-source-alist
-   '(haskell "https://github.com/tree-sitter/tree-sitter-haskell")))
 
 ;; eldoc-help-at-pt?
 (use-package eldoc
@@ -1232,16 +1129,6 @@
   :disabled
   :defer t)
 
-(use-package prisma-ts-mode
-  :straight t
-  :disabled
-  :after treesit
-  :defer t
-  :config
-  (add-to-list
-   'treesit-language-source-alist
-   '(prisma "https://github.com/victorhqc/tree-sitter-prisma")))
-
 (use-package graphql-ts-mode
   :straight t
   :disabled
@@ -1250,14 +1137,6 @@
   (add-to-list
    'treesit-language-source-alist
    '(graphql "https://github.com/bkegley/tree-sitter-graphql"))
-  :defer t)
-
-(use-package yaml-mode
-  :straight t
-  :defer t)
-
-(use-package dockerfile-mode
-  :straight t
   :defer t)
 
 (use-package nginx-mode
@@ -1338,11 +1217,6 @@
      ;; "<|" "<|>" "|>"
      )))
 
-(use-package pdf-tools
-  :straight t
-  :disabled
-  :mode ("\\.pdf\\'" . pdf-view-mode))
-
 (use-package apheleia
   :straight t
   :hook
@@ -1365,118 +1239,6 @@
     zig-mode-hook
     zig-ts-mode-hook)
    . apheleia-mode) )
-
-(use-package ocaml-eglot
-  :straight t
-  :disabled
-  :hook
-  (tuareg-mode-hook . ocaml-eglot)
-  (ocaml-eglot-hook . eglot-ensure))
-
-(use-package tuareg
-  :straight t
-  :disabled
-  ;; :custom
-  ;; (exec-path (cons (expand-file-name "~/.opam/default/bin") exec-path))
-  :defer t)
-;; (add-to-list 'load-path "/home/arjaz/.opam/default/share/emacs/site-lisp")
-;; (require 'ocp-indent)
-
-(use-package jinx
-  :straight t
-  :disabled
-  :defer t
-  ;; :hook
-  ;; (emacs-startup-hook . global-jinx-mode)
-  )
-
-(use-package protobuf-mode
-  :straight t
-  :defer t)
-
-(use-package kdl-mode
-  :straight t
-  :defer t)
-
-(use-package aiken-mode
-  :straight t
-  :disabled
-  :defer t
-  :init
-  (add-to-list
-   'treesit-language-source-alist
-   '(aiken "https://github.com/aiken-lang/tree-sitter-aiken")))
-
-(use-package solidity-mode
-  :straight t
-  :disabled
-  :defer t
-  :hook
-  (solidity-mode-hook . eglot-ensure)
-  :config
-  (add-to-list
-   'eglot-server-programs
-   '(solidity-mode
-     . ("nomicfoundation-solidity-language-server" "--stdio"))))
-
-(use-package forth-mode
-  :straight t
-  :defer t)
-
-(use-package uiua-mode
-  :straight t
-  :defer t)
-
-(use-package april-mode
-  :defer t
-  :mode "\\.apl\\'"
-  ;; TODO: push to github or something
-  :load-path "/home/arjaz/code/april-mode.el/")
-
-(use-package gnu-apl-mode
-  :straight t
-  :defer t
-  :disabled)
-(use-package anaphora
-  :straight t
-  :defer t)
-(use-package jpt-apl-mode
-  :straight
-  (:host github :repo "jthing/apl-mode")
-  :hook
-  (gnu-apl-mode-hook . jpt-apl-mode)
-  (april-mode-hook . jpt-apl-mode)
-  (dyalog-mode-hook . jpt-apl-mode)
-  :config
-  (when (file-exists-p "/home/arjaz/code/ael/ocicl/april-20250620-37511c0/aprepl/aprepl.el")
-    (load "/home/arjaz/code/ael/ocicl/april-20250620-37511c0/aprepl/aprepl.el")))
-
-(use-package bqn-mode
-  :straight t
-  :defer t
-  :config
-  ;; TODO: custom-set-faces
-  (set-face-attribute 'bqn-default nil
-                      :family 'unspecified
-                      :inherit 'default)
-  :bind
-  (:map bqn-mode-map
-        ("C-c C-c" . bqn-comint-send-dwim)
-        ("C-c C-e" . bqn-comint-eval-dwim)))
-
-(use-package kkp
-  :straight t
-  :config
-  (global-kkp-mode t))
-
-(use-package xclip
-  :straight t
-  :config
-  (xclip-mode t))
-
-(use-package uniline
-  :straight t
-  :defer t)
 
 (provide 'init)
 ;;; init.el ends here
