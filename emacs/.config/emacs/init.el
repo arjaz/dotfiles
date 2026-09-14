@@ -689,7 +689,17 @@
   (minibuffer-depth-indicate-mode t)
   (minibuffer-electric-default-mode t))
 
+;; Do I need anything for completion-category-overrides?
+;; (setq completion-styles '(flex basic partial-completion emacs22))
 
+;; take a look at orderless-matching-styles?
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-pcm-leading-wildcard t))
 
 (use-package goto-chg
   :straight t
