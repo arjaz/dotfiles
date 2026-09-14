@@ -205,7 +205,7 @@
   (auto-mode-case-fold nil)
   (read-process-output-max (* 1024 1024))
   (window-resize-pixelwise nil)
-  (cursor-in-nonselected-windows nil)
+  (cursor-in-non-selected-windows nil)
   (fast-but-imprecise-scrolling t)
   (redisplay-skip-fontification-on-input t)
   (tab-always-indent t)
