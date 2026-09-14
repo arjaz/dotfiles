@@ -23,22 +23,28 @@
 (tooltip-mode -1)
 (horizontal-scroll-bar-mode -1)
 
-(defvar bootstrap-version)
-(setq straight-check-for-modifications '(find-when-checking))
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(package-initialize)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/")
+             t)
+
+;; (defvar bootstrap-version)
+;; (setq straight-check-for-modifications '(find-when-checking))
+;; (let ((bootstrap-file
+;;        (expand-file-name
+;;         "straight/repos/straight.el/bootstrap.el"
+;;         (or (bound-and-true-p straight-base-dir)
+;;             user-emacs-directory)))
+;;       (bootstrap-version 7))
+;;   (unless (file-exists-p bootstrap-file)
+;;     (with-current-buffer
+;;         (url-retrieve-synchronously
+;;          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+;;          'silent 'inhibit-cookies)
+;;       (goto-char (point-max))
+;;       (eval-print-last-sexp)))
+;;   (load bootstrap-file nil 'nomessage))
+
 (defvar use-package-enable-imenu-support t)
 ;; (setq straight-use-package-by-default t)
 
@@ -47,12 +53,6 @@
 (use-package use-package-core
   :custom
   (use-package-hook-name-suffix nil))
-
-(use-package benchmark-init
-  :disabled
-  :straight t
-  :hook (after-init-hook . benchmark-init/deactivate)
-  :demand)
 
 (use-package savehist
   :custom
@@ -88,8 +88,10 @@
 (defvar the-font-weight)
 (defun set-fonts (font-height)
   (interactive "nFont height: ")
-  (setq the-font "Aporetic Sans Mono")
-  ;; (setq the-font "IoskeleyMono Nerd Font")
+  ;; (setq the-font "JetBrainsMono Nerd Font Mono")
+  ;; (setq the-font "Aporetic Sans Mono")
+  ;; (setq the-font "Iosevka Nerd Font Mono")
+  (setq the-font "IoskeleyMono Nerd Font")
   ;; (setq the-nice-font "Iosevka Aile")
   (setq the-nice-font "Aporetic Sans")
   (setq the-font-height font-height)
@@ -106,6 +108,14 @@
    `(variable-pitch
      ((t (:family ,the-nice-font :height ,the-font-height :weight ,the-font-weight :width ,the-font-width))))))
 (set-fonts 110)
+
+(defun increase-font ()
+  (interactive)
+  (set-fonts (+ the-font-height 10)))
+
+(defun decrease-font ()
+  (interactive)
+  (set-fonts (- the-font-height 10)))
 
 ;; (defun set-safe-composition-table ()
 ;;   (interactive)

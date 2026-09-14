@@ -13,7 +13,7 @@
 (use-package benchmark-init
   :disabled
   :straight t
-  :hook (after-init-hook . benchmark-init/deactivate)
+  ;; :hook (after-init-hook . benchmark-init/deactivate)
   :demand t)
 
 (advice-add #'display-startup-echo-area-message :override #'ignore)
@@ -259,6 +259,7 @@
   (after-init-hook . delete-selection-mode))
 
 (use-package compile
+  :defer t
   :custom
   (compilation-always-kill t)
   (compilation-scroll-output 'first-error)
@@ -269,7 +270,7 @@
   ("C-c r" . recompile))
 
 (use-package auth-source
-  :defer 0.2)
+  :defer t)
 
 (use-package replace
   :custom
@@ -354,7 +355,7 @@
   (frame-resize-pixelwise t)
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
-  (cursor-type 'box)
+  (cursor-type 'hbar)
   (blink-cursor-delay 1.5)
   :config
   (unbind-key (kbd "C-x C-z") 'global-map)
@@ -385,12 +386,13 @@
   (after-init-hook . pixel-scroll-precision-mode))
 
 (use-package cus-edit
-  :defer 3
+  :defer t
   :custom
   (custom-file (concat user-emacs-directory "garbage.el"))
-  :config
-  (when (file-exists-p custom-file)
-    (load custom-file nil 'nomessage)))
+  ;; :config
+  ;; (when (file-exists-p custom-file)
+  ;;   (load custom-file nil 'nomessage))
+  )
 
 (use-package autorevert
   :custom
@@ -501,7 +503,8 @@
   (dired-recursive-deletes 'top))
 
 (use-package multiple-cursors
-  :straight t
+  :disabled
+  :ensure t
   :bind
   (("C->" . mc/mark-next-lines)
    ("C-<" . mc/mark-previous-lines)
@@ -510,14 +513,14 @@
    ("C-M-<" . mc/mark-previous-like-this-symbol)
    :map mc/keymap
    ("<return>" .  nil))
-  :preface
-  (defun toggle-completion-preview-mode ()
-    (interactive)
-    (if completion-preview-mode
-        (completion-preview-mode -1)
-      (completion-preview-mode t)))
-  :hook
-  (multiple-cursors-mode-hook . toggle-completion-preview-mode)
+  ;; :preface
+  ;; (defun toggle-completion-preview-mode ()
+  ;;   (interactive)
+  ;;   (if completion-preview-mode
+  ;;       (completion-preview-mode -1)
+  ;;     (completion-preview-mode t)))
+  ;; :hook
+  ;; (multiple-cursors-mode-hook . toggle-completion-preview-mode)
   )
 
 (defun comment-really-dwim ()
@@ -559,7 +562,8 @@
     (interactive)
     (let ((query isearch-string))
       (isearch-exit)
-      (consult-ripgrep nil query)))
+      ;; (consult-ripgrep nil query)
+      (fff-consult-grep nil query)))
   :config
   (defvar search-recenter-context-lines 6)
   (defvar-local save-scroll-margin nil)
@@ -577,37 +581,25 @@
                 (kill-local-variable 'scroll-margin)))))
 
 (use-package undo-fu-session
-  ;; :disabled
-  :straight t
+  :ensure t
   :hook
   (after-init-hook . global-undo-fu-session-mode))
 
 (setq shell-file-name "zsh")
 
 (use-package ghostel
-  :straight
-  (ghostel
-   :files (:defaults "*.so" "etc")
-   :host github :repo "dakra/ghostel")
+  :ensure t
   :bind
   ("C-c o t" . ghostel)
-  ;; :custom
-  ;; (ghostel-shell "nu")
   :hook
-  (after-init-hook . ghostel-comint-global-mode)
-  (after-init-hook . ghostel-compile-global-mode))
-
-(use-package magit
-  :straight t
-  ;; :disabled
-  :bind
-  ("C-c o m" . magit-status)
+  (comint-mode-hook . ghostel-comint-mode)
+  :preface
+  (defun ghostel--ensure-compile (&rest _r)
+    (require 'ghostel)
+    (ghostel-compile-global-mode 1))
   :init
-  (add-to-list
-   'display-buffer-alist
-   '(("\\magit:" (display-buffer-same-window)))))
-
-;; (use-package git-link)
+  (dolist (cmd '(compile recompile project-compile))
+    (advice-add cmd :before #'ghostel--ensure-compile)))
 
 (column-number-mode)
 (size-indication-mode)
@@ -709,18 +701,30 @@
   (completion-pcm-leading-wildcard t))
 
 (use-package goto-chg
-  :straight t
+  :ensure t
   :bind
   ("C-," . goto-last-change)
   ("C-." . goto-last-change-reverse))
 
+(bind-key (kbd "M-g r") #'recentf)
+(add-hook 'kill-emacs-hook #'recentf-mode)
+
+;; What I care about
+;; - consult-ripgrep
+;; - consult-xref
+;; - consult-compile-error
+;; - consult-flymake
 (use-package consult
-  :straight t
+  ;; :disabled
+  :ensure t
   :custom
   (consult-line-start-from-top t)
   (consult-locate-args "plocate --ignore-case --existing --regexp")
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
+  (consult-async-input-debounce 0.05)
+  (consult-async-input-throttle 0.1)
+  (consult-async-refresh-delay 0.05)
   :preface
   (defun consult-flymake-project ()
     (interactive)
@@ -738,34 +742,36 @@
    ("M-g k"           . consult-global-mark)
    ("M-g f"           . consult-flymake-project)
    ("M-g o"           . consult-outline)
-   ("M-g r"           . recentf)
    ;; ("M-g r"           . consult-recent-file)
    ([remap imenu]     . consult-imenu)
    ("M-g M-i"         . consult-imenu-multi)
    ([remap goto-line] . consult-goto-line)
    ;; ([remap bookmark-jump] . consult-bookmark)
-   ([remap yank-pop] . consult-yank-pop))
-  :hook
-  (after-init-hook . recentf-mode))
+   ([remap yank-pop] . consult-yank-pop)))
+
+(use-package fff
+  :load-path "/home/arjaz/code/fff.el/"
+  :bind
+  ([remap project-find-file] . fff-find-file)
+  :custom
+  (fff-grep-mode 'fuzzy)
+  (fff-debounce 0.05))
+(use-package fff-consult
+  :load-path "/home/arjaz/code/fff.el/"
+  :bind
+  ("M-s r" . fff-consult-grep))
+(use-package fff-dumb-jump
+  :load-path "/home/arjaz/code/fff.el/"
+  :config
+  (fff-dumb-jump-setup))
 
 (use-package project
   :custom
   (project-vc-extra-root-markers
-   '("Cargo.toml" ".jj"))
-  ;; :bind
-  ;; ([remap project-compile] . arjaz-project-compile)
-  ;; :preface
-  ;; (defun arjaz-project-compile ()
-  ;;   "For some bizarre reason project-compile doesn't update the compile-command"
-  ;;   (interactive)
-  ;;   (let ((default-directory (project-root (project-current t))))
-  ;;     (call-interactively #'compile)))
-  )
+   '("Cargo.toml" ".jj")))
 
 (use-package majutsu
-  ;; :disabled
-  :straight
-  (:host github :repo "0WD0/majutsu" :files ("*.el"))
+  :vc (:url "https://github.com/0WD0/majutsu" :rev :newest)
   :bind
   ("C-c o j" . majutsu)
   :config
@@ -811,8 +817,10 @@
   :custom
   (bookmark-fringe-mark nil))
 
+;; TOOD: The only thing I need is export for consult-ripgrep
 (use-package embark
-  :straight t
+  ;; :disabled
+  :ensure t
   ;; :after vertico
   :custom
   (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
@@ -843,7 +851,9 @@
    ))
 
 (use-package embark-consult
-  :straight t)
+  ;; :disabled
+  :ensure t
+  :after embark)
 
 (use-package c-ts-mode
   ;; :disabled
@@ -859,7 +869,8 @@
                ((parent-is "argument_list")
                 parent-bol c-ts-indent-offset))
              (alist-get lang treesit-simple-indent-rules)))))
-  :demand
+  :mode "\\.c\\'"
+  :mode "\\.h\\'"
   :hook
   (c-ts-mode-hook . c-ts-mode-setup)
   (c++-ts-mode-hook . c-ts-mode-setup)
@@ -876,34 +887,17 @@
   :custom
   (completion-preview-minimum-symbol-length 2)
   :bind
+  ;; TODO: rethink the keybindings
   (:map completion-preview-active-mode-map
         ("TAB" . nil)
         ("M-i" . nil)
-        ("C-'" . completion-preview-insert))
-  :config
-  (custom-set-faces
-   '(completion-preview
-     ((t :inherit shadow)))
-   '(completion-preview-common
-     ((t :inherit completion-preview)))
-   '(completion-preview-exact
-     ((t :inherit completion-preview)))
-   '(completion-preview-highlight
-     ((t :inherit completion-preview))))
-  ;; (setq completion-preview-active-mode-map
-  ;;       (let ((m (make-sparse-keymap)))
-  ;;         (bind-keys
-  ;;          :map m
-  ;;          ("C-'" . completion-preview-insert))
-  ;;         m))
-  )
-
+        ("M-n" . completion-preview-next-candidate)
+        ("M-p" . completion-preview-prev-candidate)
+        ("M-'" . completion-preview-insert)
+        ("C-'" . completion-preview-complete)))
 
 (use-package cape
-  :straight
-  (:host github
-         :repo "minad/cape"
-         :files ("*.el" "extensions/*.el"))
+  :ensure t
   :bind
   ("C-<tab>" . cape-dabbrev))
 
@@ -921,7 +915,7 @@
 (add-hook 'prog-mode-hook 'capf-setup)
 
 (use-package dumb-jump
-  :straight t
+  :vc (:url "https://github.com/jacktasia/dumb-jump" :rev :newest)
   :hook
   (xref-backend-functions . dumb-jump-xref-activate)
   :custom
@@ -1070,6 +1064,7 @@
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 (use-package flymake
+  :defer t
   :config
   (setq
    flymake-fringe-indicator-position nil
@@ -1090,9 +1085,12 @@
   (advice-add 'flymake--highlight-line :filter-return #'flymake-no-before-string))
 
 (use-package xref
+  :defer t
   :custom
-  (xref-after-jump-hook '(recenter))
-  (xref-after-return-hook '()))
+  (xref-search-program 'ripgrep)
+  ;; (xref-after-jump-hook '(recenter))
+  ;; (xref-after-return-hook '())
+  )
 
 (setq xref-prompt-for-identifier
       '(not xref-find-references
@@ -1101,6 +1099,7 @@
             xref-find-definitions-other-frame))
 
 (use-package dape
+  :disabled
   :straight
   (:host github :repo "svaante/dape")
   :commands (dape)
@@ -1116,6 +1115,7 @@
   (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line))
 
 (use-package sly
+  :disabled
   :straight t
   :defer t
   :custom
@@ -1130,69 +1130,22 @@
   :config
   (setq-default sly-symbol-completion-mode nil))
 
-(use-package cider
-  :straight t
-  :disabled
-  :defer t
-  :custom
-  (cider-repl-display-help-banner nil)
-  (cider-enrich-classpath t)
-  :bind
-  (:map cider-mode-map
-        ("C-c M-c" . cider-debug-defun-at-point)))
-
-(use-package nasm-mode
-  :straight t
-  :disabled
-  :defer t)
-
-(use-package graphql-ts-mode
-  :straight t
-  :disabled
-  :after treesit
-  :config
-  (add-to-list
-   'treesit-language-source-alist
-   '(graphql "https://github.com/bkegley/tree-sitter-graphql"))
-  :defer t)
-
-(use-package nginx-mode
-  :straight t
-  :defer t)
-
 (use-package glsl-mode
-  :straight t)
+  :disabled
+  :straight t
+  :defer t)
+
+(use-package odin-mode
+  :disabled
+  :straight
+  (:host github :repo "mattt-b/odin-mode")
+  :defer t)
 
 (use-package zig-mode
-  :straight t
+  ;; :disabled
+  :ensure t
   ;; (:host codeberg :repo "meow_king/zig-ts-mode")
   :defer t)
-
-(use-package glsl-mode
-  :straight t
-  :disabled
-  :defer t)
-
-(use-package elixir-mode
-  :straight t
-  :defer t
-  :mode ("\\.heex\\'" . heex-ts-mode))
-
-(let ((p (concat
-          "/usr/lib/erlang/lib/"
-          (seq-find
-           (lambda (file) (string-prefix-p "tools" file))
-           (directory-files "/usr/lib/erlang/lib/"))
-          "/emacs")))
-  (when (file-exists-p p)
-    (add-to-list 'load-path p)
-    (use-package erlang-start
-      :defer t
-      :mode ("\\.erl\\'" . erlang-mode)
-      :custom
-      (erlang-root-dir "/usr/lib/erlang/")
-      (exec-path (cons "/usr/lib/erlang/bin" exec-path))
-      (erlang-man-root-dir "/usr/lib/erlang/man"))))
 
 (use-package treesit
   :defer t
@@ -1206,8 +1159,7 @@
   :defer t)
 
 (use-package ligature
-  ;; :disabled
-  :straight (:host github :repo "mickeynp/ligature.el")
+  :ensure t
   :hook
   (after-init-hook . global-ligature-mode)
   :config
@@ -1235,7 +1187,8 @@
      )))
 
 (use-package apheleia
-  :straight t
+  :disabled
+  :ensure t
   :hook
   ((clojure-mode-hook
     haskell-ts-mode-hook
@@ -1255,7 +1208,7 @@
     go-ts-mode-hook
     zig-mode-hook
     zig-ts-mode-hook)
-   . apheleia-mode) )
+   . apheleia-mode))
 
 (provide 'init)
 ;;; init.el ends here
